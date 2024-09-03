@@ -12,8 +12,8 @@ import pandas as pd
 from call_or import *
 
 
-# model = "llama3.1:8b-instruct-fp16" 
-model = "llama3.1"
+model = "llama3.1:8b-instruct-fp16" 
+# model = "llama3.1"
 # model = 'stablelm-zephyr' 
 
 # parser = argparse.ArgumentParser()
@@ -27,8 +27,8 @@ model = "llama3.1"
 # simple case: How many types of event in the menu table?
 prep_learning = """
 Here is a python script calling OpenRefine API to do the data cleaning, multiple functions/transformations are defined. 
-Python code:
 
+<|python_tag|>
 class RefineProject:
     def text_transform(project_id, column, expression):
         '''
@@ -425,8 +425,10 @@ if __name__ == "__main__":
     log_f = open("CoT.response/llm_dcw.txt", "w")
     # fpath = "data.in/menu_llm.csv"
     ops = [] # operation history 
-    project_id = 2681949500112    
-    df_init = export_intermediate_tb(project_id)
+    # TODO
+    # project_id = 2681949500112    
+    # df_init = export_intermediate_tb(project_id)
+    df_init = pd.read_csv('data.in/menu_llm.csv')
     prompt_init = dc_obj + f""" intermediate table:{df_init} """\
                       + __eod
                             # + exp_in_out \

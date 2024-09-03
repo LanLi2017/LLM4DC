@@ -1,0 +1,32 @@
+To answer the question, we can first use add_column() to add more columns by applying transformations.
+
+The required arguments for add_column() include: new_column, expression. With expression defined, the new column could be based on copying pasting the original value from the base column, or using transformation to process and 
+append values to new column. The simplest way to use this operation is simply leave the default {{value}} in the expression field, to create an exact copy of your column.
+
+One useful expression is to create a column based on concatenating (merging) two other columns. Use the following format in the expression window:
+cells["Column 1"].value + cells["Column 2"].value
+If your column names do not contain spaces, you can use the following format instead:
+cells.Column1.value + cells.Column2.value
+
+/*
+col : week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
+row 1 : 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
+row 2 : 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 | waldstadion | 34,186
+row 3 : 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
+*/
+Purpose: Return top 5 competitions that have the most attendance.
+The existing columns are: "week", "when", "kickoff", "opponent", "results; final score", "results; team record", "game site", "attendance".
+Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
+Therefore, the answer is: add_column(column="attendance", expression="value", new_column="attendance number"). The value: 32,092 | 34,186 | 17,503
+
+
+/*
+col : rank | lane | player name| country | time
+row 1 :  | 5 | olga tereshkova |  kaz    | 51.86
+row 2 :  | 6 | manjeet kaur    |  ind    | 52.17
+row 3 :  | 3 | asami tanno     |  jpn    | 53.04
+*/
+Purpose: return the player information, including both name and country 
+The existing columns are: rank, lane, player, time.
+Explanation: We add a new column based on concatenating the value from column "player name" and "country" for each row.
+Therefore, the answer is: add_column(column="player name", expression="cells['player name'].value+ "-"+ cells['country'].value", new_column="player"). The value: olga tereshkova-kaz | manjeet kaur-ind | asami tanno-jpn

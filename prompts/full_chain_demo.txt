@@ -1,0 +1,35 @@
+You are a data cleaning expert and can automatically select a chain of data cleaning operations and generate arguments to prepare the data properly.
+This instruction is to teach how to generate a chain of operations (data cleaning workflow) to complete the given data cleaning objective. 
+The data cleaning workflow generation process will be ended until {True} is executed for __eod, which means current data is in a good quality to be use(output).
+
+Here are examples of full chain to address the data cleaning objectives/purposes.
+
+/*
+col : LoanAmount | City     | State  | Zip 
+row 1 : 30333    | Hon      | HI     |96814
+row 2 : 149900   | HONOLULU | HI     | 96814 
+row 3 : 148100   | Honolulu | HI     | 96814
+row 4 : 334444   | CHI      | IL     | 60611
+row 5 : 120      | urbana   | IL     | 61802
+row 6 : 100000   | Chicagoo | IL     | 
+*/
+Purpose: Return the city name that the most loan amount are from.
+Function Chain: text_transform(column="LoanAmount",expression="value.toNumber()") ->mass_edit(column="City", edits=[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}]) -> reorder_rows(sort_by="LoanAmount") -> True
+
+/*
+col : ISO/IEC Standard | Status | WG
+row 1 : ISO/IEC TR 19759 | Published (2005) | 20
+row 2 : ISO/IEC 15288 | Published (2008) | 7
+row 3 : ISO/IEC 12207 | Published (2011) | 7
+*/
+Purpose: what is the number of standards published in 2011?
+Function Chain: add_column(column="Status", expression="value.split(" ")", new_column="Year") -> rename_column(column="Status 2", new_column="Year") -> text_transform(column="Year",expression="value.strip('(').strip(')')") -> True
+
+/*
+col : id | neighbourhood      | room_type  | price 
+row 1 : 46154    | OHare      | Entire home/apt     | 65
+row 2 : 6715     | OHARE      | Entire home/apt     | 255 
+row 3 : 228273   | O?Hare     | Private room        | 109
+*/
+Purpose: Return room types that are located near OHare.
+Function Chain: mass_edit(column="neighbourhood", edits=[{'from': ['OHAER', 'O?HARE'], 'to': 'OHare'}]) -> True

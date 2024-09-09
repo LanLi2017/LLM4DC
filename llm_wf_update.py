@@ -304,16 +304,9 @@ def gen(prompt, context, log_f, temp=0):
 
 def chunk_return(text):
     # Only capture the final conclusions. 
-    print(f'The paragraph: {text}')
-    match = re.search(r'\breturn\s+(True|False)', text)
+    results = re.findall(r'\b(True|False)\b', text)
+    return results[-1]
 
-    # Print the captured keyword if found
-    if match:
-        res = match.group(1)
-        print("Captured keyword:", match.group(1))
-        return res
-    else:
-        print("Keyword not found or is not 'True' or 'False'.")
 
 if __name__ == "__main__":
     # Define EOD: End of Data Cleaning
@@ -452,11 +445,11 @@ if __name__ == "__main__":
         # prompt_sel_col += f"""Available columns for chosen: {av_cols}.
         #                      TASK I: Step by step, Return one relevant column name(string) based on {{Data cleaning objective}} ONLY.
         #                      Example Return: column 1 """
-        context, sel_col = generate(prompt_sel_col, context, log_f)
+        context, sel_col = gen(prompt_sel_col, context, log_f)
         print(sel_col)
         while sel_col not in av_cols:
             prompt_regen = f"""The selected columns are not in {av_cols}. Please regenerate column name for TASK I."""
-            context, sel_col = generate(prompt_regen, context, log_f)
+            context, sel_col = gen(prompt_regen, context, log_f)
 
         # TASK II: select operations
          
@@ -482,14 +475,14 @@ if __name__ == "__main__":
                            Step by step, return ONLY one selected function name from Functions Pool of RefineProject. <|end_of_text|>"""
         
         func_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
-        context, sel_op = generate(prompt_sel_ops, context, log_f)
+        context, sel_op = gen(prompt_sel_ops, context, log_f)
         print(sel_op)
         print(f"selected function is {sel_op}")
         sel_op = sel_op.strip('`')
         
         while sel_op not in func_pool:
             prompt_regen = f"""The selected function is not found in {functions_list}. Please regenerate function name for TASK II."""
-            context, sel_op = generate(prompt_regen, context, log_f)
+            context, sel_op = gen(prompt_regen, context, log_f)
             sel_op = sel_op.strip('`')
         # TASK III: Learn function arguments (share the same context with sel_op)
         args = get_function_arguments('call_or.py', sel_op)
@@ -511,7 +504,7 @@ if __name__ == "__main__":
                                 column SHOULD BE {sel_col}. What's the separator?
                                 ONLY generate value for {{separator}}. <|end_of_text|>
                                 """
-            context, sep = generate(prompt_sel_args, context, log_f)
+            context, sep = gen(prompt_sel_args, context, log_f)
             sel_args= {'column':sel_col, 'separator':sep}
             split_column(project_id, **sel_args)
         elif sel_op == 'add_column':
@@ -522,11 +515,11 @@ if __name__ == "__main__":
                                 Return format: A dictionary of expression and new_column.
                                 No explanations. <|end_of_text|>
                                 """
-            context, res_dict = generate(prompt_sel_args, context, log_f)
+            context, res_dict = gen(prompt_sel_args, context, log_f)
             while not isinstance(res_dict, dict):
                 prompt_sel_args += f"""Return format is incorrect, it should be a dictionary, keys: expression and new_column,
                                        Please regenerate the correct values for the provided keys. <|end_of_text|>"""
-                context, res_dict = generate(prompt_sel_args, context, log_f)
+                context, res_dict = gen(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col}.update(res_dict) 
             add_column(project_id, **sel_args)
         elif sel_op == 'rename_column':
@@ -535,7 +528,7 @@ if __name__ == "__main__":
                                 column SHOULD BE {sel_col}. What's the new_column?
                                 ONLY generate value for new_column. <|end_of_text|>
                                 """
-            context, new_col = generate(prompt_sel_args, context, log_f)
+            context, new_col = gen(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'new_column': new_col}
             rename_column(project_id, **sel_args)
         elif sel_op == 'text_transform':
@@ -545,12 +538,12 @@ if __name__ == "__main__":
                                 column SHOULD BE {sel_col}. What's the expression?
                                 ONLY generate python code for expression. <|end_of_text|>
                                 """
-            context, exp = generate(prompt_sel_args, context, log_f)
+            context, exp = gen(prompt_sel_args, context, log_f)
             format_exp = extract_exp(exp)
             print(format_exp)
             while format_exp is False:
                 print('regenerate....')
-                context, exp = generate(prompt_sel_args, context, log_f)
+                context, exp = gen(prompt_sel_args, context, log_f)
                 format_exp = extract_exp(exp)
                 print('end')
             sel_args = {'column': sel_col, 'expression': f"{format_exp}"}
@@ -561,7 +554,7 @@ if __name__ == "__main__":
                                 column SHOULD BE {sel_col}. What's the edits?
                                 ONLY generate value for the edits. <|end_of_text|>
                                 """
-            context, edits = generate(prompt_sel_args, context, log_f)
+            context, edits = gen(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'edits': edits}
             mass_edit(project_id, **sel_args)
         elif sel_op == 'remove_column':
@@ -577,7 +570,7 @@ if __name__ == "__main__":
                                 Sort by which column?
                                 ONLY generate value for sort_by. <|end_of_text|>
                                 """
-            context, sort_col = generate(prompt_sel_args, context, log_f)
+            context, sort_col = gen(prompt_sel_args, context, log_f)
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
        
@@ -598,7 +591,7 @@ if __name__ == "__main__":
         prompt_changes = prompt_init_prov + changes + __op
         # delete sel_args_learn
         # EOD Flag I: Does the selected function perform correctly on the dataset?
-        context, eod_flag1 = generate(prompt_changes, [], log_f)
+        context, eod_flag1 = gen(prompt_changes, [], log_f)
         print(f"LLMs believe the function is correctly applied: {eod_flag1}")
         
         # TODO: if False, revert function re-generate 
@@ -609,7 +602,7 @@ if __name__ == "__main__":
                       + __eod + + """<|end_of_text|>"""
                             # + exp_in_out \
    
-        context, eod_flag2 = generate(iter_prompt, [], log_f)
+        context, eod_flag2 = gen(iter_prompt, [], log_f)
         print(f'LLMs believe current table is good enough to address objectives: {eod_flag2}')
         eod_flag = eod_flag1 and eod_flag2
         print(eod_flag)

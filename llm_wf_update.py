@@ -11,8 +11,12 @@ import pandas as pd
 # from history_update_problem.call_or import export_rows
 from call_or import *
 
+import ollama
+from ollama import Client
+from ollama import generate
 
 model = "llama3.1:8b-instruct-fp16" 
+# ollama.pull(model)
 # model = "llama3.1"
 # model = 'stablelm-zephyr' 
 
@@ -26,8 +30,6 @@ model = "llama3.1:8b-instruct-fp16"
 #     help="temperature of 0 implies greedy sampling.")
 # simple case: How many types of event in the menu table?
 prep_learning = """
-Here is a python script calling OpenRefine API to do the data cleaning, multiple functions/transformations are defined. 
-
 <|python_tag|>
 class RefineProject:
     def text_transform(project_id, column, expression):
@@ -113,7 +115,7 @@ class RefineProject:
     def reorder_rows(project_id, sort_by=None):
         ''' reorder_rows if need to the results need to be retrieved through some order. e.g., what's the most/least/top N occurred (frequency)
         species' names.
-        Example: reorder_rows(project_id, 'frequency')
+        Example: reorder_rows(project_id, 'frequency'): sort the rows in project_id according to frequency
         if sort_by is not None:
             self.sorting = Sorting(sort_by)
         response = self.do_json('reorder-rows', {'sorting': self.sorting.as_json()})
@@ -146,6 +148,7 @@ row 6 : CARD; ILLUS; 6 x 9.75 in.        | 6 x 9.75          | inches
 row 7 : Booklet; 8.25 x 11.5 inches      | 8.25 x 11.5       | inches
 */
 """
+
 map_ops_func = {
 "core/column-split": split_column,
 "core/column-addition": add_column,
@@ -283,46 +286,34 @@ def diff_check(func_name, old_df, new_df, target_col):
          return prompt_changes
 
 
-def generate(prompt, context, log_f, temp=0):
-    """
-    Send a POST request to generate a response based on the provided prompt and context.
-
-    Parameters:
-        prompt (str): The input prompt for the generation.
-        context (str): The context to be used for the generation.
-        model (str): The model to be used for the generation. Defaults to 'default-model'.
-
-    Returns:
-        str: The context from the response if generation is done.
-
-    Raises:
-        Exception: If there is an error in the response.
-    """
-    r = requests.post('http://localhost:11434/api/generate',
-                      json={
-                          'model': model,
-                          'prompt': prompt,
-                          'context': context,
-                          'options':{'temperature': temp}
-                      },
-                      stream=True)
-    r.raise_for_status()
-    
-    res = []
-    for line in r.iter_lines():
-        body = json.loads(line)
-        response_part = body.get('response', '')
-        # the response streams one token at a time, print that as we receive it
-        # print(response_part, end='', flush=True)
-        res.append(response_part)
+def gen(prompt, context, log_f, temp=0):
+    r = generate(model=model, 
+                 prompt=prompt, 
+                 context=context,
+                 options={'temperature': temp},
+                stream=True
+                )
+    res=[]
+    for part in r:
+        response_part = part['response']
         log_f.write(response_part)
+        res.append(response_part)
 
-        if 'error' in body:
-            raise Exception(body['error'])
+        if part['done'] is True:
+            return part['context'], ''.join(res)
 
-        if body.get('done', False):
-            return body['context'], ''.join(res)
-        
+def chunk_return(text):
+    # Only capture the final conclusions. 
+    print(f'The paragraph: {text}')
+    match = re.search(r'\breturn\s+(True|False)', text)
+
+    # Print the captured keyword if found
+    if match:
+        res = match.group(1)
+        print("Captured keyword:", match.group(1))
+        return res
+    else:
+        print("Keyword not found or is not 'True' or 'False'.")
 
 if __name__ == "__main__":
     # Define EOD: End of Data Cleaning
@@ -342,7 +333,8 @@ if __name__ == "__main__":
             - **relavance**: Whether it includes essential variables (target columns) to address the objectives.
             - **completeness**: Whether it has a reasonable sample size and contains enough data instances (not too many missing values)
             - **duplicates**: Whether the spellings are standardized, no same semantics but different representations exist
-            Return "False" as long as you are suspecious or unsure about the assessment results. No EXPLANATIONS.
+            (4) Return True or False according to results from (3), IF ONLY you are sure or return "True" for all dimensions: accuracy, relavance, completeness, and 
+            duplicates, you would return True. Otherwise, you SHOULD summarize the conclusion as "False".
              """
     # TODO: ...give specific function failed example for evaluation check 
     __failed_op = """
@@ -401,6 +393,7 @@ if __name__ == "__main__":
             Provided actual changes caused by this function,please refer to Failed examples to check whether it is correctly applied on the dataset. 
             The answer is important and you should be **strict** with the changes by function. 
             You CAN ONLY return True if the changes strongly show that new values are better than the old values.Otherwise, Return False.
+            <|end_of_text|>
             """
     # Compare with using example in and out
     # __eod_exp = """ 
@@ -425,16 +418,17 @@ if __name__ == "__main__":
     log_f = open("CoT.response/llm_dcw.txt", "w")
     # fpath = "data.in/menu_llm.csv"
     ops = [] # operation history 
-    # TODO
-    # project_id = 2681949500112    
-    # df_init = export_intermediate_tb(project_id)
-    df_init = pd.read_csv('data.in/menu_llm.csv')
-    prompt_init = dc_obj + f""" intermediate table:{df_init} """\
-                      + __eod
+    project_id = 2334363766799  
+    df_init = export_intermediate_tb(project_id)
+    print("this is the dataset:")
+    print(df_init)
+    # df_init = pd.read_csv('data.in/menu_llm.csv')
+    prompt_init = """<|begin_of_text|>""" + dc_obj + f""" intermediate table:{df_init} """\
+                      + __eod + """<|end_of_text|>"""
                             # + exp_in_out \
    
-    context, eod_flag = generate(prompt_init, [], log_f)
-    print('======')
+    context, eod_desc = gen(prompt_init, [], log_f)
+    eod_flag = chunk_return(eod_desc)
     print(eod_flag)
 
     while eod_flag == "False":
@@ -448,13 +442,13 @@ if __name__ == "__main__":
         # TASK I: select target column(s)
         with open("prompts/f_select_column.txt", 'r')as f:
             sel_col_learn = f.read()
-        prompt_sel_col = "Learn how to select column based on given question:\n" + sel_col_learn
+        prompt_sel_col = "<|begin_of_text|> Learn how to select column based on given question:\n" + sel_col_learn
         sel_col_tb = format_sel_col(df)
         prompt_sel_col += "Table input:\n" + json.dumps(sel_col_tb)
         prompt_sel_col += f"Data cleaning objective: {dc_obj}"
         prompt_sel_col += f"""Available columns for chosen: {av_cols}.
                              TASK I: Step by step, Return one relevant column name(string) based on {{Data cleaning objective}} ONLY. NO EXPLANATIONS.
-                             Example Return: column 1 """
+                             Example Return: column 1 <|end_of_text|>"""
         # prompt_sel_col += f"""Available columns for chosen: {av_cols}.
         #                      TASK I: Step by step, Return one relevant column name(string) based on {{Data cleaning objective}} ONLY.
         #                      Example Return: column 1 """
@@ -466,7 +460,7 @@ if __name__ == "__main__":
 
         # TASK II: select operations
          
-        prompt_sel_ops = """You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format
+        prompt_sel_ops = """<|begin_of_text|> You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format
                 and correct semantics. Available data cleaning functions include split_column (add more columns by splitting original composite values), 
                 add_column (add new column), text_transform (apply expression to transform data), mass_edit (standardize data by replacing old values with new values), 
                 rename_column (give more meaningful column names), remove_column."""+\
@@ -485,7 +479,7 @@ if __name__ == "__main__":
         #                    This task is to make the data in a good quality that fit for {{Data cleaning purpose}}."""
         prompt_sel_ops += """
                            Functions pool: split_column, add_column, text_transform, mass_edit, rename_column, remove_column.
-                           Step by step, return ONLY one selected function name from Functions Pool of RefineProject."""
+                           Step by step, return ONLY one selected function name from Functions Pool of RefineProject. <|end_of_text|>"""
         
         func_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
         context, sel_op = generate(prompt_sel_ops, context, log_f)
@@ -501,7 +495,7 @@ if __name__ == "__main__":
         args = get_function_arguments('call_or.py', sel_op)
         args.remove('project_id')  # No need to predict project_id
         args.remove('column')
-        prompt_sel_args = f"""Next predicted function is {sel_op}"""
+        prompt_sel_args = f"""<|begin_of_text|> Next predicted function is {sel_op}"""
         # prompt_sel_args += f"Sample first 30 rows from the Intermediate Table: {gen_table_str(df)} \n"
         with open(f'prompts/{sel_op}.txt', 'r') as f1:
             sel_args_learn = f1.read()
@@ -515,7 +509,7 @@ if __name__ == "__main__":
             prompt_sel_args += f"""
                                 Therefore, the answer is: split_column(column=, separator=?).
                                 column SHOULD BE {sel_col}. What's the separator?
-                                ONLY generate value for {{separator}}. 
+                                ONLY generate value for {{separator}}. <|end_of_text|>
                                 """
             context, sep = generate(prompt_sel_args, context, log_f)
             sel_args= {'column':sel_col, 'separator':sep}
@@ -526,12 +520,12 @@ if __name__ == "__main__":
                                 Therefore, the answer is: add_column(column=, expression=?, new_column=? ).
                                 column SHOULD BE {sel_col}. 
                                 Return format: A dictionary of expression and new_column.
-                                No explanations.
+                                No explanations. <|end_of_text|>
                                 """
             context, res_dict = generate(prompt_sel_args, context, log_f)
             while not isinstance(res_dict, dict):
                 prompt_sel_args += f"""Return format is incorrect, it should be a dictionary, keys: expression and new_column,
-                                       Please regenerate the correct values for the provided keys."""
+                                       Please regenerate the correct values for the provided keys. <|end_of_text|>"""
                 context, res_dict = generate(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col}.update(res_dict) 
             add_column(project_id, **sel_args)
@@ -539,7 +533,7 @@ if __name__ == "__main__":
             prompt_sel_args += f"""
                                 Therefore, the answer is: rename_column(column=, new_column=?).
                                 column SHOULD BE {sel_col}. What's the new_column?
-                                ONLY generate value for new_column. 
+                                ONLY generate value for new_column. <|end_of_text|>
                                 """
             context, new_col = generate(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'new_column': new_col}
@@ -549,7 +543,7 @@ if __name__ == "__main__":
             prompt_sel_args += f"""
                                 Therefore, the answer is: text_transform(column=,expression=?). 
                                 column SHOULD BE {sel_col}. What's the expression?
-                                ONLY generate python code for expression.
+                                ONLY generate python code for expression. <|end_of_text|>
                                 """
             context, exp = generate(prompt_sel_args, context, log_f)
             format_exp = extract_exp(exp)
@@ -565,7 +559,7 @@ if __name__ == "__main__":
             prompt_sel_args += f"""
                                 Therefore, the answer is: mass_edit(column=, edits=[?]).
                                 column SHOULD BE {sel_col}. What's the edits?
-                                ONLY generate value for the edits. 
+                                ONLY generate value for the edits. <|end_of_text|>
                                 """
             context, edits = generate(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'edits': edits}
@@ -573,7 +567,7 @@ if __name__ == "__main__":
         elif sel_op == 'remove_column':
             prompt_sel_args += f"""
                                 Therefore, the answer is: remove_column(column=).
-                                column SHOULD BE {sel_col}. 
+                                column SHOULD BE {sel_col}.  <|end_of_text|>
                                 """
             sel_args = {'column': sel_col}
             remove_column(project_id, **sel_args)
@@ -581,7 +575,7 @@ if __name__ == "__main__":
             prompt_sel_args += f"""
                                 Therefore, the answer is: reorder_rows(sort_by=?).
                                 Sort by which column?
-                                ONLY generate value for sort_by. 
+                                ONLY generate value for sort_by. <|end_of_text|>
                                 """
             context, sort_col = generate(prompt_sel_args, context, log_f)
             sel_args = {'sort_by': sort_col}
@@ -593,7 +587,7 @@ if __name__ == "__main__":
         
         # Re-execute intermediate table
         cur_df = export_intermediate_tb(project_id)
-        prompt_init_prov = f""" Understanding how the selected function and arguments perform on the dataset is important
+        prompt_init_prov = f""" <|begin_of_text|> Understanding how the selected function and arguments perform on the dataset is important
                             for we will understand how the changes applied by the function and whether this function improve the
                             data quality to meet cleaning objectives. 
                             """
@@ -611,8 +605,8 @@ if __name__ == "__main__":
 
         # TASK V:
         # Keep passing intermediate table and data cleaning objective, until eod_flag is True. End the iteration.
-        iter_prompt = prompt_full_chain + dc_obj + f""" intermediate table:{cur_df} """\
-                      + __eod
+        iter_prompt = + """<|begin_of_text|>""" + prompt_full_chain + dc_obj + f""" intermediate table:{cur_df} """\
+                      + __eod + + """<|end_of_text|>"""
                             # + exp_in_out \
    
         context, eod_flag2 = generate(iter_prompt, [], log_f)

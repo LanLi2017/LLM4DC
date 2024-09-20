@@ -1,13 +1,13 @@
-Use text_transform() to apply transformations and update the cell values in a target column
-with user-defined {{expression}} written in Python, and it starts with "jython:". 
+text_transform() is the OpenRefine operation to apply transformations and update the cell values in a target column. 
+text_transform() contains two arguments: **column** and **expression**. Given the selected **column**, the task is to write the **expression** in Python code based on the data cleaning purpose, rationale, . The output should always starts "jyphon:".
+You are provided a input tabe, data cleaning objective and selected column. Your task is to write the python scripts for arguments expression of text_transform()
 
-Therefore, it is significant to implement a proper python code as {{expression}} to process data. 
-There are several important features while generating the {{expression}}:
-(1). "value" is the argument name for cell values in the target column;
+Here are several important features of arguments **expression**:
+(1). "value" is a special tag referring to cell values in the target column;
 (2). use format: cells[column 1]["value"] to refer to cell values in column "column 1".
-(3). all the python code should end with "return" statement. 
+(3). all the code should end with "return" statement. 
 
-In the following, we have some examples of how to implement expression in python.
+In the following, we have some examples of how to write Python expression for text_transform() operation.
 
 /*
 col : code | county | former province | area (km2) | population; census 2009 | capital
@@ -16,7 +16,6 @@ row 2 : 2 | kwale | coast | 8,270.3 | 649,931 | kwale
 row 3 : 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
 */
 Purpose: Figure out the place that has a population in 2009 higher than 500,000.
-Rationale: cell values in column "population; census 2009" should be transformed in to numerical type
 Arguments: column: "population; census 2009", expression: "jython: return int(value)"
 Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
 Output: 939370 | 649311 | 1109735
@@ -28,7 +27,6 @@ row 2 : 2 | Kwale | coast | 8,270.3 | 649,931 | kwale
 row 3 : 3 | KILIFI| coast | 12,245.9 | 1,109,735 | kilifi
 */
 Purpose: Figure out how many counties are recorded in total.
-Rationale: cell values in column county are in different formats required to be normalized.
 Arguments: column: county, expression: "jython: return value.upper()"
 Explanation: For expression:"jython: return value.upper()", value is the cell values in the target column "county", value.upper() can transform value into uppercase format.
 Output: MOMBASA | KWALE | KILIFI
@@ -40,8 +38,7 @@ row 2 : 15365 | Entire home/apt | 8/12/18 | 0.81
 row 3 : 17928 | Entire home/apt| 10/29/18 |  2.81
 */
 Purpose: Figure out which month in 2018 got the hightest last review.
-Rationale: cell values in column last_review should be date format
-Arguments: column:last_review, expression: "jython: from datetime import datetime\ndate_obj = datetime.strptime(value, "%m/%d/%y")\nformatted_date = date_obj.strftime("%Y-%m-%d")\nreturn formatted_date"
+Arguments: column:last_review, experession: "jython: from datetime import datetime\ndate_obj = datetime.strptime(value, "%m/%d/%y")\nformatted_date = date_obj.strftime("%Y-%m-%d")\nreturn formatted_date"
 Explanation: use datetime to parse the "value" in the target column last_review from  "%m/%d/%y" to "%Y-%m-%d", and then return the formatted_date
 Output: 2018-11-12 | 2018-08-12 | 2018-10-29
 
@@ -53,7 +50,7 @@ row 2 : 1992 | World Junior Championships | Seoul, South Korea | 1st | 5.45 m
 row 3 : 1996 | European Indoor Championships | Stockholm, Sweden | 14th (q) | 5.45 m
 */
 Purpose: who places 1st in 1991 or 1992
-Rationale: use regular expression to extract number from cell values in Position
 Arguments: column: Position, expression: "jython:import re\n pattern = re.compile(r'^\d+')\nmatch = pattern.match(value)\nif match:\n  value = match.group(0)\n  return value"
 Explanation: find all the matching cells in "value" (target column Position) with the regular expression r'^\d+', and then use group(0) to capture the number only.
 Output: 10 | 1 | 14
+

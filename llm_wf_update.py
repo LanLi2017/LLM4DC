@@ -19,8 +19,116 @@ model = "llama3.1:8b-instruct-fp16"
 # ollama.pull(model)
 # model = "llama3.1"
 
-#TODO: demo/dynamic planning for operation prediction 
-prep_learning = """
+
+dynamic_plan = """
+
+plan_split_column_demo = '''
+If the table have the needed column but does not have the exact cell values to answer the question. In other words, the cell values from the column 
+comprise the values to answer the question, we use split_column() to decompose the column for it. For example,
+/*
+col : Week | When | Kickoff | Opponent | Results; Final score | Results; Team record | Game site | Attendance
+row 1 : 1 | Saturday, April 13 | 7:00 p.m. | at Rhein Fire | W 27–21 | 1–0 | Rheinstadion | 32,092
+row 2 : 2 | Saturday, April 20 | 7:00 p.m. | London Monarchs | W 37–3 | 2–0 | Waldstadion | 34,186
+row 3 : 3 | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 | 3–0 | Estadi Olímpic de Montjuïc | 17,503
+*/
+Purpose: what is the date of the competition with highest attendance?
+Arguments: column: "When", separator: ","
+Explanation: The question asks about the date of the competition with highest score. Each row is about one competition. We split the value from column "When" with separator ",", and create two new columns.
+Output: April 13 | April 20 | April 28
+
+'''
+plan_add_column_demo = 
+'''
+If the table does not have the needed column to answer the question, we use add_column() to add a new column for it. For example,
+/*
+col : week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
+row 1 : 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
+row 2 : 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 | waldstadion | 34,186
+row 3 : 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
+*/
+Purpose: Return top 5 competitions that have the most attendance.
+Arguments: column: "attendance", expression: "value", new_column: "attendance number"
+Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
+Output: 32,092 | 34,186 | 17,503
+'''
+
+plan_rename_column_demo = 
+'''
+If the table does not have the related column name to answer the question, we use rename_column() to find the most related column and rename the column with new, and more meaningful name. For example,
+/*
+col : Code | County | Former Province | Area (km2) | Population; Census 2009 | Capital
+row 1 : 1 | Mombasa | Coast | 212.5 | 939,370 | Mombasa (City)
+row 2 : 2 | Kwale | Coast | 8,270.3 | 649,931 | Kwale
+row 3 : 3 | Kilifi | Coast | 12,245.9 | 1,109,735 | Kilifi
+*/
+Purpose: what is the total number of counties with a population in 2009 higher than 500,000?
+Arguments: column: "Population; Census 2009", new_column: "Population"
+Explanation: the question asks about the number of counties with a population in 2009 higher than 500,000. Each row is about one county. We rename the column "Population; Census 2009" as "Population".
+Output: 939370 | 649311 | 1109735
+'''
+
+plan_text_transform_demo = 
+'''
+If the question asks about the characteristics/patterns of cell values in a column, we use text_transform() to format and transform the items. For example,
+/*
+col : code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : 1 | mombasa | coast | 212.5 | 939,370 | mombasa (city)
+row 2 : 2 | kwale | coast | 8,270.3 | 649,931 | kwale
+row 3 : 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
+*/
+Purpose: Figure out the place that has a population in 2009 higher than 500,000.
+Arguments: column: "population; census 2009", expression: "jython: return int(value)"
+Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
+Output: 939370 | 649311 | 1109735
+
+'''
+
+plan_mass_edit_demo = '''
+If the question asks about items with the same value and the number of these items, we use mass_edit() to standardize the items. For example,
+/*
+col : LoanAmount | City     | State  | Zip 
+row 1 : 30333    | Hon      | HI     |96814
+row 2 : 149900   | HONOLULU | HI     | 96814 
+row 3 : 148100   | Honolulu | HI     | 96814
+row 4 : 334444   | CHI      | IL     | 60611
+row 5 : 120      | urbana   | IL     | 61802
+row 6 : 100000   | Chicagoo | IL     | 
+*/
+Purpose: Return how many cities are in the table.
+Arguments: column: "City", edits: [{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}]
+Explanation: Mispellings and different formats of data need to be revised. 
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+'''
+
+plan_remove_column_demo = '''
+If the column contains too many missing values, to improve the data quality, we use remove_column() to drop the column. For example,
+/*
+col : rank | lane | player name| country | time  | player_name(preferred)
+row 1 :  | 5 | olga tereshkova |  kaz    | 51.86 |
+row 2 :  | 6 | manjeet kaur    |  ind    | 52.17 | NA
+row 3 :  | 3 | asami tanno     |  jpn    | 53.04 |
+*/
+Purpose: return the player information, including both name and country 
+Arguments: column: "player_name(preferred)"
+Explanation: cell values in column player_name(preferred) are empty, therefore, we will remove it.
+
+'''
+
+plan_reorder_column_demo = '''
+If the question asks about the order of items in a column, we use reorder_rows() to sort the items. For example,
+/*
+col : Position | Club | Played | Points | Wins | Draws | Losses | Goals for | Goals against | Goal Difference
+row 1 : 1 | Malaga CF | 42 | 79 | 22 | 13 | 7 | 72 | 47 | +25
+row 10 : 10 | CP Merida | 42 | 59 | 15 | 14 | 13 | 48 | 41 | +7
+row 3 : 3 | CD Numancia | 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
+*/
+Purpose: what club placed in the last position?
+Arguments: sort_by: "Position"
+Explanation: the question asks about the club in the last position. Each row is about a club. We need to know the order of position from last the top. There is a column for position and the column name is Position. The datatype is Numerical.
+
+'''
+
 """
 exp_in_out = """
 Data input before data cleaning:

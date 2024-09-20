@@ -18,110 +18,9 @@ from ollama import generate
 model = "llama3.1:8b-instruct-fp16" 
 # ollama.pull(model)
 # model = "llama3.1"
-# model = 'stablelm-zephyr' 
 
-# parser = argparse.ArgumentParser()
-# parser.add_argument("--start", required=True, type=int)
-# parser.add_argument("--end", required=True, type=int)
-# parser.add_argument("--dry_run", default=False, action="store_true",
-#     help="whether it's a dry run or real run.")
-# parser.add_argument(
-#     "--temperature", type=float, default=0.7,
-#     help="temperature of 0 implies greedy sampling.")
-# simple case: How many types of event in the menu table?
+#TODO: demo/dynamic planning for operation prediction 
 prep_learning = """
-<|python_tag|>
-class RefineProject:
-    def text_transform(project_id, column, expression):
-        '''
-        OpenRefine's transformations can change {{column}} contents by applying {{expression}}:
-        The default is GREL (General Refine Expression Language), Altertively, it accept python code.
-        Example: text_transform(project_id, column="id", expression="return int(value)") 
-        Using python code to transform values in column id as integer. 
-        '''
-        response = self.do_json('text-transform',
-                                {
-                                    'columnName': column,
-                                    'expression': expression,
-                                    'onError': on_error,
-                                    'repeat': repeat,
-                                    'repeatCount': repeat_count,
-                                })
-        return response
-
-    def mass_edit(project_id, column, edits):
-        '''
-        Replacing data values with new values in {{column}} with new values, old and new values are defined in {{edits}}
-        edits: [{'from': ['foo'], 'to': 'bar'}, {...}]
-        Example: 
-        mass_edit(project_id, "city", edits=[{'from':["Cicago"], 'to':"Chicago"}])
-        Replace cell values in column city from spelling "Cicago" to "Chicago"
-        '''
-        edits = json.dumps(edits)
-        response = self.do_json('mass-edit',
-                                {
-                                    'columnName': column, 'expression': expression, 'edits': edits})
-        return response
-
-    def add_column(project_id, column, new_column, expression):
-        '''Add a new column named as {{new_column}} based on {{expression}}. if the expression is default, then copy-paste cell values from {{column}} to {{new_column}}
-        using jython: followed the code if the expression is written in python.
-        Example: add_column(project_id, "name", "full name", expression="jython:res=cells['first name'].value+','+cells['last name'].value\nreturn res" )'''
-        if column_insert_index is None:
-            column_insert_index = self.column_order[column] + 1
-        response = self.do_json('add-column',
-                                {
-                                    'baseColumnName': column,
-                                    'newColumnName': new_column,
-                                    'expression': expression,
-                                    'columnInsertIndex': column_insert_index,
-                                    'onError': on_error})
-        return response
-
-    def split_column(project_id,column,separator):
-        '''split {{column}} by {{separator}} to generate more new columns
-        Example: split_column(project_id, "full_name", "," )
-        Explain: cell values in column full_name are composite values{{first name, last name}} concatenated with ',', splitting column and we can extract
-        first name and last name as the new columns.'''
-        response = self.do_json('split-column',
-                                {
-                                    'columnName': column,
-                                    'separator': separator,
-                                    'mode': mode,
-                                    'regex': regex,
-                                    'guessCellType': guess_cell_type,
-                                    'removeOriginalColumn': remove_original_column,
-                                })
-        return response
-
-    def rename_column(project_id, column, new_column):
-        '''Give old {{column}} name a more meaningful {{new_column}} name.
-        Example: rename_column(project_id, 'column 1', 'city')
-        Explain: the old column name {{column 1}} is updated as {{city}}, which becomes more meaningful.'''
-        response = self.do_json('rename-column',
-                                {
-                                    'oldColumnName': column,
-                                    'newColumnName': new_column,
-                                })
-        return response
-        
-    def remove_column(project_id, column):
-        '''remove {{column}} if it is useless or of low quality, e.g., most cells are empty and cannot be inferred.
-        Example: remove_column(project_id, 'currency')
-        Explain: most of the cells in column {{currency}} are NA, so we remove this column.'''
-        response = self.do_json('remove-column', {'columnName': column})
-        return response
-    
-    def reorder_rows(project_id, sort_by=None):
-        ''' reorder_rows if need to the results need to be retrieved through some order. e.g., what's the most/least/top N occurred (frequency)
-        species' names.
-        Example: reorder_rows(project_id, 'frequency'): sort the rows in project_id according to frequency
-        if sort_by is not None:
-            self.sorting = Sorting(sort_by)
-        response = self.do_json('reorder-rows', {'sorting': self.sorting.as_json()})
-        # clear sorting
-        self.sorting = Sorting()
-        return response
 """
 exp_in_out = """
 Data input before data cleaning:
@@ -314,7 +213,7 @@ if __name__ == "__main__":
     # Output: False/True
     __eod = """ 
             You are an expert in data cleaning theory and practices, you are able to recognize whether the data is 
-            clean (high quality) enough for the provided objectives:
+            clean (high quality) enough for the provided objectives. 
             The pipeline of evalauting whether a dataset is of good quality: 
             (1). Understand the data cleaning objectives that this dataset is instended to address. Ensure that the dataset is relevant and
             provides sufficient information to answer it.
@@ -413,8 +312,6 @@ if __name__ == "__main__":
     ops = [] # operation history 
     project_id = 2334363766799  
     df_init = export_intermediate_tb(project_id)
-    print("this is the dataset:")
-    print(df_init)
     # df_init = pd.read_csv('data.in/menu_llm.csv')
     prompt_init = """<|begin_of_text|>""" + dc_obj + f""" intermediate table:{df_init} """\
                       + __eod + """<|end_of_text|>"""
@@ -446,7 +343,9 @@ if __name__ == "__main__":
         #                      TASK I: Step by step, Return one relevant column name(string) based on {{Data cleaning objective}} ONLY.
         #                      Example Return: column 1 """
         context, sel_col = gen(prompt_sel_col, context, log_f)
+        print("---------")
         print(sel_col)
+
         while sel_col not in av_cols:
             prompt_regen = f"""The selected columns are not in {av_cols}. Please regenerate column name for TASK I."""
             context, sel_col = gen(prompt_regen, context, log_f)
@@ -454,9 +353,7 @@ if __name__ == "__main__":
         # TASK II: select operations
          
         prompt_sel_ops = """<|begin_of_text|> You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format
-                and correct semantics. Available data cleaning functions include split_column (add more columns by splitting original composite values), 
-                add_column (add new column), text_transform (apply expression to transform data), mass_edit (standardize data by replacing old values with new values), 
-                rename_column (give more meaningful column names), remove_column."""+\
+                and correct semantics. Available data cleaning functions include split_column, add_column, text_transform, mass_edit, rename_column, remove_column."""+\
                 "TASK II: Step by step, learn available python functions to process data in class RefineProject:" + prep_learning
         ops = get_operations(project_id)
         op_list = [dict['op'] for dict in ops]
@@ -471,13 +368,18 @@ if __name__ == "__main__":
         #                    Functions pool: split_column, add_column, text_transform, mass_edit, rename_column, remove_column.
         #                    This task is to make the data in a good quality that fit for {{Data cleaning purpose}}."""
         prompt_sel_ops += """
+                           **Step by step**, return ONLY ONE function name from Functions Pool of RefineProject. 
                            Functions pool: split_column, add_column, text_transform, mass_edit, rename_column, remove_column.
-                           Step by step, return ONLY one selected function name from Functions Pool of RefineProject. <|end_of_text|>"""
+
+                           <|end_of_text|>"""
         
         func_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
         context, sel_op = gen(prompt_sel_ops, context, log_f)
+        print('------------')
         print(sel_op)
-        print(f"selected function is {sel_op}")
+        #TODO: write a function to dela with sel_op, extract operation name
+        break
+
         sel_op = sel_op.strip('`')
         
         while sel_op not in func_pool:
@@ -489,7 +391,7 @@ if __name__ == "__main__":
         args.remove('project_id')  # No need to predict project_id
         args.remove('column')
         prompt_sel_args = f"""<|begin_of_text|> Next predicted function is {sel_op}"""
-        # prompt_sel_args += f"Sample first 30 rows from the Intermediate Table: {gen_table_str(df)} \n"
+        tb_str = gen_table_str(df)
         with open(f'prompts/{sel_op}.txt', 'r') as f1:
             sel_args_learn = f1.read()
         prompt_sel_args += f"""TASK III: Step by step, learn proper arguments based on intermediate table and data cleaning purpose:
@@ -500,9 +402,11 @@ if __name__ == "__main__":
                         """
         if sel_op == 'split_column':
             prompt_sel_args += f"""
-                                Therefore, the answer is: split_column(column=, separator=?).
-                                column SHOULD BE {sel_col}. What's the separator?
-                                ONLY generate value for {{separator}}. <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: column: {sel_col}, separator: 
                                 """
             context, sep = gen(prompt_sel_args, context, log_f)
             sel_args= {'column':sel_col, 'separator':sep}
@@ -510,23 +414,22 @@ if __name__ == "__main__":
         elif sel_op == 'add_column':
             # prompt_sel_args += prompt_exp_lr
             prompt_sel_args += f"""
-                                Therefore, the answer is: add_column(column=, expression=?, new_column=? ).
-                                column SHOULD BE {sel_col}. 
-                                Return format: A dictionary of expression and new_column.
-                                No explanations. <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: column: {sel_col}, expression: 
                                 """
             context, res_dict = gen(prompt_sel_args, context, log_f)
-            while not isinstance(res_dict, dict):
-                prompt_sel_args += f"""Return format is incorrect, it should be a dictionary, keys: expression and new_column,
-                                       Please regenerate the correct values for the provided keys. <|end_of_text|>"""
-                context, res_dict = gen(prompt_sel_args, context, log_f)
-            sel_args = {'column': sel_col}.update(res_dict) 
+            sel_args = {'column': sel_col, 'expression': res_dict} 
             add_column(project_id, **sel_args)
         elif sel_op == 'rename_column':
             prompt_sel_args += f"""
-                                Therefore, the answer is: rename_column(column=, new_column=?).
-                                column SHOULD BE {sel_col}. What's the new_column?
-                                ONLY generate value for new_column. <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: column: {sel_col}, new_column: 
                                 """
             context, new_col = gen(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'new_column': new_col}
@@ -534,41 +437,51 @@ if __name__ == "__main__":
         elif sel_op == 'text_transform':
             prompt_sel_args += prompt_exp_lr
             prompt_sel_args += f"""
-                                Therefore, the answer is: text_transform(column=,expression=?). 
-                                column SHOULD BE {sel_col}. What's the expression?
-                                ONLY generate python code for expression. <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: column: {sel_col}, expression: 
                                 """
             context, exp = gen(prompt_sel_args, context, log_f)
-            format_exp = extract_exp(exp)
-            print(format_exp)
-            while format_exp is False:
-                print('regenerate....')
-                context, exp = gen(prompt_sel_args, context, log_f)
-                format_exp = extract_exp(exp)
-                print('end')
-            sel_args = {'column': sel_col, 'expression': f"{format_exp}"}
+            # format_exp = extract_exp(exp)
+            # print(format_exp)
+            # while format_exp is False:
+            #     print('regenerate....')
+            #     context, exp = gen(prompt_sel_args, context, log_f)
+            #     format_exp = extract_exp(exp)
+            #     print('end')
+            # sel_args = {'column': sel_col, 'expression': f"{format_exp}"}
+            sel_args = {'column': sel_col, 'expression': exp}
             text_transform(project_id, **sel_args)
         elif sel_op == 'mass_edit':
             prompt_sel_args += f"""
-                                Therefore, the answer is: mass_edit(column=, edits=[?]).
-                                column SHOULD BE {sel_col}. What's the edits?
-                                ONLY generate value for the edits. <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: column: {sel_col}, edits: 
                                 """
             context, edits = gen(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'edits': edits}
             mass_edit(project_id, **sel_args)
         elif sel_op == 'remove_column':
             prompt_sel_args += f"""
-                                Therefore, the answer is: remove_column(column=).
-                                column SHOULD BE {sel_col}.  <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: column: {sel_col}
                                 """
             sel_args = {'column': sel_col}
             remove_column(project_id, **sel_args)
         elif sel_op == "reorder_rows":
             prompt_sel_args += f"""
-                                Therefore, the answer is: reorder_rows(sort_by=?).
-                                Sort by which column?
-                                ONLY generate value for sort_by. <|end_of_text|>
+                                /*
+                                {tb_str}
+                                */
+                                Purporse: {dc_obj}
+                                Arguments: sort_by: {sel_col}
                                 """
             context, sort_col = gen(prompt_sel_args, context, log_f)
             sel_args = {'sort_by': sort_col}

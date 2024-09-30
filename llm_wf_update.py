@@ -19,12 +19,14 @@ model = "llama3.1:8b-instruct-fp16"
 # ollama.pull(model)
 # model = "llama3.1"
 
-
 dynamic_plan = """
 
-plan_split_column_demo = '''
+You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format and correct semantics. Available example demos to learn the data cleaning operations can be retrieved here:
+
+split_column(): 
+'''
 If the table have the needed column but does not have the exact cell values to answer the question. In other words, the cell values from the column 
-comprise the values to answer the question, we use split_column() to decompose the column for it. For example,
+comprise the values to answer the question, we use **split_column()** to decompose the column for it. For example,
 /*
 col : Week | When | Kickoff | Opponent | Results; Final score | Results; Team record | Game site | Attendance
 row 1 : 1 | Saturday, April 13 | 7:00 p.m. | at Rhein Fire | W 27–21 | 1–0 | Rheinstadion | 32,092
@@ -32,15 +34,16 @@ row 2 : 2 | Saturday, April 20 | 7:00 p.m. | London Monarchs | W 37–3 | 2–0 
 row 3 : 3 | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 | 3–0 | Estadi Olímpic de Montjuïc | 17,503
 */
 Purpose: what is the date of the competition with highest attendance?
-Function: split_column
+Operation: ```split_column```
 Arguments: column: "When", separator: ","
 Explanation: The question asks about the date of the competition with highest score. Each row is about one competition. We split the value from column "When" with separator ",", and create two new columns.
 Output: April 13 | April 20 | April 28
 
 '''
-plan_add_column_demo = 
+
+add_column():
 '''
-If the table does not have the needed column to answer the question, we use add_column() to add a new column for it. For example,
+If the table does not have the needed column to answer the question, we use **add_column()** to add a new column for it. For example,
 /*
 col : week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
 row 1 : 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
@@ -48,15 +51,15 @@ row 2 : 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 
 row 3 : 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
 */
 Purpose: Return top 5 competitions that have the most attendance.
-Function: add_column
+Operation: ```add_column```
 Arguments: column: "attendance", expression: "value", new_column: "attendance number")
 Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
 Output: 32,092 | 34,186 | 17,503
 '''
 
-plan_rename_column_demo = 
+rename_column(): 
 '''
-If the table does not have the related column name to answer the question, we use rename_column() to find the most related column and rename the column with new, and more meaningful name. For example,
+If the table does not have the related column name to answer the question, we use **rename_column()** to find the most related column and rename the column with new, and more meaningful name. For example,
 /*
 col : Code | County | Former Province | Area (km2) | Population; Census 2009 | Capital
 row 1 : 1 | Mombasa | Coast | 212.5 | 939,370 | Mombasa (City)
@@ -64,15 +67,15 @@ row 2 : 2 | Kwale | Coast | 8,270.3 | 649,931 | Kwale
 row 3 : 3 | Kilifi | Coast | 12,245.9 | 1,109,735 | Kilifi
 */
 Purpose: what is the total number of counties with a population in 2009 higher than 500,000?
-Function: rename_column
+Operation: ```rename_column```
 Arguments: column: "Population; Census 2009", new_column: "Population"
 Explanation: the question asks about the number of counties with a population in 2009 higher than 500,000. Each row is about one county. We rename the column "Population; Census 2009" as "Population".
 Output: 939370 | 649311 | 1109735
 '''
 
-plan_text_transform_demo = 
+text_transform(): 
 '''
-If the question asks about the characteristics/patterns of cell values in a column, we use text_transform() to format and transform the items. For example,
+If the question asks about the characteristics/patterns of cell values in a column, we use **text_transform()** to format and transform the items. For example,
 /*
 col : code | county | former province | area (km2) | population; census 2009 | capital
 row 1 : 1 | mombasa | coast | 212.5 | 939,370 | mombasa (city)
@@ -80,15 +83,16 @@ row 2 : 2 | kwale | coast | 8,270.3 | 649,931 | kwale
 row 3 : 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
 */
 Purpose: Figure out the place that has a population in 2009 higher than 500,000.
-Function: text_transform
+Operation: ```text_transform```
 Arguments: column: "Population; Census 2009", expression: "jython: return int(value)"
 Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
 Output: 939370 | 649311 | 1109735
 
 '''
 
-plan_mass_edit_demo = '''
-If the question asks about items with the same value and the number of these items, we use mass_edit() to standardize the items. For example,
+mass_edit():
+'''
+If the question asks about items with the same value and the number of these items, we use **mass_edit()** to standardize the items. For example,
 /*
 col : LoanAmount | City     | State  | Zip 
 row 1 : 30333    | Hon      | HI     |96814
@@ -99,15 +103,17 @@ row 5 : 120      | urbana   | IL     | 61802
 row 6 : 100000   | Chicagoo | IL     | 
 */
 Purpose: Return how many cities are in the table.
-Function: mass_edit
+Operation: ```mass_edit```
 Arguments: column: "City", edits:[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}])
 Explanation: Mispellings and different formats of data need to be revised. 
 Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
 
 '''
 
-plan_remove_column_demo = '''
-If the column contains too many missing values, to improve the data quality, we use remove_column() to drop the column. For example,
+remove_column():
+
+'''
+If the column contains too many missing values, to improve the data quality, we use **remove_column()** to drop the column. For example,
 /*
 col : rank | lane | player name| country | time  | player_name(preferred)
 row 1 :  | 5 | olga tereshkova |  kaz    | 51.86 |
@@ -115,14 +121,15 @@ row 2 :  | 6 | manjeet kaur    |  ind    | 52.17 | NA
 row 3 :  | 3 | asami tanno     |  jpn    | 53.04 |
 */
 Purpose: return the player information, including both name and country 
-Function: remove_column
+Operation: ```remove_column```
 Arguments: column: "player_name(preferred)"
 Explanation: cell values in column player_name(preferred) are empty, therefore, we will remove it.
 
 '''
 
-plan_reorder_rows_demo = '''
-If the question asks about the order of items in a column, we use reorder_rows() to sort the items. For example,
+reorder_rows():
+'''
+If the question asks about the order of items in a column, we use **reorder_rows()** to sort the items. For example,
 /*
 col : Position | Club | Played | Points | Wins | Draws | Losses | Goals for | Goals against | Goal Difference
 row 1 : 1 | Malaga CF | 42 | 79 | 22 | 13 | 7 | 72 | 47 | +25
@@ -130,7 +137,7 @@ row 10 : 10 | CP Merida | 42 | 59 | 15 | 14 | 13 | 48 | 41 | +7
 row 3 : 3 | CD Numancia | 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
 */
 Purpose: what club placed in the last position?
-Function: reorder_rows
+Operation: ```reorder_rows```
 Arguments: sort_by: "Position"
 Explanation: the question asks about the club in the last position. Each row is about a club. We need to know the order of position from last the top. There is a column for position and the column name is Position. The datatype is Numerical.
 
@@ -199,16 +206,18 @@ def format_sel_col(df):
         row_values = df[col].head(3).tolist()
         # Append column name and three row values as a sublist
         col_priority.append([column_name] + row_values)
-    return {
+    res = {
         "table_caption": table_caption,
         "columns": columns,
         "table_column_priority": col_priority
     }
+    # return json.dumps(res, indent=2)
+    return res
 
 
-def gen_table_str(df):
+def gen_table_str(df, num_rows=3):
     # Sample the first 30 rows
-    df = df.head(30)
+    df = df.head(num_rows)
     # Prepend "row n:" to each row
     df.insert(0, 'Row', [f'row {i+1}:' for i in range(len(df))])
     # Convert the DataFrame to a Markdown string without the header
@@ -336,12 +345,8 @@ if __name__ == "__main__":
             duplicates, you would return True. Otherwise, you SHOULD summarize the conclusion as "False".
              """
 
-    dc_obj = """ 
-             {{Data Cleaning Objective}}:
-             The task is to figure out how many different events are recorded in the collected menus. 
-             For this task, you will use {{menu}} dataset from NYPL(New York Public Library). 
-             Dataset Description: {{A mix of simple bibliographic description of the menus}}.
-             """
+    dc_obj = """ How many different events are recorded in the collected menus?"""
+    # dc_obj = """ How do the physical size of collected menus evolve during the 1900-2000 years?"""
     log_f = open("CoT.response/llm_dcw.txt", "w")
     # fpath = "data.in/menu_llm.csv"
     ops = [] # operation history 
@@ -356,6 +361,9 @@ if __name__ == "__main__":
     eod_flag = chunk_return(eod_desc)
     print(eod_flag)
     print('Now we start the pipeline')
+    
+    # For test
+    eod_flag = "False"
 
     while eod_flag == "False":
         context = []
@@ -370,64 +378,56 @@ if __name__ == "__main__":
         with open("prompts/f_select_column.txt", 'r')as f:
             sel_col_learn = f.read()
 
-        prompt_sel_col = "<|begin_of_text|> Learn how to select column based on given question:\n" + sel_col_learn+\
-                                f"""
-                                /*
-                                {
-                                format_sel_col(df)
-                                }
-                                */
-                                Purpose: {dc_obj}
-                                Selected columns:
-                                """
-
+        prompt_sel_col = sel_col_learn + f"""
+/*
+{format_sel_col(df)}
+*/
+Purpose: {dc_obj}
+Selected columns:
+"""
         context, sel_col = gen(prompt_sel_col, context, log_f)
-        print("---------")
-        print(sel_col)
-        break
+        # TODO: a function to parse the results: []...
 
         # TASK II: select operations
-        prompt_sel_ops = """<|begin_of_text|> You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format
-                and correct semantics. Available example demos to learn the data cleaning functions can be retrieved here:"""+ dynamic_plan
+        prompt_sel_ops = dynamic_plan
 
         ops = get_operations(project_id)
         op_list = [dict['op'] for dict in ops]
         functions_list = [map_ops_func[operation].__name__ for operation in op_list]
         print(functions_list)
-        prompt_sel_args += f"""
+        prompt_sel_ops = dynamic_plan + """ Based on table contents and purpose provided as following, output Operation name in ``` ``` without Explanations. The available operations include:
+                                split_column, add_column, text_transform, mass_edit, rename_column, remove_column"""\
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
-                                Function: 
+                                Operation: 
                                 """
-        
         func_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
         context, sel_op = gen(prompt_sel_ops, context, log_f)
-        print('------------')
         print(sel_op)
 
         sel_op = sel_op.strip('`')
         
         while sel_op not in func_pool:
-            prompt_regen = f"""The selected function is not found in {functions_list}. Please regenerate function name for TASK II."""
+            prompt_regen = f"""The selected operation is not found in {functions_list}. Please regenerate operation name for TASK II."""
             context, sel_op = gen(prompt_regen, context, log_f)
             sel_op = sel_op.strip('`')
         # TASK III: Learn function arguments (share the same context with sel_op)
         args = get_function_arguments('call_or.py', sel_op)
         args.remove('project_id')  # No need to predict project_id
         args.remove('column')
-        prompt_sel_args = f"""<|begin_of_text|> Next predicted function is {sel_op}"""
+        print(f'Current args need to be generated: {args}')
+        # prompt_sel_args = f"""<|begin_of_text|> Next predicted operation is {sel_op}"""
         with open(f'prompts/{sel_op}.txt', 'r') as f1:
-            sel_args_learn = f1.read()
-        prompt_sel_args += f"""TASK III: Step by step, learn proper arguments based on intermediate table and data cleaning purpose:
-                                {sel_args_learn}"""
-        prompt_exp_lr = f"""
-                        You are a professional python developer and can write a function to transform the data in proper
-                        format. With the selected function and examples, please write a proper python function. 
-                        """
+            prompt_sel_args = f1.read()
+        
+        # update tb_str to use the full rows:
+        tb_str = gen_table_str(df, num_rows=100)
         if sel_op == 'split_column':
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output separator in " " without Explanations."""\
+                               + f"""
                                 /*
                                 {tb_str}
                                 */
@@ -439,18 +439,20 @@ if __name__ == "__main__":
             split_column(project_id, **sel_args)
         elif sel_op == 'add_column':
             # prompt_sel_args += prompt_exp_lr
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output expression and new_column in " " without Explanations."""\
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
-                                Arguments: column: {sel_col}, expression: 
+                                Arguments: column: {sel_col}, expression:, new_column:
                                 """
             context, res_dict = gen(prompt_sel_args, context, log_f)
             sel_args = {'column': sel_col, 'expression': res_dict} 
             add_column(project_id, **sel_args)
         elif sel_op == 'rename_column':
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output new_column in " " without Explanations.""" \
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
@@ -461,8 +463,8 @@ if __name__ == "__main__":
             sel_args = {'column': sel_col, 'new_column': new_col}
             rename_column(project_id, **sel_args)
         elif sel_op == 'text_transform':
-            prompt_sel_args += prompt_exp_lr
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output expression in " " without Explanations.""" \
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
@@ -473,18 +475,24 @@ if __name__ == "__main__":
             sel_args = {'column': sel_col, 'expression': exp}
             text_transform(project_id, **sel_args)
         elif sel_op == 'mass_edit':
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output edits in " " without Explanations.""" \
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
                                 Arguments: column: {sel_col}, edits: 
                                 """
+            print("*** prompt for arguments generation: ")
+            print(prompt_sel_args)
             context, edits = gen(prompt_sel_args, context, log_f)
+            print(edits)
+            print("******")
             sel_args = {'column': sel_col, 'edits': edits}
             mass_edit(project_id, **sel_args)
         elif sel_op == 'remove_column':
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output arguments column in " " without Explanations.""" \
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
@@ -494,7 +502,8 @@ if __name__ == "__main__":
             sel_args = {'column': sel_col}
             remove_column(project_id, **sel_args)
         elif sel_op == "reorder_rows":
-            prompt_sel_args += f"""
+            prompt_sel_args += """Based on table contents and purpose provided as following, output arguments sort_by in " " without Explanations.""" \
+                                +f"""
                                 /*
                                 {tb_str}
                                 */
@@ -505,6 +514,7 @@ if __name__ == "__main__":
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
        
+        break
         with open("prompts/full_chain_demo.txt", 'r')as f2:
             full_chain_learn = f2.read()
         prompt_full_chain = "Learn when to generate {{True}} for eod_flag and end the data cleaning functions generation:\n" + full_chain_learn

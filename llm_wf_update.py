@@ -5,8 +5,12 @@ from typing import List
 import requests
 import json
 import re
+import difflib
+from collections import Counter
+from spellchecker import SpellChecker
 
 import pandas as pd
+import ast
 
 # from history_update_problem.call_or import export_rows
 from call_or import *
@@ -323,6 +327,46 @@ def chunk_return(text):
     return results[-1]
 
 
+def exe_edits(strings):
+    '''
+    input a column of cell value, return clusters
+    '''
+    strings = [s for s in strings if s not in (None, "")]
+    # Initialize a spell checker
+    spell = SpellChecker()
+    
+    # Step 1: Correct spelling mistakes
+    corrected_strings = [spell.correction(s) for s in strings]
+    corrected_strings = [s for s in corrected_strings if s is not None]
+    # Step 2: Group similar strings using difflib's get_close_matches
+    clusters = []
+    used_strings = set()
+
+    for string in corrected_strings:
+        # Skip strings that are already part of a cluster
+        if string in used_strings:
+            continue
+        
+        # Find close matches based on string similarity
+        if string is not None:
+            matches = difflib.get_close_matches(string, corrected_strings, n=len(strings), cutoff=0.7)
+        
+        # Mark these strings as used
+        for match in matches:
+            used_strings.add(match)
+        
+        # Step 3: Choose the most frequent correct spelling
+        most_common = Counter(matches).most_common(1)[0][0]
+        
+        # Create a cluster dictionary
+        clusters.append({
+            'from': matches,
+            'to': most_common.capitalize()  # Capitalize for proper formatting (e.g., "Chicago")
+        })
+    
+    return clusters
+
+
 if __name__ == "__main__":
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
@@ -347,6 +391,7 @@ if __name__ == "__main__":
 
     dc_obj = """ How many different events are recorded in the collected menus?"""
     # dc_obj = """ How do the physical size of collected menus evolve during the 1900-2000 years?"""
+    ops_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
     log_f = open("CoT.response/llm_dcw.txt", "w")
     # fpath = "data.in/menu_llm.csv"
     ops = [] # operation history 
@@ -379,24 +424,25 @@ if __name__ == "__main__":
             sel_col_learn = f.read()
 
         prompt_sel_col = sel_col_learn + f"""
-/*
-{format_sel_col(df)}
-*/
-Purpose: {dc_obj}
-Selected columns:
-"""
+        \n\nBased on table contents and purpose provided as following, output column names in a **Python List** without Explanations.
+        /*
+        {format_sel_col(df)}
+        */
+        Purpose: {dc_obj}
+        Selected columns:
+        """
+        print(prompt_sel_col)
         context, sel_col = gen(prompt_sel_col, context, log_f)
-        # TODO: a function to parse the results: []...
 
         # TASK II: select operations
-        prompt_sel_ops = dynamic_plan
-
         ops = get_operations(project_id)
         op_list = [dict['op'] for dict in ops]
         functions_list = [map_ops_func[operation].__name__ for operation in op_list]
         print(functions_list)
-        prompt_sel_ops = dynamic_plan + """ Based on table contents and purpose provided as following, output Operation name in ``` ``` without Explanations. The available operations include:
-                                split_column, add_column, text_transform, mass_edit, rename_column, remove_column"""\
+        if 'mass_edit' in functions_list:
+            ops_pool.remove('mass_edit')
+        print(f'current available operations: {ops_pool}')
+        prompt_sel_ops = dynamic_plan + f""" Based on table contents and purpose provided as following, output Operation name in ``` ``` without Explanations. The available operations list: {ops_pool}"""\
                                 +f"""
                                 /*
                                 {tb_str}
@@ -404,13 +450,13 @@ Selected columns:
                                 Purpose: {dc_obj}
                                 Operation: 
                                 """
-        func_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
+
         context, sel_op = gen(prompt_sel_ops, context, log_f)
         print(sel_op)
 
         sel_op = sel_op.strip('`')
         
-        while sel_op not in func_pool:
+        while sel_op not in ops_pool:
             prompt_regen = f"""The selected operation is not found in {functions_list}. Please regenerate operation name for TASK II."""
             context, sel_op = gen(prompt_regen, context, log_f)
             sel_op = sel_op.strip('`')
@@ -425,8 +471,9 @@ Selected columns:
         
         # update tb_str to use the full rows:
         tb_str = gen_table_str(df, num_rows=100)
+        context = []
         if sel_op == 'split_column':
-            prompt_sel_args += """Based on table contents and purpose provided as following, output separator in " " without Explanations."""\
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output separator in " " without Explanations."""\
                                + f"""
                                 /*
                                 {tb_str}
@@ -439,7 +486,7 @@ Selected columns:
             split_column(project_id, **sel_args)
         elif sel_op == 'add_column':
             # prompt_sel_args += prompt_exp_lr
-            prompt_sel_args += """Based on table contents and purpose provided as following, output expression and new_column in " " without Explanations."""\
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output expression and new_column in " " without Explanations."""\
                                 +f"""
                                 /*
                                 {tb_str}
@@ -451,7 +498,7 @@ Selected columns:
             sel_args = {'column': sel_col, 'expression': res_dict} 
             add_column(project_id, **sel_args)
         elif sel_op == 'rename_column':
-            prompt_sel_args += """Based on table contents and purpose provided as following, output new_column in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output new_column in " " without Explanations.""" \
                                 +f"""
                                 /*
                                 {tb_str}
@@ -463,7 +510,7 @@ Selected columns:
             sel_args = {'column': sel_col, 'new_column': new_col}
             rename_column(project_id, **sel_args)
         elif sel_op == 'text_transform':
-            prompt_sel_args += """Based on table contents and purpose provided as following, output expression in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output expression in " " without Explanations.""" \
                                 +f"""
                                 /*
                                 {tb_str}
@@ -475,23 +522,16 @@ Selected columns:
             sel_args = {'column': sel_col, 'expression': exp}
             text_transform(project_id, **sel_args)
         elif sel_op == 'mass_edit':
-            prompt_sel_args += """Based on table contents and purpose provided as following, output edits in " " without Explanations.""" \
-                                +f"""
-                                /*
-                                {tb_str}
-                                */
-                                Purpose: {dc_obj}
-                                Arguments: column: {sel_col}, edits: 
-                                """
-            print("*** prompt for arguments generation: ")
-            print(prompt_sel_args)
-            context, edits = gen(prompt_sel_args, context, log_f)
-            print(edits)
-            print("******")
+            # semi-automate.. python (edits) + LLM
+            # print(f'selected column name: {sel_col}')
+            sel_col = sel_col.strip("[]' ")
+            # print(f'processed column name: {sel_col}')
+            df_me = df[sel_col].dropna().tolist() # only input target column
+            edits = exe_edits(df_me)
             sel_args = {'column': sel_col, 'edits': edits}
             mass_edit(project_id, **sel_args)
         elif sel_op == 'remove_column':
-            prompt_sel_args += """Based on table contents and purpose provided as following, output arguments column in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments column in " " without Explanations.""" \
                                 +f"""
                                 /*
                                 {tb_str}
@@ -502,7 +542,7 @@ Selected columns:
             sel_args = {'column': sel_col}
             remove_column(project_id, **sel_args)
         elif sel_op == "reorder_rows":
-            prompt_sel_args += """Based on table contents and purpose provided as following, output arguments sort_by in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments sort_by in " " without Explanations.""" \
                                 +f"""
                                 /*
                                 {tb_str}
@@ -514,7 +554,6 @@ Selected columns:
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
        
-        break
         with open("prompts/full_chain_demo.txt", 'r')as f2:
             full_chain_learn = f2.read()
         prompt_full_chain = "Learn when to generate {{True}} for eod_flag and end the data cleaning functions generation:\n" + full_chain_learn
@@ -524,8 +563,8 @@ Selected columns:
 
         # TASK VI:
         # Keep passing intermediate table and data cleaning objective, until eod_flag is True. End the iteration.
-        iter_prompt = + """<|begin_of_text|>""" + prompt_full_chain + dc_obj + f""" intermediate table:{cur_df} """\
-                      + __eod + + """<|end_of_text|>"""
+        iter_prompt = prompt_full_chain + dc_obj + f""" intermediate table:{cur_df} """\
+                      + __eod
                             # + exp_in_out \
    
         context, eod_flag = gen(iter_prompt, [], log_f)

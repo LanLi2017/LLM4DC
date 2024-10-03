@@ -283,28 +283,6 @@ def extract_exp(content):
         return False
 
 
-def diff_check(func_name, old_df, new_df, target_col):
-    """This function is using the diff of applied ops as a context to inspire
-        LLMs to generate next function"""
-    """Qs: which kind of diff refer to good cleaning function?"""
-    # return:
-    # column-level diff: {column-schema: }
-    # cell-level diff: 
-    if func_name=='text_transform':
-         differences = {}
-         len_df = len(new_df)
-         assert len(old_df) == len(new_df)
-
-         for i in range(len_df):
-            old_value = old_df.iloc[i][target_col]
-            new_value = new_df.iloc[i][target_col]
-            if old_value != new_value:
-                differences[i] = {old_value: new_value}
-        
-         prompt_changes = f"""The changes resulted by text_transform: a dictionary of pairs of old value and new value: {differences}"""
-         return prompt_changes
-
-
 def gen(prompt, context, log_f, temp=0):
     r = generate(model=model, 
                  prompt=prompt, 
@@ -320,11 +298,6 @@ def gen(prompt, context, log_f, temp=0):
 
         if part['done'] is True:
             return part['context'], ''.join(res)
-
-def chunk_return(text):
-    # Only capture the final conclusions. 
-    results = re.findall(r'\b(True|False)\b', text)
-    return results[-1]
 
 
 def exe_edits(strings):
@@ -371,45 +344,38 @@ if __name__ == "__main__":
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
     # Output: False/True
-    __eod = """ 
-            You are an expert in data cleaning theory and practices, you are able to recognize whether the data is 
-            clean (high quality) enough for the provided objectives. 
-            The pipeline of evalauting whether a dataset is of good quality: 
-            (1). Understand the data cleaning objectives that this dataset is instended to address. Ensure that the dataset is relevant and
-            provides sufficient information to answer it.
-            (2). Profiling the dataset, check dataset from column schema level and instance level;
-            "what are the columns? Whether the column names are meaningful or not?" 
-            "what are the distributions of data instances?" "are they clearly represented?"
-            (3). Assess the profiling results from four dimensions as following: 
-            - **accuracy**: Whether the dataset is free from obvious errors, inconsistencies, or biases
-            - **relavance**: Whether it includes essential variables (target columns) to address the objectives.
-            - **completeness**: Whether it has a reasonable sample size and contains enough data instances (not too many missing values)
-            - **duplicates**: Whether the spellings are standardized, no same semantics but different representations exist
-            (4) Return True or False according to results from (3), IF ONLY you are sure or return "True" for all dimensions: accuracy, relavance, completeness, and 
-            duplicates, you would return True. Otherwise, you SHOULD summarize the conclusion as "False".
-             """
+    with open("prompts/eod.txt", 'r')as f0:
+            eod_learn = f0.read()
 
-    dc_obj = """ How many different events are recorded in the collected menus?"""
+    dc_obj = """ How many different events are recorded in the dataset?"""
     # dc_obj = """ How do the physical size of collected menus evolve during the 1900-2000 years?"""
     ops_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
     log_f = open("CoT.response/llm_dcw.txt", "w")
-    # fpath = "data.in/menu_llm.csv"
     ops = [] # operation history 
     project_id = 2334363766799  
     df_init = export_intermediate_tb(project_id)
-    # df_init = pd.read_csv('data.in/menu_llm.csv')
-    prompt_init = """<|begin_of_text|>""" + dc_obj + f""" intermediate table:{df_init} """\
-                      + __eod + """<|end_of_text|>"""
-                            # + exp_in_out \
-   
-    context, eod_desc = gen(prompt_init, [], log_f)
-    eod_flag = chunk_return(eod_desc)
-    print(eod_flag)
-    print('Now we start the pipeline')
-    
-    # For test
-    eod_flag = "False"
 
+    ops = get_operations(project_id)
+    op_list = [dict['op'] for dict in ops]
+    functions_list = [map_ops_func[operation].__name__ for operation in op_list]
+    if not functions_list:
+        eod_flag = "False"
+    else:
+        prompt_eod = eod_learn + f"""
+                                    \n\nBased on table contents and Objective provided as following, output Flag in ```` ```` without Explanations.
+                                    /*
+                                    {gen_table_str(df_init)}
+                                    */
+                                    Objective: {dc_obj}
+                                    Flag:
+                                    """
+    
+        context, eod_desc = gen(prompt_eod, [], log_f)
+        print(eod_desc)
+        eod_flag = extract_exp(eod_desc)
+        print(eod_flag)
+    
+    print(eod_flag)
     while eod_flag == "False":
         context = []
         # The eod_flag is True.
@@ -424,14 +390,14 @@ if __name__ == "__main__":
             sel_col_learn = f.read()
 
         prompt_sel_col = sel_col_learn + f"""
-        \n\nBased on table contents and purpose provided as following, output column names in a **Python List** without Explanations.
-        /*
-        {format_sel_col(df)}
-        */
-        Purpose: {dc_obj}
-        Selected columns:
-        """
-        print(prompt_sel_col)
+                                        \n\nBased on table contents and purpose provided as following, output column names in a **Python List** without Explanations.
+                                        /*
+                                        {format_sel_col(df)}
+                                        */
+                                        Purpose: {dc_obj}
+                                        Selected columns:
+                                        """
+
         context, sel_col = gen(prompt_sel_col, context, log_f)
 
         # TASK II: select operations
@@ -519,6 +485,7 @@ if __name__ == "__main__":
                                 Arguments: column: {sel_col}, expression: 
                                 """
             context, exp = gen(prompt_sel_args, context, log_f)
+            print(f'predicted expression: {exp}')
             sel_args = {'column': sel_col, 'expression': exp}
             text_transform(project_id, **sel_args)
         elif sel_op == 'mass_edit':
@@ -554,20 +521,28 @@ if __name__ == "__main__":
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
        
-        with open("prompts/full_chain_demo.txt", 'r')as f2:
-            full_chain_learn = f2.read()
-        prompt_full_chain = "Learn when to generate {{True}} for eod_flag and end the data cleaning functions generation:\n" + full_chain_learn
+        # @TODO: Question: is Full_Chain_learn equal to eod_learn prompts?
+        # with open("prompts/full_chain_demo.txt", 'r')as f2:
+        #     full_chain_learn = f2.read()
+        # prompt_full_chain = "Learn when to generate {{True}} for eod_flag and end the data cleaning functions generation:\n" + full_chain_learn
         
         # Re-execute intermediate table
         cur_df = export_intermediate_tb(project_id)
 
         # TASK VI:
         # Keep passing intermediate table and data cleaning objective, until eod_flag is True. End the iteration.
-        iter_prompt = prompt_full_chain + dc_obj + f""" intermediate table:{cur_df} """\
-                      + __eod
-                            # + exp_in_out \
+        iter_prompt = eod_learn + f"""
+                                \n\nBased on table contents and Objective provided as following, output Flag in ```` ```` without Explanations.
+                                /*
+                                {gen_table_str(cur_df)}
+                                */
+                                Objective: {dc_obj}
+                                Flag:
+                                """
    
-        context, eod_flag = gen(iter_prompt, [], log_f)
+        context, eod_desc = gen(iter_prompt, [], log_f)
+        eod_flag = extract_exp(eod_desc)
+        print(eod_flag)
         print(f'LLMs believe current table is good enough to address objectives: {eod_flag}')
 
     # prompt += "Learn how to generate arguments for function add column: \n" + 

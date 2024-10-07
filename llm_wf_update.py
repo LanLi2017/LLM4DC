@@ -11,7 +11,7 @@ from spellchecker import SpellChecker
 
 import pandas as pd
 import ast
-
+import random
 # from history_update_problem.call_or import export_rows
 from call_or import *
 
@@ -144,34 +144,8 @@ Purpose: what club placed in the last position?
 Operation: ```reorder_rows```
 Arguments: sort_by: "Position"
 Explanation: the question asks about the club in the last position. Each row is about a club. We need to know the order of position from last the top. There is a column for position and the column name is Position. The datatype is Numerical.
-
 '''
 
-"""
-exp_in_out = """
-Data input before data cleaning:
-/*
-col : physical_description 
-row 1 : CARD; 4.75X7.5;
-row 2 : BROADSIDE; ILLUS; COL; 5.5X8.50; 
-row 3 : BROADSIDE; ILLUS; COL; 3,5X7;
-row 4 : CARD;ILLUS;5.25X8/25;
-row 5 : 30x21cm folded; 30x42cm open
-row 6 : CARD; ILLUS; 6 x 9.75 in.
-row 7 : Booklet; 8.25 x 11.5 inches
-*/
-
-Expected data output after data cleaning:
-/*
-col : physical_description               | size              | unit
-row 1 : CARD; 4.75X7.5;                  | 4.75X7.5          | 
-row 2 : BROADSIDE; ILLUS; COL; 5.5X8.50; | 5.5X8.50          |
-row 3 : BROADSIDE; ILLUS; COL; 3,5X7;    | 3.5X7             |      
-row 4 : CARD;ILLUS;5.25X8/25;            | 5.25X8.25         |
-row 5 : 30x21cm folded; 30x42cm open     | 30x21; 30x42      | cm
-row 6 : CARD; ILLUS; 6 x 9.75 in.        | 6 x 9.75          | inches
-row 7 : Booklet; 8.25 x 11.5 inches      | 8.25 x 11.5       | inches
-*/
 """
 
 map_ops_func = {
@@ -219,20 +193,26 @@ def format_sel_col(df):
     return res
 
 
-def gen_table_str(df, num_rows=3):
+def gen_table_str(df, num_rows=3, tg_col=None):
     # Sample the first 30 rows
     df = df.head(num_rows)
     # Prepend "row n:" to each row
-    df.insert(0, 'Row', [f'row {i+1}:' for i in range(len(df))])
-    # Convert the DataFrame to a Markdown string without the header
-    rows_lines = [f"row {i+1}: | " + " | ".join(map(str, row)) + " |" for i, row in df.iterrows()]
-    # rows_lines = [f"| " + " | ".join(map(str, row)) + " |" for _, row in df.iterrows()]
-    # Add the column schema line
-    column_names = " | ".join(df.columns)
-    column_schema = f'col: | {column_names} |\n'
-    # Combine the column schema with the DataFrame content
-    table_str = column_schema + "\n".join(rows_lines)
-    return table_str
+    if not tg_col:
+        df.insert(0, 'Row', [f'row {i+1}:' for i in range(len(df))])
+        # Convert the DataFrame to a Markdown string without the header
+        rows_lines = [f"row {i+1}: | " + " | ".join(map(str, row)) + " |" for i, row in df.iterrows()]
+        # Add the column schema line
+        column_names = " | ".join(df.columns)
+        column_schema = f'col: | {column_names} |\n'
+        # Combine the column schema with the DataFrame content
+        table_str = column_schema + "\n".join(rows_lines)
+        return table_str
+    else:
+        column_values = df[tg_col]
+        formatted_output = [f"col: {tg_col}"]
+        for i, value in enumerate(column_values, start=1):
+            formatted_output.append(f"row {i}: {value}")
+        return '\n'.join(formatted_output)
 
 
 def gen_col_str(df, col_name:str):
@@ -271,16 +251,26 @@ def get_function_arguments(script_path: str, function_name: str) -> List[str]:
     return args
 
 
+# def extract_exp(content):
+#     """This function is to extract python code from generated results"""
+#     match = re.search(r'```(.*?)```', content, re.DOTALL)
+#     if match:
+#         code_block = match.group(1).strip()
+#         code_block = code_block.replace('; ', '\n')
+#         return code_block
+#     else:
+#         print("No code block found.")
+#         return False
 def extract_exp(content):
-    """This function is to extract python code from generated results"""
-    match = re.search(r'```(.*?)```', content, re.DOTALL)
-    if match:
-        code_block = match.group(1).strip()
-        code_block = code_block.replace('; ', '\n')
-        return code_block
+    """This function is to extract all python code blocks from generated results."""
+    matches = re.findall(r'```(.*?)```', content, re.DOTALL)
+    if matches:
+        code_blocks = [match.strip().replace('; ', '\n') for match in matches]
+        return code_blocks
     else:
-        print("No code block found.")
+        print("No code blocks found.")
         return False
+
 
 
 def gen(prompt, context, log_f, temp=0):
@@ -347,35 +337,48 @@ if __name__ == "__main__":
     with open("prompts/eod.txt", 'r')as f0:
             eod_learn = f0.read()
 
+    num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
     dc_obj = """ How many different events are recorded in the dataset?"""
     # dc_obj = """ How do the physical size of collected menus evolve during the 1900-2000 years?"""
     ops_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
     log_f = open("CoT.response/llm_dcw.txt", "w")
     ops = [] # operation history 
-    project_id = 2334363766799  
+    project_id = 2328682001012 
     df_init = export_intermediate_tb(project_id)
 
     ops = get_operations(project_id)
     op_list = [dict['op'] for dict in ops]
     functions_list = [map_ops_func[operation].__name__ for operation in op_list]
-    if not functions_list:
-        eod_flag = "False"
-    else:
-        prompt_eod = eod_learn + f"""
-                                    \n\nBased on table contents and Objective provided as following, output Flag in ```` ```` without Explanations.
-                                    /*
-                                    {gen_table_str(df_init)}
-                                    */
-                                    Objective: {dc_obj}
-                                    Flag:
-                                    """
-    
+
+    prompt_eod = eod_learn + f"""
+                                \n\nBased on table contents and Objective provided as following, output Flag in ``` ```.
+                                /*
+                                {gen_table_str(df_init)}
+                                */
+                                Objective: {dc_obj}
+                                Flag:
+                                """
+    eod_flag_list = []
+    eod_desc_list = []
+    for _ in range(num_votes):
         context, eod_desc = gen(prompt_eod, [], log_f)
-        print(eod_desc)
         eod_flag = extract_exp(eod_desc)
-        print(eod_flag)
+        if not eod_flag:
+            eod_flag = "False"
+        else:
+            eod_flag = extract_exp(eod_desc)[0]
+        eod_flag_list.append(eod_flag)
+        eod_desc_list.append(eod_desc)
+    if any([x == "False" for x in eod_flag_list]):
+        eod_flag  = "False"
+        # ids = eod_flag_list.indexof(eod_flag)
+        mask = [int(x == "False") for x in eod_flag_list]
+        eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
+        # eod_desc = random.choice(eod_desc_list[x for x in ids])
+    else:
+        eod_flag = "True"
     
-    print(eod_flag)
+    print(f'End of data cleaning: {eod_flag}')
     while eod_flag == "False":
         context = []
         # The eod_flag is True.
@@ -390,7 +393,7 @@ if __name__ == "__main__":
             sel_col_learn = f.read()
 
         prompt_sel_col = sel_col_learn + f"""
-                                        \n\nBased on table contents and purpose provided as following, output column names in a **Python List** without Explanations.
+                                        \n\nBased on table contents and purpose provided as following, output column names in ``` ```.
                                         /*
                                         {format_sel_col(df)}
                                         */
@@ -398,7 +401,13 @@ if __name__ == "__main__":
                                         Selected columns:
                                         """
 
-        context, sel_col = gen(prompt_sel_col, context, log_f)
+        context, sel_col_desc = gen(prompt_sel_col, context, log_f)
+        sel_col = extract_exp(sel_col_desc)[0]
+        print(f'selected column: {sel_col}')
+        
+        # prompt_eod_desc_summarization = f"""please generate a one-sentence summarization of the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
+        # _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
+        # print(f'Current operation purpose: {one_sent_eod_desc}')
 
         # TASK II: select operations
         ops = get_operations(project_id)
@@ -408,7 +417,15 @@ if __name__ == "__main__":
         if 'mass_edit' in functions_list:
             ops_pool.remove('mass_edit')
         print(f'current available operations: {ops_pool}')
-        prompt_sel_ops = dynamic_plan + f""" Based on table contents and purpose provided as following, output Operation name in ``` ``` without Explanations. The available operations list: {ops_pool}"""\
+        # prompt_sel_ops = dynamic_plan + f"""The available operations are in the operations list: {ops_pool}. Based on table contents and purpose provided as following, output Operation name in ``` ```. """\
+        #                         +f"""
+        #                         /*
+        #                         {tb_str}
+        #                         */
+        #                         Purpose: {dc_obj}
+        #                         Operation: 
+        #                         """
+        prompt_sel_ops = dynamic_plan + f""" Based on table contents and purpose provided as following, output Operation name in ``` ```. The available operations list: {ops_pool}"""\
                                 +f"""
                                 /*
                                 {tb_str}
@@ -417,15 +434,11 @@ if __name__ == "__main__":
                                 Operation: 
                                 """
 
-        context, sel_op = gen(prompt_sel_ops, context, log_f)
-        print(sel_op)
+        # while not (sel_op in ops_pool):
+        context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
+        sel_op = extract_exp(sel_op_desc)[0]
+        print(f'selected operation: {sel_op}')
 
-        sel_op = sel_op.strip('`')
-        
-        while sel_op not in ops_pool:
-            prompt_regen = f"""The selected operation is not found in {functions_list}. Please regenerate operation name for TASK II."""
-            context, sel_op = gen(prompt_regen, context, log_f)
-            sel_op = sel_op.strip('`')
         # TASK III: Learn function arguments (share the same context with sel_op)
         args = get_function_arguments('call_or.py', sel_op)
         args.remove('project_id')  # No need to predict project_id
@@ -436,55 +449,68 @@ if __name__ == "__main__":
             prompt_sel_args = f1.read()
         
         # update tb_str to use the full rows:
-        tb_str = gen_table_str(df, num_rows=100)
+        tb_str = gen_table_str(df, num_rows=5)
         context = []
+       
         if sel_op == 'split_column':
-            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output separator in " " without Explanations."""\
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output separator in ``` ``` . """\
                                + f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
+                                Current Operation Purpose: {one_sent_eod_desc}
                                 Arguments: column: {sel_col}, separator: 
                                 """
-            context, sep = gen(prompt_sel_args, context, log_f)
+            context, sep_desc = gen(prompt_sel_args, context, log_f)
+            sep = extract_exp(sep_desc)[0]
+            print(f'Predicted separator for operation split column: {sep}')
             sel_args= {'column':sel_col, 'separator':sep}
             split_column(project_id, **sel_args)
         elif sel_op == 'add_column':
             # prompt_sel_args += prompt_exp_lr
-            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output expression and new_column in " " without Explanations."""\
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output expression and new_column in ``` ```."""\
                                 +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
-                                Arguments: column: {sel_col}, expression:, new_column:
+                                Current Operation Purpose: {one_sent_eod_desc}
+                                Expression:, New_column:
                                 """
-            context, res_dict = gen(prompt_sel_args, context, log_f)
-            sel_args = {'column': sel_col, 'expression': res_dict} 
+            context, res_dict_desc = gen(prompt_sel_args, context, log_f)
+            [exp, new_col] = extract_exp(res_dict_desc)
+            sel_args = {'column': sel_col, 'expression': exp, 'new_column': new_col} 
             add_column(project_id, **sel_args)
         elif sel_op == 'rename_column':
-            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output new_column in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output new_column in ``` ```.""" \
                                 +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
+                                Current Operation Purpose: {one_sent_eod_desc}
                                 Arguments: column: {sel_col}, new_column: 
                                 """
-            context, new_col = gen(prompt_sel_args, context, log_f)
+            context, new_col_desc = gen(prompt_sel_args, context, log_f)
+            new_col = extract_exp(new_col_desc)[0]
             sel_args = {'column': sel_col, 'new_column': new_col}
             rename_column(project_id, **sel_args)
         elif sel_op == 'text_transform':
-            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output expression in " " without Explanations.""" \
+            tb_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
+            print(tb_str)
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output expression in ``` ``` (Ensure the expression format statisifies ALL requirements in the **Check**). """ \
                                 +f"""
                                 /*
                                 {tb_str}
                                 */
-                                Purpose: {dc_obj}
-                                Arguments: column: {sel_col}, expression: 
+                                Current Operation Purpose: {one_sent_eod_desc}
+                                Expression: 
                                 """
-            context, exp = gen(prompt_sel_args, context, log_f)
+            print(f'updated prompt for selecting arguments: {prompt_sel_args}')
+            context, exp_desc = gen(prompt_sel_args, context, log_f)
+            print(f'Predicted expression description: {exp_desc}')
+            exp = extract_exp(exp_desc)[0]
             print(f'predicted expression: {exp}')
             sel_args = {'column': sel_col, 'expression': exp}
             text_transform(project_id, **sel_args)
@@ -498,50 +524,58 @@ if __name__ == "__main__":
             sel_args = {'column': sel_col, 'edits': edits}
             mass_edit(project_id, **sel_args)
         elif sel_op == 'remove_column':
-            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments column in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments column in ``` ```. """ \
                                 +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
+                                Current Operation Purpose: {one_sent_eod_desc}
                                 Arguments: column: {sel_col}
                                 """
             sel_args = {'column': sel_col}
             remove_column(project_id, **sel_args)
         elif sel_op == "reorder_rows":
-            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments sort_by in " " without Explanations.""" \
+            prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments sort_by in ``` ```. """ \
                                 +f"""
                                 /*
                                 {tb_str}
                                 */
                                 Purpose: {dc_obj}
+                                Current Operation Purpose: {one_sent_eod_desc}
                                 Arguments: sort_by: {sel_col}
                                 """
-            context, sort_col = gen(prompt_sel_args, context, log_f)
+            context, sort_col_desc = gen(prompt_sel_args, context, log_f)
+            sort_col = extract_exp(sort_col_desc)
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
-       
-        # @TODO: Question: is Full_Chain_learn equal to eod_learn prompts?
-        # with open("prompts/full_chain_demo.txt", 'r')as f2:
-        #     full_chain_learn = f2.read()
-        # prompt_full_chain = "Learn when to generate {{True}} for eod_flag and end the data cleaning functions generation:\n" + full_chain_learn
-        
+
+        break
         # Re-execute intermediate table
         cur_df = export_intermediate_tb(project_id)
 
         # TASK VI:
         # Keep passing intermediate table and data cleaning objective, until eod_flag is True. End the iteration.
         iter_prompt = eod_learn + f"""
-                                \n\nBased on table contents and Objective provided as following, output Flag in ```` ```` without Explanations.
+                                \n\nBased on table contents and Objective provided as following, output Flag in ``` ```.
                                 /*
                                 {gen_table_str(cur_df)}
                                 */
                                 Objective: {dc_obj}
                                 Flag:
                                 """
-   
-        context, eod_desc = gen(iter_prompt, [], log_f)
-        eod_flag = extract_exp(eod_desc)
+        for _ in range(num_votes):
+            context, eod_desc = gen(iter_prompt, [], log_f)
+            eod_flag = extract_exp(eod_desc)[0]
+            eod_flag_list.append(eod_flag)
+            eod_desc_list.append(eod_desc)
+        if any([x == "False" for x in eod_flag_list]):
+            eod_flag  = "False"
+            mask = [int(x == "False") for x in eod_flag_list]
+            eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
+        else:
+            eod_flag = "True"
+        print(f'Decision of end of data cleaning: {eod_desc}')
         print(eod_flag)
         print(f'LLMs believe current table is good enough to address objectives: {eod_flag}')
 

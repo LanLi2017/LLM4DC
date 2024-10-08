@@ -38,7 +38,6 @@ row 3 : | 3  | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 |
 */
 Purpose: what is the date of the competition with highest attendance?
 Operation: ```split_column```
-Arguments: column: "When", separator: ","
 Explanation: The question asks about the date of the competition with highest score. Each row is about one competition. We split the value from column "When" with separator ",", and create two new columns.
 Output: April 13 | April 20 | April 28
 '''
@@ -55,7 +54,6 @@ row 3 : | 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 
 */
 Purpose: Return top 5 competitions that have the most attendance.
 Operation: ```add_column```
-Arguments: column: "attendance", expression: "value", new_column: "attendance number")
 Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
 Output: 32,092 | 34,186 | 17,503
 '''
@@ -72,7 +70,6 @@ row 3 : | 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
 */
 Purpose: Figure out the place that has a population in 2009 higher than 500,000.
 Operation: ```text_transform```
-Arguments: column: "Population; Census 2009", expression: "jython: return int(value)"
 Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
 Output: 939370 | 649311 | 1109735
 '''
@@ -92,7 +89,6 @@ row 6 : | 100000   | Chicagoo | IL     |
 */
 Purpose: Return how many cities are in the table.
 Operation: ```mass_edit```
-Arguments: column: "City", edits:[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}])
 Explanation: Mispellings and different formats of data need to be revised. 
 Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
 '''
@@ -109,7 +105,6 @@ row 3 : | 3 | Kilifi | Coast | 12,245.9 | 1,109,735 | Kilifi
 */
 Purpose: what is the total number of counties with a population in 2009 higher than 500,000?
 Operation: ```rename_column```
-Arguments: column: "Population; Census 2009", new_column: "Population"
 Explanation: the question asks about the number of counties with a population in 2009 higher than 500,000. Each row is about one county. We rename the column "Population; Census 2009" as "Population".
 Output: 939370 | 649311 | 1109735
 '''
@@ -126,7 +121,6 @@ row 3 :  | 3 | asami tanno     |  jpn    | 53.04 |
 */
 Purpose: return the player information, including both name and country 
 Operation: ```remove_column```
-Arguments: column: "player_name(preferred)"
 Explanation: cell values in column player_name(preferred) is unrelated to the question, therefore, we will remove it.
 '''
 
@@ -143,7 +137,6 @@ row 3 : | 3 |CD Numancia| 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
 */
 Purpose: what club placed in the last position?
 Operation: ```reorder_rows```
-Arguments: sort_by: "Position"
 Explanation: the question asks about the club in the last position. Each row is about a club. We need to know the order of position from last the top. There is a column for position and the column name is Position. The datatype is Numerical.
 """
 
@@ -289,16 +282,42 @@ def get_function_arguments(script_path: str, function_name: str) -> List[str]:
 #     else:
 #         print("No code block found.")
 #         return False
-def extract_exp(content):
-    """This function is to extract all python code blocks from generated results."""
-    matches = re.findall(r'```(.*?)```', content, re.DOTALL)
-    if matches:
-        code_blocks = [match.strip().replace('; ', '\n') for match in matches]
-        return code_blocks
+# def extract_exp(content):
+#     """This function is to extract all python code blocks from generated results."""
+#     matches = re.findall(r'```(.*?)```', content, re.DOTALL)
+#     if matches:
+#         code_blocks = [match.strip().replace('; ', '\n') for match in matches]
+#         return code_blocks
+#     else:
+#         print("No code blocks found.")
+#         return False
+def extract_exp(content, refs=None):
+    # Count occurrences of each *reference* in the generated content by LLM
+    print(content)
+    if refs:
+        # 1. select columns; 2. select operations
+        ref_counts = Counter()
+        for ref in refs:
+            # Adjust the pattern to allow for optional leading formatting characters
+            pattern = r'(?:(?:\*\*|\`|\`\`)?\s*)' + re.escape(ref) + r'(?:(?=\s)|(?=\*\*|\`|\`\`)|$)'
+            ref_counts[ref] = len(re.findall(pattern, content))
+    
+        # Find the maximum occurrence count
+        max_count = max(ref_counts.values(), default=0)
+        
+        # Retrieve operation names with the maximum occurrence
+        most_freq_ref = [res for res, count in ref_counts.items() if count == max_count and count > 0]
+        print(most_freq_ref)
+        return most_freq_ref[0]
     else:
-        print("No code blocks found.")
-        return False
-
+        # this is to extract arguments 
+        matches = re.findall(r'```(.*?)```', content, re.DOTALL)
+        if matches:
+            code_blocks = [match.strip().replace('; ', '\n') for match in matches]
+            return code_blocks
+        else:
+            print("No code blocks found.")
+            return False
 
 
 def gen(prompt, context, log_f, temp=0):
@@ -404,11 +423,49 @@ if __name__ == "__main__":
                                         """
 
         context, sel_col_desc = gen(prompt_sel_col, context, log_f)
-        sel_col = extract_exp(sel_col_desc)[0]
+        sel_col = extract_exp(sel_col_desc, refs=av_cols)
         print(f'selected column: {sel_col}')
+
+        # TASK II: select operations
+        sel_op = ''
+        ops = get_operations(project_id)
+        op_list = [dict['op'] for dict in ops]
+        functions_list = [map_ops_func[operation].__name__ for operation in op_list]
+        print(functions_list)
+        if 'mass_edit' in functions_list:
+            try:
+                ops_pool.remove('mass_edit')
+            except ValueError:
+                pass
+        prompt_sel_ops = dynamic_plan + f"""\n\n Based on table contents and Purpose provided as following, select a proper Operation from the {ops_pool} and output the operation name in ``` ``` without Explanation.\n"""\
+                                +f"""
+                                /*
+                                {tb_str}
+                                */
+                                Purpose: {dc_obj}
+                                Operation: 
+                                """
+        print('here we go')
+        print(prompt_sel_ops)
+        while not (sel_op in ops_pool):
+            context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
+            print(sel_op_desc)
+            sel_op = extract_exp(sel_op_desc, ops_pool)
+            print(f'selected operation: {sel_op}')
+
+        # TASK III: Learn function arguments (share the same context with sel_op)
+        args = get_function_arguments('call_or.py', sel_op)
+        args.remove('project_id')  # No need to predict project_id
+        args.remove('column')
+        print(f'Current args need to be generated: {args}')
+        # prompt_sel_args = f"""<|begin_of_text|> Next predicted operation is {sel_op}"""
+        with open(f'prompts/{sel_op}.txt', 'r') as f1:
+            prompt_sel_args = f1.read()
         
-        # Task II.0: prepare the operation purpose
-        print(tb_str)
+        # update tb_str to use the full rows:
+        tb_str = gen_table_str(df, num_rows=5)
+
+        # Prepare the operation purpose
         prompt_eod = eod_learn + f"""
                                     \n\nBased on table contents, Objective, and Flag provided as following, output Explanations.
                                     /*
@@ -424,46 +481,7 @@ if __name__ == "__main__":
         _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
         print(f'Current operation purpose: {one_sent_eod_desc}')
 
-        # TASK II: select operations
-        sel_op = ''
-        ops = get_operations(project_id)
-        op_list = [dict['op'] for dict in ops]
-        functions_list = [map_ops_func[operation].__name__ for operation in op_list]
-        print(functions_list)
-        if 'mass_edit' in functions_list:
-            try:
-                ops_pool.remove('mass_edit')
-            except ValueError:
-                pass
-        prompt_sel_ops = dynamic_plan + f"""\n\n Based on table contents and Purpose provided as following, select a proper Operation from the {ops_pool} and output the operation name ONLY in ``` ```.\n"""\
-                                +f"""
-                                /*
-                                {tb_str}
-                                */
-                                Purpose: {dc_obj}
-                                Operation: 
-                                """
-        print('here we go')
-        print(prompt_sel_ops)
-        while not (sel_op in ops_pool):
-            context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
-            sel_op = extract_exp(sel_op_desc)[0]
-            print(f'selected operation: {sel_op}')
-        raise NotImplementedError
-
-        # TASK III: Learn function arguments (share the same context with sel_op)
-        args = get_function_arguments('call_or.py', sel_op)
-        args.remove('project_id')  # No need to predict project_id
-        args.remove('column')
-        print(f'Current args need to be generated: {args}')
-        # prompt_sel_args = f"""<|begin_of_text|> Next predicted operation is {sel_op}"""
-        with open(f'prompts/{sel_op}.txt', 'r') as f1:
-            prompt_sel_args = f1.read()
-        
-        # update tb_str to use the full rows:
-        tb_str = gen_table_str(df, num_rows=5)
         context = []
-       
         if sel_op == 'split_column':
             prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output separator in ``` ``` . """\
                                + f"""
@@ -475,7 +493,7 @@ if __name__ == "__main__":
                                 Arguments: column: {sel_col}, separator: 
                                 """
             context, sep_desc = gen(prompt_sel_args, context, log_f)
-            sep = extract_exp(sep_desc)[0]
+            sep = extract_exp(sep_desc)
             print(f'Predicted separator for operation split column: {sep}')
             sel_args= {'column':sel_col, 'separator':sep}
             split_column(project_id, **sel_args)
@@ -505,7 +523,7 @@ if __name__ == "__main__":
                                 Arguments: column: {sel_col}, new_column: 
                                 """
             context, new_col_desc = gen(prompt_sel_args, context, log_f)
-            new_col = extract_exp(new_col_desc)[0]
+            new_col = extract_exp(new_col_desc)
             sel_args = {'column': sel_col, 'new_column': new_col}
             rename_column(project_id, **sel_args)
         elif sel_op == 'text_transform':
@@ -522,7 +540,7 @@ if __name__ == "__main__":
             print(f'updated prompt for selecting arguments: {prompt_sel_args}')
             context, exp_desc = gen(prompt_sel_args, context, log_f)
             print(f'Predicted expression description: {exp_desc}')
-            exp = extract_exp(exp_desc)[0]
+            exp = extract_exp(exp_desc)
             print(f'predicted expression: {exp}')
             sel_args = {'column': sel_col, 'expression': exp}
             text_transform(project_id, **sel_args)
@@ -546,7 +564,7 @@ if __name__ == "__main__":
                                 Arguments: column: 
                                 """
             context, rm_desc = gen(prompt_sel_args, context, log_f)
-            rm_col = extract_exp(rm_desc)[0]
+            rm_col = extract_exp(rm_desc, av_cols)
             sel_args = {'column': rm_col}
             remove_column(project_id, **sel_args)
         elif sel_op == "reorder_rows":
@@ -581,7 +599,7 @@ if __name__ == "__main__":
                                 """
         for _ in range(num_votes):
             context, eod_desc = gen(iter_prompt, [], log_f)
-            eod_flag = extract_exp(eod_desc)[0]
+            eod_flag = extract_exp(eod_desc)
             eod_flag_list.append(eod_flag)
             eod_desc_list.append(eod_desc)
         if any([x == "False" for x in eod_flag_list]):

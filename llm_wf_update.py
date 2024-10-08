@@ -27,8 +27,6 @@ dynamic_plan = """
 
 You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format and correct semantics. Available example demos to learn the data cleaning operations can be retrieved here:
 
-split_column(): 
-'''
 If the table have the needed column but does not have the exact cell values to answer the question. In other words, the cell values from the column 
 comprise the values to answer the question, we use **split_column()** to decompose the column for it. For example,
 /*
@@ -43,10 +41,6 @@ Arguments: column: "When", separator: ","
 Explanation: The question asks about the date of the competition with highest score. Each row is about one competition. We split the value from column "When" with separator ",", and create two new columns.
 Output: April 13 | April 20 | April 28
 
-'''
-
-add_column():
-'''
 If the table does not have the needed column to answer the question, we use **add_column()** to add a new column for it. For example,
 /*
 col : week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
@@ -59,10 +53,7 @@ Operation: ```add_column```
 Arguments: column: "attendance", expression: "value", new_column: "attendance number")
 Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
 Output: 32,092 | 34,186 | 17,503
-'''
 
-rename_column(): 
-'''
 If the table does not have the related column name to answer the question, we use **rename_column()** to find the most related column and rename the column with new, and more meaningful name. For example,
 /*
 col : Code | County | Former Province | Area (km2) | Population; Census 2009 | Capital
@@ -75,10 +66,7 @@ Operation: ```rename_column```
 Arguments: column: "Population; Census 2009", new_column: "Population"
 Explanation: the question asks about the number of counties with a population in 2009 higher than 500,000. Each row is about one county. We rename the column "Population; Census 2009" as "Population".
 Output: 939370 | 649311 | 1109735
-'''
 
-text_transform(): 
-'''
 If the question asks about the characteristics/patterns of cell values in a column, we use **text_transform()** to format and transform the items. For example,
 /*
 col : code | county | former province | area (km2) | population; census 2009 | capital
@@ -92,10 +80,6 @@ Arguments: column: "Population; Census 2009", expression: "jython: return int(va
 Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
 Output: 939370 | 649311 | 1109735
 
-'''
-
-mass_edit():
-'''
 If the question asks about items with the same value and the number of these items, we use **mass_edit()** to standardize the items. For example,
 /*
 col : LoanAmount | City     | State  | Zip 
@@ -112,11 +96,6 @@ Arguments: column: "City", edits:[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'
 Explanation: Mispellings and different formats of data need to be revised. 
 Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
 
-'''
-
-remove_column():
-
-'''
 If the column contains too many missing values, to improve the data quality, we use **remove_column()** to drop the column. For example,
 /*
 col : rank | lane | player name| country | time  | player_name(preferred)
@@ -129,10 +108,6 @@ Operation: ```remove_column```
 Arguments: column: "player_name(preferred)"
 Explanation: cell values in column player_name(preferred) are empty, therefore, we will remove it.
 
-'''
-
-reorder_rows():
-'''
 If the question asks about the order of items in a column, we use **reorder_rows()** to sort the items. For example,
 /*
 col : Position | Club | Played | Points | Wins | Draws | Losses | Goals for | Goals against | Goal Difference
@@ -144,8 +119,6 @@ Purpose: what club placed in the last position?
 Operation: ```reorder_rows```
 Arguments: sort_by: "Position"
 Explanation: the question asks about the club in the last position. Each row is about a club. We need to know the order of position from last the top. There is a column for position and the column name is Position. The datatype is Numerical.
-'''
-
 """
 
 map_ops_func = {
@@ -340,7 +313,7 @@ if __name__ == "__main__":
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
     dc_obj = """ How many different events are recorded in the dataset?"""
     # dc_obj = """ How do the physical size of collected menus evolve during the 1900-2000 years?"""
-    ops_pool = ["split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"]
+    ops_pool = {"split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"}
     log_f = open("CoT.response/llm_dcw.txt", "w")
     ops = [] # operation history 
     project_id = 2328682001012 
@@ -377,7 +350,8 @@ if __name__ == "__main__":
         # eod_desc = random.choice(eod_desc_list[x for x in ids])
     else:
         eod_flag = "True"
-    
+    print(eod_flag_list)
+    print(eod_desc)
     print(f'End of data cleaning: {eod_flag}')
     while eod_flag == "False":
         context = []
@@ -404,10 +378,6 @@ if __name__ == "__main__":
         context, sel_col_desc = gen(prompt_sel_col, context, log_f)
         sel_col = extract_exp(sel_col_desc)[0]
         print(f'selected column: {sel_col}')
-        
-        # prompt_eod_desc_summarization = f"""please generate a one-sentence summarization of the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
-        # _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
-        # print(f'Current operation purpose: {one_sent_eod_desc}')
 
         # TASK II: select operations
         ops = get_operations(project_id)
@@ -415,17 +385,9 @@ if __name__ == "__main__":
         functions_list = [map_ops_func[operation].__name__ for operation in op_list]
         print(functions_list)
         if 'mass_edit' in functions_list:
-            ops_pool.remove('mass_edit')
+            ops_pool.discard('mass_edit')
         print(f'current available operations: {ops_pool}')
-        # prompt_sel_ops = dynamic_plan + f"""The available operations are in the operations list: {ops_pool}. Based on table contents and purpose provided as following, output Operation name in ``` ```. """\
-        #                         +f"""
-        #                         /*
-        #                         {tb_str}
-        #                         */
-        #                         Purpose: {dc_obj}
-        #                         Operation: 
-        #                         """
-        prompt_sel_ops = dynamic_plan + f""" Based on table contents and purpose provided as following, output Operation name in ``` ```. The available operations list: {ops_pool}"""\
+        prompt_sel_ops = dynamic_plan + f"""The available operations list: {ops_pool}. Based on table contents and purpose provided as following, output Operation name in ``` ```. """\
                                 +f"""
                                 /*
                                 {tb_str}
@@ -436,10 +398,14 @@ if __name__ == "__main__":
 
         # while not (sel_op in ops_pool):
         context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
+        print(sel_op_desc)
         sel_op = extract_exp(sel_op_desc)[0]
         print(f'selected operation: {sel_op}')
 
         # TASK III: Learn function arguments (share the same context with sel_op)
+        prompt_eod_desc_summarization = f"""please generate a one-sentence summarization of the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
+        _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
+        print(f'Current operation purpose: {one_sent_eod_desc}')
         args = get_function_arguments('call_or.py', sel_op)
         args.remove('project_id')  # No need to predict project_id
         args.remove('column')
@@ -550,7 +516,6 @@ if __name__ == "__main__":
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
 
-        break
         # Re-execute intermediate table
         cur_df = export_intermediate_tb(project_id)
 

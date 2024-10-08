@@ -24,81 +24,102 @@ model = "llama3.1:8b-instruct-fp16"
 # model = "llama3.1"
 
 dynamic_plan = """
+You are an expert in data cleaning and able to choose appropriate Operations to prepare the table in good format to address the Purpose. Available example demos to learn the data cleaning operations can be retrieved here:
 
-You are an expert in data cleaning and able to choose appropriate functions and arguments to prepare the data in good format and correct semantics. Available example demos to learn the data cleaning operations can be retrieved here:
+split_column(): 
+'''
+If the table have the needed column but does not have the exact cell values to answer the question. In other words, the cell values from the column comprise the values to answer the question, we use split_column to decompose the column for it. For example,
 
-If the table have the needed column but does not have the exact cell values to answer the question. In other words, the cell values from the column 
-comprise the values to answer the question, we use **split_column()** to decompose the column for it. For example,
 /*
-col : Week | When | Kickoff | Opponent | Results; Final score | Results; Team record | Game site | Attendance
-row 1 : 1 | Saturday, April 13 | 7:00 p.m. | at Rhein Fire | W 27–21 | 1–0 | Rheinstadion | 32,092
-row 2 : 2 | Saturday, April 20 | 7:00 p.m. | London Monarchs | W 37–3 | 2–0 | Waldstadion | 34,186
-row 3 : 3 | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 | 3–0 | Estadi Olímpic de Montjuïc | 17,503
+col : | Week | When | Kickoff | Opponent | Results; Final score | Results; Team record | Game site | Attendance
+row 1 : | 1  | Saturday, April 13 | 7:00 p.m. | at Rhein Fire | W 27–21 | 1–0 | Rheinstadion | 32,092
+row 2 : | 2  | Saturday, April 20 | 7:00 p.m. | London Monarchs | W 37–3 | 2–0 | Waldstadion | 34,186
+row 3 : | 3  | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 | 3–0 | Estadi Olímpic de Montjuïc | 17,503
 */
 Purpose: what is the date of the competition with highest attendance?
 Operation: ```split_column```
 Arguments: column: "When", separator: ","
 Explanation: The question asks about the date of the competition with highest score. Each row is about one competition. We split the value from column "When" with separator ",", and create two new columns.
 Output: April 13 | April 20 | April 28
+'''
 
-If the table does not have the needed column to answer the question, we use **add_column()** to add a new column for it. For example,
+add_column():
+'''
+If the table does not have the needed column to answer the question, we use add_column to add a new column for it. For example,
+
 /*
-col : week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
-row 1 : 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
-row 2 : 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 | waldstadion | 34,186
-row 3 : 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
+col : | week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
+row 1 : | 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
+row 2 : | 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 | waldstadion | 34,186
+row 3 : | 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
 */
 Purpose: Return top 5 competitions that have the most attendance.
 Operation: ```add_column```
 Arguments: column: "attendance", expression: "value", new_column: "attendance number")
 Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
 Output: 32,092 | 34,186 | 17,503
+'''
 
-If the table does not have the related column name to answer the question, we use **rename_column()** to find the most related column and rename the column with new, and more meaningful name. For example,
-/*
-col : Code | County | Former Province | Area (km2) | Population; Census 2009 | Capital
-row 1 : 1 | Mombasa | Coast | 212.5 | 939,370 | Mombasa (City)
-row 2 : 2 | Kwale | Coast | 8,270.3 | 649,931 | Kwale
-row 3 : 3 | Kilifi | Coast | 12,245.9 | 1,109,735 | Kilifi
-*/
-Purpose: what is the total number of counties with a population in 2009 higher than 500,000?
-Operation: ```rename_column```
-Arguments: column: "Population; Census 2009", new_column: "Population"
-Explanation: the question asks about the number of counties with a population in 2009 higher than 500,000. Each row is about one county. We rename the column "Population; Census 2009" as "Population".
-Output: 939370 | 649311 | 1109735
+text_transform(): 
+'''
+If the table contains the correct data but the cell values need to be formatted or transformed to answer the question, in other words, the values are present but require modification, we use text_transform to apply functions like upper(), lower(), or regex to process and refine the data. For example,
 
-If the question asks about the characteristics/patterns of cell values in a column, we use **text_transform()** to format and transform the items. For example,
 /*
-col : code | county | former province | area (km2) | population; census 2009 | capital
-row 1 : 1 | mombasa | coast | 212.5 | 939,370 | mombasa (city)
-row 2 : 2 | kwale | coast | 8,270.3 | 649,931 | kwale
-row 3 : 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939,370 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649,931 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
 */
 Purpose: Figure out the place that has a population in 2009 higher than 500,000.
 Operation: ```text_transform```
 Arguments: column: "Population; Census 2009", expression: "jython: return int(value)"
 Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
 Output: 939370 | 649311 | 1109735
+'''
 
-If the question asks about items with the same value and the number of these items, we use **mass_edit()** to standardize the items. For example,
+mass_edit():
+'''
+If the table has the necessary column but contains inconsistent or similar variations of cell values that prevent a clear answer, in other words, the cell values need to be standardized, we use mass_edit to merge and correct these variations. For example,
+
 /*
-col : LoanAmount | City     | State  | Zip 
-row 1 : 30333    | Hon      | HI     |96814
-row 2 : 149900   | HONOLULU | HI     | 96814 
-row 3 : 148100   | Honolulu | HI     | 96814
-row 4 : 334444   | CHI      | IL     | 60611
-row 5 : 120      | urbana   | IL     | 61802
-row 6 : 100000   | Chicagoo | IL     | 
+col : | LoanAmount | City     | State  | Zip 
+row 1 : | 30333    | Hon      | HI     |96814
+row 2 : | 149900   | HONOLULU | HI     | 96814 
+row 3 : | 148100   | Honolulu | HI     | 96814
+row 4 : | 334444   | CHI      | IL     | 60611
+row 5 : | 120      | urbana   | IL     | 61802
+row 6 : | 100000   | Chicagoo | IL     | 
 */
 Purpose: Return how many cities are in the table.
 Operation: ```mass_edit```
 Arguments: column: "City", edits:[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}])
 Explanation: Mispellings and different formats of data need to be revised. 
 Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+'''
 
-If the column contains too many missing values, to improve the data quality, we use **remove_column()** to drop the column. For example,
+rename_column(): 
+'''
+If the table does not have the relavant column name to answer the question, we use rename_column to find the most related column and rename the column with new, and more meaningful name. For example,
+
 /*
-col : rank | lane | player name| country | time  | player_name(preferred)
+col : | Code | County | Former Province | Area (km2) | Population; Census 2009 | Capital
+row 1 : | 1 | Mombasa | Coast | 212.5 | 939,370 | Mombasa (City)
+row 2 : | 2 | Kwale | Coast | 8,270.3 | 649,931 | Kwale
+row 3 : | 3 | Kilifi | Coast | 12,245.9 | 1,109,735 | Kilifi
+*/
+Purpose: what is the total number of counties with a population in 2009 higher than 500,000?
+Operation: ```rename_column```
+Arguments: column: "Population; Census 2009", new_column: "Population"
+Explanation: the question asks about the number of counties with a population in 2009 higher than 500,000. Each row is about one county. We rename the column "Population; Census 2009" as "Population".
+Output: 939370 | 649311 | 1109735
+'''
+
+remove_column():
+'''
+If the table has unnecessary columns that do not contribute to answering the question, in other words, the extra columns contain irrelevant data, we use remove_column to eliminate them and simplify the table. For example,
+
+/*
+col : | rank | lane | player name| country | time  | player_name(preferred)
 row 1 :  | 5 | olga tereshkova |  kaz    | 51.86 |
 row 2 :  | 6 | manjeet kaur    |  ind    | 52.17 | NA
 row 3 :  | 3 | asami tanno     |  jpn    | 53.04 |
@@ -106,14 +127,19 @@ row 3 :  | 3 | asami tanno     |  jpn    | 53.04 |
 Purpose: return the player information, including both name and country 
 Operation: ```remove_column```
 Arguments: column: "player_name(preferred)"
-Explanation: cell values in column player_name(preferred) are empty, therefore, we will remove it.
+Explanation: cell values in column player_name(preferred) is unrelated to the question, therefore, we will remove it.
+'''
 
-If the question asks about the order of items in a column, we use **reorder_rows()** to sort the items. For example,
+reorder_rows():
+'''
+
+If the table has the correct data but the rows are not in the desired order to answer the question, in other words, the rows need to be reorganized for clarity or relevance, we use reorder_rows to adjust their sequence. For example,
+
 /*
-col : Position | Club | Played | Points | Wins | Draws | Losses | Goals for | Goals against | Goal Difference
-row 1 : 1 | Malaga CF | 42 | 79 | 22 | 13 | 7 | 72 | 47 | +25
-row 10 : 10 | CP Merida | 42 | 59 | 15 | 14 | 13 | 48 | 41 | +7
-row 3 : 3 | CD Numancia | 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
+col : | Position | Club | Played | Points | Wins | Draws | Losses | Goals for | Goals against | Goal Difference
+row 1 : | 1 | Malaga CF | 42 | 79 | 22 | 13 | 7 | 72 | 47 | +25
+row 10 :|10 |CP Merida  | 42 | 59 | 15 | 14 | 13 | 48 | 41 | +7
+row 3 : | 3 |CD Numancia| 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
 */
 Purpose: what club placed in the last position?
 Operation: ```reorder_rows```
@@ -166,20 +192,49 @@ def format_sel_col(df):
     return res
 
 
+# def gen_table_str(df, num_rows=3, tg_col=None):
+#     # Sample the first 30 rows
+#     df = df.head(num_rows)
+#     # Prepend "row n:" to each row
+#     if not tg_col:
+#         df.insert(0, 'Row', [f'row {i+1}:' for i in range(len(df))])
+#         # Convert the DataFrame to a Markdown string without the header
+#         rows_lines = [f"row {i+1}: | " + " | ".join(map(str, row)) + " |" for i, row in df.iterrows()]
+#         # Add the column schema line
+#         column_names = " | ".join(df.columns)
+#         column_schema = f'col: | {column_names} |\n'
+#         # Combine the column schema with the DataFrame content
+#         table_str = column_schema + "\n".join(rows_lines)
+#         return table_str
+#     else:
+#         column_values = df[tg_col]
+#         formatted_output = [f"col: {tg_col}"]
+#         for i, value in enumerate(column_values, start=1):
+#             formatted_output.append(f"row {i}: {value}")
+#         return '\n'.join(formatted_output)
+
 def gen_table_str(df, num_rows=3, tg_col=None):
-    # Sample the first 30 rows
+    # Sample the first 'num_rows' rows
     df = df.head(num_rows)
-    # Prepend "row n:" to each row
+    
+    # If no target column is specified, generate the full table
     if not tg_col:
-        df.insert(0, 'Row', [f'row {i+1}:' for i in range(len(df))])
-        # Convert the DataFrame to a Markdown string without the header
-        rows_lines = [f"row {i+1}: | " + " | ".join(map(str, row)) + " |" for i, row in df.iterrows()]
-        # Add the column schema line
-        column_names = " | ".join(df.columns)
-        column_schema = f'col: | {column_names} |\n'
-        # Combine the column schema with the DataFrame content
-        table_str = column_schema + "\n".join(rows_lines)
+        # Find the maximum length for each column for proper alignment
+        col_widths = [max(len(str(col)), df[col].astype(str).map(len).max()) + 2 for col in df.columns]
+
+        # Prepare the formatted column schema line
+        column_schema = 'col: | ' + ' | '.join([f'{col:<{col_widths[i]}}' for i, col in enumerate(df.columns)]) + ' |'
+        # Prepare the formatted rows with row numbers
+        rows_lines = []
+        for i, row in df.iterrows():
+            row_str = ' | '.join([f'{str(value):<{col_widths[j]}}' for j, value in enumerate(row)])
+            rows_lines.append(f'row {i+1}: | {row_str} |')
+        
+        # Combine the column schema with the formatted rows
+        table_str = column_schema + '\n' + '\n'.join(rows_lines)
         return table_str
+
+    # If a target column is specified, return just that column's values
     else:
         column_values = df[tg_col]
         formatted_output = [f"col: {tg_col}"]
@@ -313,52 +368,25 @@ if __name__ == "__main__":
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
     dc_obj = """ How many different events are recorded in the dataset?"""
     # dc_obj = """ How do the physical size of collected menus evolve during the 1900-2000 years?"""
-    ops_pool = {"split_column", "add_column", "text_transform", "mass_edit", "rename_column", "remove_column"}
+    ops_pool = ["mass_edit", "split_column", "add_column", "text_transform", "rename_column", "remove_column"]
+    print(ops_pool)
     log_f = open("CoT.response/llm_dcw.txt", "w")
     ops = [] # operation history 
-    project_id = 2328682001012 
-    df_init = export_intermediate_tb(project_id)
+    project_id = 2489004537051
 
     ops = get_operations(project_id)
     op_list = [dict['op'] for dict in ops]
     functions_list = [map_ops_func[operation].__name__ for operation in op_list]
+    print(f'Applied operation history: {functions_list}')
+    eod_flag = "False" # initialize the end_of_dc_flag to start data_cleaning pipeline
 
-    prompt_eod = eod_learn + f"""
-                                \n\nBased on table contents and Objective provided as following, output Flag in ``` ```.
-                                /*
-                                {gen_table_str(df_init)}
-                                */
-                                Objective: {dc_obj}
-                                Flag:
-                                """
-    eod_flag_list = []
-    eod_desc_list = []
-    for _ in range(num_votes):
-        context, eod_desc = gen(prompt_eod, [], log_f)
-        eod_flag = extract_exp(eod_desc)
-        if not eod_flag:
-            eod_flag = "False"
-        else:
-            eod_flag = extract_exp(eod_desc)[0]
-        eod_flag_list.append(eod_flag)
-        eod_desc_list.append(eod_desc)
-    if any([x == "False" for x in eod_flag_list]):
-        eod_flag  = "False"
-        # ids = eod_flag_list.indexof(eod_flag)
-        mask = [int(x == "False") for x in eod_flag_list]
-        eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
-        # eod_desc = random.choice(eod_desc_list[x for x in ids])
-    else:
-        eod_flag = "True"
-    print(eod_flag_list)
-    print(eod_desc)
-    print(f'End of data cleaning: {eod_flag}')
     while eod_flag == "False":
         context = []
+        eod_desc = False
         # The eod_flag is True.
         # Return current intermediate table
         df = export_intermediate_tb(project_id)
-        tb_str = gen_table_str(df)
+        tb_str = gen_table_str(df, num_rows=20)
         av_cols = df.columns.to_list()
 
         # 1. LLM predict next operation: five op-demo and chain-of ops 
@@ -367,27 +395,47 @@ if __name__ == "__main__":
             sel_col_learn = f.read()
 
         prompt_sel_col = sel_col_learn + f"""
-                                        \n\nBased on table contents and purpose provided as following, output column names in ``` ```.
+                                        \n\nBased on table contents and purpose provided as following, output column name in ``` ```.
                                         /*
                                         {format_sel_col(df)}
                                         */
                                         Purpose: {dc_obj}
-                                        Selected columns:
+                                        Selected column:
                                         """
 
         context, sel_col_desc = gen(prompt_sel_col, context, log_f)
         sel_col = extract_exp(sel_col_desc)[0]
         print(f'selected column: {sel_col}')
+        
+        # Task II.0: prepare the operation purpose
+        print(tb_str)
+        prompt_eod = eod_learn + f"""
+                                    \n\nBased on table contents, Objective, and Flag provided as following, output Explanations.
+                                    /*
+                                    {tb_str}
+                                    */
+
+                                    Objective: {dc_obj}
+                                    Flag: ```False```
+                                    Explanations: 
+                                    """
+        _, eod_desc = gen(prompt_eod, [], log_f)
+        prompt_eod_desc_summarization = f"""please generate a one-sentence summarization of the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
+        _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
+        print(f'Current operation purpose: {one_sent_eod_desc}')
 
         # TASK II: select operations
+        sel_op = ''
         ops = get_operations(project_id)
         op_list = [dict['op'] for dict in ops]
         functions_list = [map_ops_func[operation].__name__ for operation in op_list]
         print(functions_list)
         if 'mass_edit' in functions_list:
-            ops_pool.discard('mass_edit')
-        print(f'current available operations: {ops_pool}')
-        prompt_sel_ops = dynamic_plan + f"""The available operations list: {ops_pool}. Based on table contents and purpose provided as following, output Operation name in ``` ```. """\
+            try:
+                ops_pool.remove('mass_edit')
+            except ValueError:
+                pass
+        prompt_sel_ops = dynamic_plan + f"""\n\n Based on table contents and Purpose provided as following, select a proper Operation from the {ops_pool} and output the operation name ONLY in ``` ```.\n"""\
                                 +f"""
                                 /*
                                 {tb_str}
@@ -395,17 +443,15 @@ if __name__ == "__main__":
                                 Purpose: {dc_obj}
                                 Operation: 
                                 """
-
-        # while not (sel_op in ops_pool):
-        context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
-        print(sel_op_desc)
-        sel_op = extract_exp(sel_op_desc)[0]
-        print(f'selected operation: {sel_op}')
+        print('here we go')
+        print(prompt_sel_ops)
+        while not (sel_op in ops_pool):
+            context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
+            sel_op = extract_exp(sel_op_desc)[0]
+            print(f'selected operation: {sel_op}')
+        raise NotImplementedError
 
         # TASK III: Learn function arguments (share the same context with sel_op)
-        prompt_eod_desc_summarization = f"""please generate a one-sentence summarization of the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
-        _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
-        print(f'Current operation purpose: {one_sent_eod_desc}')
         args = get_function_arguments('call_or.py', sel_op)
         args.remove('project_id')  # No need to predict project_id
         args.remove('column')
@@ -483,7 +529,7 @@ if __name__ == "__main__":
         elif sel_op == 'mass_edit':
             # semi-automate.. python (edits) + LLM
             # print(f'selected column name: {sel_col}')
-            sel_col = sel_col.strip("[]' ")
+            # sel_col = sel_col.strip("[]' ")
             # print(f'processed column name: {sel_col}')
             df_me = df[sel_col].dropna().tolist() # only input target column
             edits = exe_edits(df_me)
@@ -497,9 +543,11 @@ if __name__ == "__main__":
                                 */
                                 Purpose: {dc_obj}
                                 Current Operation Purpose: {one_sent_eod_desc}
-                                Arguments: column: {sel_col}
+                                Arguments: column: 
                                 """
-            sel_args = {'column': sel_col}
+            context, rm_desc = gen(prompt_sel_args, context, log_f)
+            rm_col = extract_exp(rm_desc)[0]
+            sel_args = {'column': rm_col}
             remove_column(project_id, **sel_args)
         elif sel_op == "reorder_rows":
             prompt_sel_args += """\n\nBased on table contents and purpose provided as following, output arguments sort_by in ``` ```. """ \
@@ -515,6 +563,8 @@ if __name__ == "__main__":
             sort_col = extract_exp(sort_col_desc)
             sel_args = {'sort_by': sort_col}
             reorder_rows(project_id, **sel_args)
+        
+        raise NotImplementedError 
 
         # Re-execute intermediate table
         cur_df = export_intermediate_tb(project_id)

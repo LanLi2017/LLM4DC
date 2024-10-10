@@ -6,11 +6,11 @@ provides sufficient information to answer it.
 "what are the columns? Whether the column names are meaningful or not?" 
 "what are the distributions of data instances?" "are they clearly represented?"
 (3). Assess the profiling results from four dimensions as following: 
-- **accuracy**: Whether the dataset is free from obvious errors, inconsistencies, or biases
-- **relavance**: Whether it includes essential variables (target columns) to address the objectives.
-- **completeness**: Whether it has a reasonable sample size and contains enough data instances (not too many missing values)
-- **conciseness**: Whether the spellings are standardized, no same semantics but different representations exist
-(4) Return True or False according to results from (3), IF ONLY you are sure or return ```True``` for all dimensions: accuracy, relavance, completeness, and 
+- **accuracy**: Whether the target column is free from obvious errors, inconsistencies, or biases
+- **relavance**: Whether the target column exists in the dataset to address the objectives.
+- **completeness**: Whether the target column has a reasonable sample size and contains enough data instances (not too many missing values)
+- **conciseness**: Whether the spellings in the target column are standardized, no same semantics but different representations exist
+(4) Return True or False or N/A according to results from (3), IF ONLY All ```True``` and ```N/A``` are evaluated for all dimensions: accuracy, relavance, completeness, and 
 conciseness, you would return True. Otherwise, you SHOULD summarize the conclusion as ```False```.
 
 
@@ -24,19 +24,20 @@ row 3 : 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
 
 Objective: Figure out the place that has a population in 2009 higher than 500,000.
 Flag: ```False```
-Explanations: Accuracy: False (data type should be integers instead of strings)* Relevance: True* Completeness: True* Conciseness: True*. Since there are some concerns with Accuracy (False) and not all of the dimensions are True, I will return ```False```.
+Explanations: Accuracy: False (column population; census 2009: data type should be integers instead of strings)* Relevance: True (column population; census 2009 exists)* Completeness: True (all values available in column population; census 2009)* Conciseness: True (no duplicates in column population; census 2009)*. Since there are some concerns with Accuracy (False) and not all of the dimensions are True, I will return ```False```.
 
 
 /*
 col : LoanAmount | City     | State  | Zip 
-row 1 : 30333    | Hon      | HI     |96814
-row 2 : 149900   | HONOLULU | HI     | 96814 
+row 1 : 30333    | Honolulu | HI     |96814
+row 2 : 149900   | Honolulu | HI     |
 row 3 : 148100   | Honolulu | HI     | 96814
-row 4 : 334444   | CHI      | IL     | 60611
+row 4 : 334444   |          | IL     |
 row 5 : 120      | urbana   | IL     | 61802
-row 6 : 100000   | Chicagoo | IL     | 
+row 6 : 100000   | Chicago  | IL     | 
+row 6 : 1000.    |          | IL     | 
 */
 
 Objective: Figure out how many cities are in the table.
-Flag: ```False```
-Explanations: Accuracy: False (with some spelling issues)* Relevance: True* Completeness: False (would benefit from inferences)* Conciseness: False (duplicates exist in city name spellings)*. Since there are some concerns with Accuracy and Duplicates, not all of the dimensions are True, I will return ```False```.
+Flag: ```True```
+Explanations: Accuracy: True (correct spellings for the known city names in column City)* Relevance: True (column City is relavant to the Purpose)* Completeness: N/A (with minor number of missing values in column City but it can be ignored)* Conciseness: True (incorrect variations does not exist in column City)*. Since there are no concerns (True or N/A) with the quality dimensions, I will return ```True```.

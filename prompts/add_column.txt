@@ -1,14 +1,16 @@
 To answer the question, we can first use add_column() to add more columns.
 
-The required arguments for add_column() include: new_column, expression. With expression defined, the new column could be based on copying pasting the original value from the base column, or using transformation to process and 
-append values to new column. The simplest way to use this operation is simply leave the default {{value}} in the expression field, to create an exact copy of your column.
+Here are a few format types you could choose to generate the expression in add_column:
+1. cells["Column 1"].value + " "+ cells["Column 2"].value 
+Create a new column by concatenate cell values from Column 1 and Column 2 with a white space as the concatenator (default).
+2. cells["Column 1"].value + ";" + cells["Column 2"].value 
+Create a new column by concatenate cell values from Column 1 and Column 2 by semicolon (note that you could choose any concatenator according to the purpose)
+3. value
+Create a new column by duplicating the cell values from the target column.
 
-One useful expression is to create a column based on concatenating (merging) two other columns. Use the following format in the expression window:
-cells["Column 1"].value + cells["Column 2"].value
-If your column names do not contain spaces, you can use the following format instead:
-cells.Column1.value + cells.Column2.value
 
-Example 
+Examples of expression, new_column arguments prediction for operation add_column() are as following.
+
 /*
 col : week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
 row 1 : 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
@@ -16,6 +18,7 @@ row 2 : 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 
 row 3 : 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
 */
 Purpose: Return top 5 competitions that have the most attendance.
+Current Operation Purpose: number of attendance is duplicated based on the column attendance
 Expression: ```value```, New_column: ```attendance number```
 Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
 Output: 32,092 | 34,186 | 17,503
@@ -27,7 +30,8 @@ row 1 :  | 5 | olga tereshkova |  kaz    | 51.86
 row 2 :  | 6 | manjeet kaur    |  ind    | 52.17
 row 3 :  | 3 | asami tanno     |  jpn    | 53.04
 */
-Purpose: return the player information, including both name and country 
+Purpose: return the player information, including both name and country concatenating by "-"
+Current Operation Purpose: a new column named player information is created by concatenating cell values from column player name and country
 Expression: ```cells['player name'].value+ "-"+ cells['country'].value```, New_column: ```player```
 Explanation: We add a new column based on concatenating the value from column "player name" and "country" for each row.
 Output: olga tereshkova-kaz | manjeet kaur-ind | asami tanno-jpn

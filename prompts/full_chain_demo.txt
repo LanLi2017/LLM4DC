@@ -1,27 +1,60 @@
-You are a data cleaning expert and can automatically select a chain of data cleaning operations and generate arguments to prepare the data properly.
-This instruction is to teach how to generate a chain of operations (data cleaning workflow) to complete the given data cleaning objective. 
-The data cleaning workflow generation process will be ended until {True} is executed for __eod, which means current data is in a good quality to be use(output).
+This instruction is to teach how to generate a chain of operations (a.k.a., data cleaning workflow) to address the given data cleaning purpose. 
+Note:
+1. Operation Chain is a list, the order is the execution order of the selected operations.
+2. Correlation exists between previous and current operations. The chosing of current operation depends on how the previous operation modifies the table.
+3. Full Operation Chain will be ended if True is executed.
 
-Here are examples of full chain to address the data cleaning objectives/purposes.
+
+Here are example operation chains to address the data cleaning Purpose.
+
+Examples 
+/*
+col : id | neighbourhood      | room_type  | price 
+row 1 : 46154    | OHare      | Entire home/apt     | 65
+row 2 : 6715     | OHARE      | Entire home/apt     | 255 
+row 3 : 228273   | ohare    | Private room        | 109
+*/
+Purpose: Return room types that are located near OHare.
+Operation Chain: ```[text_transform, True]```
+Explanations:
+1. text_transform on column "neighbourhood" to uppercase the cell values;
+2. End the full chain: True.
+
+/*
+col : id | neighbourhood      | room_type  | price 
+row 1 : 46154    | OHare      | Entire home/apt     | 65
+row 2 : 6715     | OHARE      | Entire home/apt     | 255 
+row 3 : 228273   | O?Hare     | Private room        | 109
+row 4 : 22820    | ohare      |                     | 120
+row 5 : 12890    | O'Haree     | Private room        | 309
+*/
+Purpose: Return room types that are located near OHare.
+Operation Chain: ```[mass_edit, text_transform, True]```
+Explanations:
+1. mass_edit on column "neighbourhood" to repair "O?Hare" and "O'Haree" into "OHARE";
+2. text_transform on column "neighbourhood" to uppercase the cell values;
+3. End the full chain: True.
 
 /*
 col : LoanAmount | City     | State  | Zip 
 row 1 : 30333    | Hon      | HI     |96814
 row 2 : 149900   | HONOLULU | HI     | 96814 
-row 3 : 148100   | Honolulu | HI     | 96814
-row 4 : 334444   | CHI      | IL     | 60611
+row 3 : 148100   | honolulu | HI     | 96814
+row 4 : 334444   | Chicago  | IL     | 60611
 row 5 : 120      | urbana   | IL     | 61802
 row 6 : 100000   | Chicagoo | IL     | 
+row 7 : 1000.    | CHICAGO  | IL     | 60611
+row 8 : 103420   | CHICAGO  | IL     | 
 */
 Purpose: Return the city name that the most loan amount are from.
-Function Chain: ```[text_transform, mass_edit, reorder_rows, eod]```
-Objectives:
-1. text_transform: 
-for ops in function_chain:
-    .... generate sub_purpose... 
-    arguments... based on sub_purpose...
-    apply
-text_transform(column="LoanAmount",expression="value.toNumber()") ->mass_edit(column="City", edits=[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}]) -> reorder_rows(sort_by="LoanAmount") -> True
+Operation Chain: ```[text_transform, mass_edit, text_transform, reorder_rows, True]```
+Explanations: 
+1. text_transform on column "LoanAmount" to convert data into numerical type;
+2. mass_edit on column "City" to correct the spellings: "Hon" to "HONOLULU", "Chicagoo" to "CHICAGO";
+3. text_transform on column "City" to uppercase the spellings;
+4. reorder_rows on "LoanAmount" to find the "most" number;
+5. End the full chain: True.
+
 
 /*
 col : ISO/IEC Standard | Status | WG
@@ -30,13 +63,10 @@ row 2 : ISO/IEC 15288 | Published (2008) | 7
 row 3 : ISO/IEC 12207 | Published (2011) | 7
 */
 Purpose: what is the number of standards published in 2011?
-Function Chain: add_column(column="Status", expression="value.split(" ")", new_column="Year") -> rename_column(column="Status 2", new_column="Year") -> text_transform(column="Year",expression="value.strip('(').strip(')')") -> True
-
-/*
-col : id | neighbourhood      | room_type  | price 
-row 1 : 46154    | OHare      | Entire home/apt     | 65
-row 2 : 6715     | OHARE      | Entire home/apt     | 255 
-row 3 : 228273   | O?Hare     | Private room        | 109
-*/
-Purpose: Return room types that are located near OHare.
-Function Chain: mass_edit(column="neighbourhood", edits=[{'from': ['OHAER', 'O?HARE'], 'to': 'OHare'}]) -> True
+Operation Chain: ```[split_column, rename_column, remove_column, text_transform]```
+Explanations: 
+1. split_column on "Status" with separator " " to extract year information: two new columns: ["Status 1","Status 2"] are generated;
+2. rename_column on "Status 2" to "Year", to make the column name more meaningful;
+3. remove_column on "Status 1" to remove the unrelated column;
+4. text_transform on "Year", to strip the extra "()" and return the number only;
+5. End the full chain: True.

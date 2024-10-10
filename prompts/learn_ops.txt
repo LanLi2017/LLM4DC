@@ -1,0 +1,66 @@
+You are an expert in data cleaning and able to choose appropriate Operations to prepare the table in good format to address the Purpose. Available example demos to learn the data cleaning operations are as following:
+
+1. split_column: If the table have the needed column but does not have the exact cell values to answer the Purpose. We use split_column to decompose the column for it. For example,
+
+/*
+col : | Week | When | Kickoff | Opponent | Results; Final score | Results; Team record | Game site | Attendance
+row 1 : | 1  | Saturday, April 13 | 7:00 p.m. | at Rhein Fire | W 27–21 | 1–0 | Rheinstadion | 32,092
+row 2 : | 2  | Saturday, April 20 | 7:00 p.m. | London Monarchs | W 37–3 | 2–0 | Waldstadion | 34,186
+row 3 : | 3  | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 | 3–0 | Estadi Olímpic de Montjuïc | 17,503
+*/
+Purpose: what is the date of the competition with highest attendance?
+Selected Operation: ```split_column```
+Explanation: The question asks about the date of the competition with highest score. Each row is about one competition. We split the value from column "When" with separator ",", and create two new columns.
+Output: April 13 | April 20 | April 28
+
+2. add_column: If the table does not have the needed column to answer the question, we use add_column to add a new column for it. For example,
+
+/*
+col : | week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
+row 1 : | 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
+row 2 : | 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 | waldstadion | 34,186
+row 3 : | 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
+*/
+Purpose: Return top 5 competitions that have the most attendance.
+Selected Operation: ```add_column```
+Explanation: We copy the value from column "attendance" and create a new column "attendance number" for each row.
+Output: 32,092 | 34,186 | 17,503
+
+3. text_transform(): If the question asks about the characteristics/patterns of cell values in a column, we use text_transform to format and transform the items. For example,
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939,370 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649,931 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
+*/
+Purpose: Figure out the place that has a population in 2009 higher than 500,000.
+Selected Operation: ```text_transform```
+Explanation: For expression: "jython: return int(value)": value is cell values in the target column "population; census 2009", int() can transform value type into integers 
+Output: 939370 | 649311 | 1109735
+
+4. mass_edit(): If the question asks about items with the same value and the number of these items, we use mass_edit to standardize the items. For example,
+/*
+col : | LoanAmount | City     | State  | Zip 
+row 1 : | 30333    | Hon      | HI     |96814
+row 2 : | 149900   | HONOLULU | HI     | 96814 
+row 3 : | 148100   | Honolulu | HI     | 96814
+row 4 : | 334444   | CHI      | IL     | 60611
+row 5 : | 120      | urbana   | IL     | 61802
+row 6 : | 100000   | Chicagoo | IL     | 
+*/
+Purpose: Return how many cities are in the table.
+Selected Operation: ```mass_edit```
+Explanation: Mispellings and different formats of data need to be revised. 
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+5. reorder_rows(): If the table has the correct data but the rows are not in the desired order to answer the question, in other words, the rows need to be reorganized for clarity or relevance, we use reorder_rows to adjust their sequence. For example,
+
+/*
+col : | Position | Club | Played | Points | Wins | Draws | Losses | Goals for | Goals against | Goal Difference
+row 1 : | 1 | Malaga CF | 42 | 79 | 22 | 13 | 7 | 72 | 47 | +25
+row 10 :|10 |CP Merida  | 42 | 59 | 15 | 14 | 13 | 48 | 41 | +7
+row 3 : | 3 |CD Numancia| 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
+*/
+Purpose: what club placed in the last position?
+Selected Operation: ```reorder_rows```
+Explanation: the question asks about the club in the last position. Each row is about a club. We need to know the order of position from last the top. There is a column for position and the column name is Position. The datatype is Numerical.

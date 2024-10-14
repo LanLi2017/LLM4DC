@@ -44,8 +44,6 @@ def export_intermediate_tb(project_id):
     rows = list(csv_reader)
     columns = rows[0]
     data = rows[1:]
-    # for row in csv_reader:
-    #     rows.append(row)
     df = pd.DataFrame(data, columns=columns)
     return df
 
@@ -166,7 +164,7 @@ def extract_exp(content, refs=None):
             return False
 
 
-def gen(prompt, context, log_f, temp=0):
+def gen(prompt, context, log_f, model, temp=0):
     r = generate(model=model, 
                  prompt=prompt, 
                  context=context,
@@ -194,7 +192,7 @@ def parse_edits(raw_string):
     return parsed_edits
 
 
-def wf_gen(project_id, log_f):
+def wf_gen(project_id, log_f, model):
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
     # Output: False/True
@@ -232,7 +230,7 @@ def wf_gen(project_id, log_f):
                                         Selected column:
                                         """
 
-        context, sel_col_desc = gen(prompt_sel_col, context, log_f)
+        context, sel_col_desc = gen(prompt_sel_col, context, log_f, model)
         
         print(f'description of selected column: {sel_col_desc}')
         sel_col = extract_exp(sel_col_desc, refs=av_cols)
@@ -244,12 +242,13 @@ def wf_gen(project_id, log_f):
         op_list = [dict['op'] for dict in ops]
         functions_list = [map_ops_func[operation].__name__ for operation in op_list]
         print(f'Applied operation history: {functions_list}')
-        tb_str = gen_table_str(df, num_rows=15, tg_col=sel_col)
+        num_rows = 15
+        tb_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
         print(f'Selected first {num_rows} rows for current table: {tb_str}')
 
         # context-learn (full_chain_demo): how the previous operation are related to the current one
         # operation-learn (learn_ops.txt): when to select a proper operation 
-        with open('prompts/learn_ops.txt', 'r'))as f_learn_ops:
+        with open('prompts/learn_ops.txt', 'r')as f_learn_ops:
             dynamic_plan = f_learn_ops.read()
         with open('prompts/full_chain_demo.txt', 'r')as f_chain:
             f_chain_learn = f_chain.read()
@@ -264,7 +263,7 @@ def wf_gen(project_id, log_f):
                                 Operation Chain: ```{functions_list}``` 
                                 Explanations:
                                 """
-            context, chain_exp = gen(prompt_ops_chain, context, log_f)
+            context, chain_exp = gen(prompt_ops_chain, context, log_f, model)
         else:
             context = context
             chain_exp = ""
@@ -281,7 +280,7 @@ def wf_gen(project_id, log_f):
                                 """
 
         while not (sel_op in ops_pool):
-            context, sel_op_desc = gen(prompt_sel_ops, context, log_f)
+            context, sel_op_desc = gen(prompt_sel_ops, context, log_f, model)
             print(f'+++++++++selected operation description++++++\n {sel_op_desc}')
             sel_op = extract_exp(sel_op_desc, ops_pool)
         print(f'selected operation: {sel_op}')
@@ -307,9 +306,9 @@ def wf_gen(project_id, log_f):
                                     Flag: ```False```
                                     Explanations: 
                                     """
-        _, eod_desc = gen(prompt_eod, [], log_f) #clear out context
+        _, eod_desc = gen(prompt_eod, [], log_f, model) #clear out context
         prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
-        _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f)
+        _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], log_f, model)
         # Regular expression to extract the desired sentence
         eod_pattern= r"Next operation:\s*(.*?)\."
         # Search for the pattern in the text
@@ -329,7 +328,7 @@ def wf_gen(project_id, log_f):
                                 Current Operation Purpose: {sum_eod}
                                 Separator: 
                                 """
-            context, sep_desc = gen(prompt_sel_args, context, log_f)
+            context, sep_desc = gen(prompt_sel_args, context, log_f, model)
             sep = extract_exp(sep_desc)
             print(f'Predicted separator for operation split column: {sep}')
             sel_args= {'column':sel_col, 'separator':sep}
@@ -345,7 +344,7 @@ def wf_gen(project_id, log_f):
                                 Current Operation Purpose: {sum_eod}
                                 Expression:, New_column:
                                 """
-            context, res_dict_desc = gen(prompt_sel_args, context, log_f)
+            context, res_dict_desc = gen(prompt_sel_args, context, log_f, model)
             [exp, new_col] = extract_exp(res_dict_desc)
             print(f"Expression of add_column: {exp}, New column created: {new_col}")
             sel_args = {'column': sel_col, 'expression': exp, 'new_column': new_col} 
@@ -360,7 +359,7 @@ def wf_gen(project_id, log_f):
         #                         Current Operation Purpose: {sum_eod}
         #                         Arguments: column: {sel_col}, new_column: 
         #                         """
-        #     context, new_col_desc = gen(prompt_sel_args, context, log_f)
+        #     context, new_col_desc = gen(prompt_sel_args, context, log_f, model)
         #     new_col = extract_exp(new_col_desc)
         #     sel_args = {'column': sel_col, 'new_column': new_col}
         #     rename_column(project_id, **sel_args)
@@ -378,7 +377,7 @@ def wf_gen(project_id, log_f):
                                 """
             print(tb_str)
             # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
-            context, exp_desc = gen(prompt_sel_args, context, log_f)
+            context, exp_desc = gen(prompt_sel_args, context, log_f, model)
             print(f'Predicted expression description: {exp_desc}')
             exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
             print(f'********predicted expression: {exp}')
@@ -398,7 +397,7 @@ def wf_gen(project_id, log_f):
                                 """
             print("prompts for generating edits:")
             print(prompt_sel_args)
-            context, edits_desc = gen(prompt_sel_args, context, log_f)
+            context, edits_desc = gen(prompt_sel_args, context, log_f, model)
     
             # Find all matches of the pattern in the provided text
             try:
@@ -411,7 +410,7 @@ def wf_gen(project_id, log_f):
                 print(f'Something wrong with the extracting edits...')
                 print(f'-------Predicted edits description: ++++{edits_desc}++++')
                 prompt_sel_edits = """Incorrect format of edits, please regenerate the edits ONLY in ``` ```. """
-                context, edits_desc = gen(prompt_sel_edits, context, log_f)
+                context, edits_desc = gen(prompt_sel_edits, context, log_f, model)
 
             mass_edit(project_id, column=sel_col, edits=edits)
         # elif sel_op == 'remove_column':
@@ -424,7 +423,7 @@ def wf_gen(project_id, log_f):
         #                         Current Operation Purpose: {sum_eod}
         #                         Arguments: column: 
         #                         """
-        #     context, rm_desc = gen(prompt_sel_args, context, log_f)
+        #     context, rm_desc = gen(prompt_sel_args, context, log_f, model)
         #     rm_col = extract_exp(rm_desc, av_cols)
         #     sel_args = {'column': rm_col}
         #     remove_column(project_id, **sel_args)
@@ -438,7 +437,7 @@ def wf_gen(project_id, log_f):
                                 Current Operation Purpose: {sum_eod}
                                 Sort_by: {sel_col}
                                 """
-            context, sort_col_desc = gen(prompt_sel_args, context, log_f)
+            context, sort_col_desc = gen(prompt_sel_args, context, log_f, model)
             sort_col = extract_exp(sort_col_desc)
             reorder_rows(project_id, sort_by=sort_col)
         
@@ -460,7 +459,7 @@ def wf_gen(project_id, log_f):
         eod_flag_list = []
         eod_desc_list = []
         for _ in range(num_votes):
-            context, eod_desc = gen(iter_prompt, [], log_f)
+            context, eod_desc = gen(iter_prompt, [], log_f, model)
             eod_flag = extract_exp(eod_desc, ['False', 'True'])
             print(f'What is the flag?: {eod_flag}')
             eod_flag_list.append(eod_flag)
@@ -482,7 +481,8 @@ def wf_gen(project_id, log_f):
 def main():
     log_f = open("CoT.response/llm_dcw.txt", "w")
     project_id = 2098024566597
-    wf_res = wf_gen(project_id, log_f)
+    model = "llama3.2"
+    wf_res = wf_gen(project_id, log_f, model)
     print(wf_res)
 
 

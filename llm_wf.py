@@ -195,8 +195,6 @@ def parse_edits(raw_string):
 
 
 def wf_gen(project_id, log_data, model, purpose):
-    print(project_id)
-    print(type(project_id))
     df = export_intermediate_tb(project_id) # Return current intermediate table
     tb_str = gen_table_str(df, num_rows=10)
     av_cols = df.columns.to_list() # current column schema 

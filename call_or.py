@@ -27,9 +27,9 @@ def get_project_name(project_id):
     return refine.Refine(refine.RefineServer()).get_project_name(project_id)
 
 
-def get_project_id():
+def get_project_id(project_name):
     # get the project id
-    return refine.Refine(refine.RefineServer()).get_project_id()
+    return refine.Refine(refine.RefineServer()).get_project_id(project_name)
 
 def project_name(project_id):
     # functions in RefineProject:
@@ -282,6 +282,21 @@ def returnRetro_Description(project_id,op_index):
     # newretro=retro_desc[1:len(retro_desc)]
     return JSON_retro['entries'][op_index]['description']
 
+def extract_proj_names():
+    # this is to avoid creating duplicate projects
+    data = list_projects()
+    res = []
+    for key, value in data.items():
+        # Check for 'name' in the main dictionary
+        if 'name' in value:
+            res.append(value['name'])
+        else:
+            # If 'name' not present, check 'projectName' inside 'importOptionMetadata'
+            project_name = value['importOptionMetadata'][0].get('projectName', None)
+            res.append(value['projectName'])
+    assert len(res) == len(data)
+    return res
+
 
 def main():
     map_ops_func = {
@@ -292,13 +307,17 @@ def main():
     "core/column-rename": rename_column,
     "core/column-removal": remove_column
     }
-    _, id = create_project(data_fp="datasets/menu_data.csv", project_name="menu_auto")
-    print(id)
+    # _, id = create_project(data_fp="datasets/menu_data.csv", project_name="menu_auto")
+    # print(id)
     # name = get_project_name(project_id=2098024566597)
     # print(name)
     # res = list_projects()
-    # print(res)
-
+    res = extract_proj_names()
+    print(res)
+    
+    proj_id = get_project_id(project_name="menu_auto")
+    print(proj_id)
+    print(type(proj_id))
     # with open("datasets/menu_data.csv", "r")as f:
     #     data = f.read()
     #     print(data)

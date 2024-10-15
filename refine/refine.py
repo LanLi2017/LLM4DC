@@ -165,6 +165,19 @@ class Refine:
                 proj = projects[project]['name']
                 return proj
         # return projects[project_id]['name']
+    
+    def get_project_id(self, project_name):
+        """Returns project name given project_id."""
+        projects = self.list_projects()
+        for key, value in projects.items():
+        # Check if 'name' matches the given project name
+            if value.get('name') == project_name:
+                return int(key)
+        # Check if 'projectName' matches in 'importOptionMetadata'
+        # for metadata in value.get('importOptionMetadata', []):
+        #     if metadata.get('projectName') == project_name:
+        #         return key
+        raise ValueError 
 
     def open_project(self, project_id):
         """Open a Refine project."""
@@ -304,7 +317,7 @@ class Refine:
             urlparse.urlparse(response.url).query)
         if 'project' in url_params:
             project_id = url_params['project'][0]
-            return RefineProject(self.server, project_id), project_id
+            return RefineProject(self.server, project_id), int(project_id)
         else:
             raise Exception('Project not created')
 

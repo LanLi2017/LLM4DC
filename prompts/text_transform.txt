@@ -4,12 +4,12 @@ Note that the internal mechanism of **expression** include (1). scan the overall
 Expression MUST BE (**Check**):
 (1). Starts with "jython:"
 (2). "value" parameter is already refer to a single cell value. (DO NOT USE "for" loop to process the cell values.)
-(3). DO NOT manually input text data or Import External Library (e.g., pandas, numpy, and etc)
+(3). DO NOT manually input text data or Write PROGRAM directly implement the Purpose.
 (4). Function or Module used in the code is working on a single cell ("value"), instead of the whole column.
 (5). Code implemented should address the *Current Operation Purpose*: Code quality check: The function should NOT bring up other quality concerns. (For instance, REPLACE the cell value WITH Empty String if it does not fit for the pattern will result in *completeness* concerns.)
 (6). Ends with "return" statement and updated "value" transformed by the function.
 
-ALL THE **Check** MUST BE TRUE.
+ALL THE **Check** MUST BE TRUE. Your should ALWAYS focus on the DATA itself.
 
 In the following, we have some examples of how to write Python expression for text_transform() operation.
 
@@ -23,7 +23,7 @@ row 3 : 3 | kilifi | coast | 12,245.9 | 1,109,735 | kilifi
 Purpose: Figure out the place that has a population in 2009 higher than 500,000.
 Current Operation Purpose: The data has accuracy concerns, including formatting issues in the "population; census 2009" column, which prevent it from meeting all data quality criteria.
 Expression: ```jython: return int(value)```
-Check: (1). Starts with "jython:": True,  (2). Use "value" parameter to refer to a single cell in the target column.: True, (3). DO NOT manually input text data or Import External Library (e.g., pandas, numpy, and etc): True. (4). module int() is executable on a single cell instead of the whole column.: True. (5). int() is to convert data into correct data type to resolve the accuracy concerns: True.(6). Ends with "return" statement and updated "value" transformed by the function.: True.
+Check: (1). Starts with "jython:": True,  (2). Use "value" parameter to refer to a single cell in the target column.: True, (3). DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True. (4). module int() is executable on a single cell instead of the whole column.: True. (5). int() is to convert data into correct data type to resolve the accuracy concerns: True.(6). Ends with "return" statement and updated "value" transformed by the function.: True.
 Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. "value" stands for every single cell in the column: "population; census 2009"."int(value)" convert the cell value to integers.
 Output: 939370 | 649311 | 1109735
 
@@ -36,7 +36,7 @@ row 3 : 3 | KILIFI| coast | 12,245.9 | 1,109,735 | kilifi
 Purpose: Figure out how many counties are recorded in total.
 Current Operation Purpose: The dataset has accuracy and conciseness concerns, including formatting issues, and spelling variations in the "county" column, which prevent it from meeting all data quality criteria.
 Expression: ```jython: return value.upper()```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3). DO NOT manually input text data or Import External Library (e.g., pandas, numpy, and etc): True. (4). .upper() is executable on a single cell instead of the whole column.: True (5) .upper() is to convert data into Uppercase so that we could standardize and dedupliate the data to resolve the accurcy and concise concerns: True.(6). Ends with "return" statement and updated "value" transformed by the function: True.
+Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True. (4). .upper() is executable on a single cell instead of the whole column.: True (5) .upper() is to convert data into Uppercase so that we could standardize and dedupliate the data to resolve the accurcy and concise concerns: True.(6). Ends with "return" statement and updated "value" transformed by the function: True.
 Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. "value" is a single cell in the target column "county", "upper()" can transform the cell value in "county" to uppercase.
 Output: MOMBASA | KWALE | KILIFI
 
@@ -49,7 +49,7 @@ row 3 : 17928 | Entire home/apt| 10/29/18 |  2.81
 Purpose: Figure out which month in 2018 got the hightest last review.
 Current Operation Purpose: The dataset has accuracy concerns, including date formatting issues in column "last_review", which prevent it from meeting all data quality criteria.
 Experession: ```jython: from datetime import datetime\ndate_obj = datetime.strptime(value, "%m/%d/%y")\nformatted_date = date_obj.strftime("%Y-%m-%d")\nreturn formatted_date```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3). DO NOT manually input text data or Import External Library (e.g., pandas, numpy, and etc): True. (4).strptime() and strftime() are executable on a single cell instead of the whole column.:True (5). .strptime() Using strptime with datetime we will format string into datetime, strftime() will convert date format into "%Y-%m-%d" so that we could extract year to address the accuracy concerns: True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
+Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3). DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True. (4).strptime() and strftime() are executable on a single cell instead of the whole column.:True (5). .strptime() Using strptime with datetime we will format string into datetime, strftime() will convert date format into "%Y-%m-%d" so that we could extract year to address the accuracy concerns: True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
 Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return formatted_date" is to parse the cell values in the target column "last_review". "value" parameter represents a single cell in the target column "last_review". "datatime.strptime" and "strftime" are the parsing functions.
 Output: 2018-11-12 | 2018-08-12 | 2018-10-29
 
@@ -63,6 +63,6 @@ row 3 : 1996 | European Indoor Championships | Stockholm, Sweden | 14th (q) | 5.
 Purpose: who places 1st in 1991 or 1992
 Current Operation Purpose: The dataset has accuracy concerns, including data type and value pattern issues in "Position" column, which prevent it from meeting all data quality criteria.
 Expression: ```jython:import re\n pattern = re.compile(r'^\d+')\nmatch = pattern.match(value)\nif match:\n  value = match.group(0)\n  return value```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3). DO NOT manually input text data or Import External Library (e.g., pandas, numpy, and etc): True (4). re.compile() is executable on a single cell.: True (5). "import re" to use regular expression to capture and match cell values: 10th | 1st | 14th (q), digital part is correctly extracted by applying the "pattern = re.compile(r'^\d+')", so that we could execute the digits to resolve the accuracy concerns: True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
+Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.compile() is executable on a single cell.: True (5). "import re" to use regular expression to capture and match cell values: 10th | 1st | 14th (q), digital part is correctly extracted by applying the "pattern = re.compile(r'^\d+')", so that we could execute the digits to resolve the accuracy concerns: True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
 Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of cell values in target column "Position". "value" parameter represents a single cell in the target column "Position". The code in-between is to find all the matching cells in "value" (target column Position) with the regular expression r'^\d+', and then use group(0) to capture the number only.
 Output: 10 | 1 | 14

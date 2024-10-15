@@ -249,9 +249,6 @@ def wf_gen(project_id, log_data, model, purpose):
 
             # TASK II: select operations
             sel_op = ''
-            # ops = get_operations(project_id)[st:]
-            # op_list = [dict['op'] for dict in ops]
-            # functions_list = [map_ops_func[operation].__name__ for operation in op_list]
             functions_list = export_ops_list(project_id, st)
             print(f'Applied operation history: {functions_list}')
             num_rows = 15 # only keep top 15 rows
@@ -296,6 +293,7 @@ def wf_gen(project_id, log_data, model, purpose):
                 print(f'+++++++++selected operation description++++++\n {sel_op_desc}')
                 sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
+            raise NotImplementedError
 
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]

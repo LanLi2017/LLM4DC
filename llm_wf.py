@@ -99,13 +99,6 @@ def gen_table_str(df, num_rows=3, tg_col=None):
         return '\n'.join(formatted_output)
 
 
-def gen_col_str(df, col_name:str):
-    column_values = df[col_name].astype(str).tolist()
-    col_string = ' '.join(column_values)
-    
-    return col_string
-
-
 def get_function_arguments(script_path: str, function_name: str) -> List[str]:
     """
     Get the arguments of a function from a given Python script.
@@ -241,6 +234,7 @@ def wf_gen(project_id, log_data, model, purpose):
             context = []
             eod_desc = False
             df = export_intermediate_tb(project_id) # Return current intermediate table
+            col_values = df[sel_col]
             num_rows = len(df)
             total_col_str = gen_table_str(df, num_rows, tg_col=sel_col) # no chunk
             av_cols = df.columns.to_list() # current column names list 
@@ -284,14 +278,14 @@ def wf_gen(project_id, log_data, model, purpose):
                                     */
                                     Purpose: {purpose}
                                     Selected Operation: 
+                                    Target column: {sel_col}
+                                    Column type: {col_values.dtype}
                                     """
-
+            print(prompt_sel_ops)
             while not (sel_op in ops_pool):
-                context, sel_op_desc = gen(prompt_sel_ops, context, model)
-                print(f'+++++++++selected operation description++++++\n {sel_op_desc}')
+                context, sel_op_desc = gen(prompt_sel_ops, context, model, temp=0.2)
                 sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
-            raise NotImplementedError
 
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]
@@ -367,12 +361,12 @@ def wf_gen(project_id, log_data, model, purpose):
                                     Current Operation Purpose: {sum_eod}
                                     Expression: 
                                     """
-                print(col_str)
                 # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
                 context, exp_desc = gen(prompt_sel_args, context, model)
                 print(f'Predicted expression description: {exp_desc}')
                 exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
                 print(f'********predicted expression: {exp}')
+                raise NotImplementedError
                 text_transform(project_id, column=sel_col, expression=exp)
             elif sel_op == 'mass_edit':
                 # We choose to return the whole column to give LLMs an overview of all cases
@@ -414,7 +408,6 @@ def wf_gen(project_id, log_data, model, purpose):
                 sort_col = extract_exp(sort_col_desc)
                 reorder_rows(project_id, sort_by=sort_col)
             
-            # raise NotImplementedError
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
             cur_av_cols = cur_df.columns.to_list() # check if column schema gets changed, current - former
@@ -470,42 +463,57 @@ def create_projects(project_name, ds_fp):
     return proj_id
 
 def main():
-    model = "llama3.2"
+    # model = "llama3.2"
+    model = "llama3.1:8b-instruct-fp16"
+    log_dir = "CoT.response"
+    os.makedirs(log_dir, exist_ok=True)
+
     pp_par_folder = "purposes"
-    purpose_file = ["menu_about", "ppp_about", "dish_about", "chi_food_inspect_about"]
+    # purpose_file = ["menu_about", "ppp_about", "dish_about", "chi_food_inspect_about"]
+    purpose_file = ["menu_about"]
     pp_paths = [f"{pp_par_folder}/{file}.csv" for file in purpose_file]
 
     ds_par_folder = "datasets"
-    ds_file = ["menu_data", "ppp_data", "dish_data", "chi_food_data"]
+    # ds_file = ["menu_data", "ppp_data", "dish_data", "chi_food_data"]
+    ds_file = ["menu_data"]
     ds_paths = [f"{ds_par_folder}/{file}.csv" for file in ds_file]
+    
+    # start from menu
+    rounds = list(range(len(pp_paths))) #[0,1,2,3]
 
-    pp_f = pp_paths[0]
-    ds = ds_paths[0]
-    ds_name = ds_file[0]
-    pp_df = pd.read_csv(pp_f)
-    pp_v = pp_df.iloc[-1] ["Purposes"]
-    pp_id = int(pp_df.iloc[-1]["ID"])
-    project_name = f"{ds_name}_{pp_id}"
-    print(project_name)
-    ds_name = ds_file[0]
-    # Test the last purpose and use the purpose id as the project name
-    project_id = int(create_projects(project_name, ds))
-    # project_id = 2109337273503
-    log_dir = "CoT.response"
-    os.makedirs(log_dir, exist_ok=True)
-    # log_file = open(, "w")
-    # Initialize empty log data
-    log_data = {
-        "ID": pp_id,
-        "Purposes": pp_v,
-        "Columns": [],
-        "Operations": []
-    }
-    wf_res, log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
-    print(log_data)
+    for round in rounds:
+        # Four datasets: Four rounds
+        pp_f = pp_paths[round]
+        ds = ds_paths[round]
+        ds_name = ds_file[round]
+        pp_df = pd.read_csv(pp_f)
+        logs = []
+        for index, row in pp_df.iterrows():
+            pp_id = row['ID']
+            pp_v = row['Purposes']
+            print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
+            project_name = f"{ds_name}_{pp_id}"
+            proj_names_list = extract_proj_names()
+            if project_name in proj_names_list:
+                print(f"Project {project_name} has been Created!")
+                print(project_name)
+                project_id = get_project_id(project_name)
+            else:
+                project_id = create_projects(project_name, ds)
+                print(f"Project {project_name} creation finished.")
+            # log_file = open(, "w")
+            # Initialize empty log data
+            log_data = {
+                "ID": pp_id,
+                "Purposes": pp_v,
+                "Columns": [],
+                "Operations": []
+            }
+            wf_res, log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+            logs.append(log_data)
 
-    with open(f"{log_dir}/{project_name}.txt", "w") as log_f:
-        json.dump([log_data], log_f, indent=4)
+        with open(f"{log_dir}/{ds_name}_log.txt", "w") as log_f:
+            json.dump(logs, log_f, indent=4)
 
 
 if __name__ == '__main__':

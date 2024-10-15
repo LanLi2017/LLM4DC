@@ -6,14 +6,14 @@ from refine import refine
 # OpenRefineClientPy3/google_refine/refine/refine.py
 
 
-def list_objects():
+def list_projects():
     # list projects
     return refine.Refine(refine.RefineServer()).list_projects()
 
 
-def create_project(project_path,project_name):
+def create_project(data_fp,project_name):
     # create a new project
-    projectID=refine.Refine(refine.RefineServer()).new_project(project_path,project_name,project_format='.csv')[1]
+    projectID=refine.Refine(refine.RefineServer()).new_project(project_file=data_fp,project_name=project_name,project_format='.csv')
     return projectID
 
 
@@ -292,7 +292,17 @@ def main():
     "core/column-rename": rename_column,
     "core/column-removal": remove_column
     }
-    project_id = 2681949500112
+    _, id = create_project(data_fp="datasets/menu_data.csv", project_name="menu_auto")
+    print(id)
+    # name = get_project_name(project_id=2098024566597)
+    # print(name)
+    # res = list_projects()
+    # print(res)
+
+    # with open("datasets/menu_data.csv", "r")as f:
+    #     data = f.read()
+    #     print(data)
+    # project_id = 2681949500112
     # res = get_operations(project_id)
     # ops = []
     # for r in res:
@@ -308,7 +318,7 @@ def main():
     # remove_column(project_id, "id")
     # res = export_rows(project_id=2681949500112)
     # text_transform(project_id, "id", expression="return int(value)")
-    text_transform(project_id, "id", expression="jython:value = value + 1\nreturn value")
+    # text_transform(project_id, "id", expression="jython:value = value + 1\nreturn value")
     # c=0
     # for row in res:
     #     c+=1

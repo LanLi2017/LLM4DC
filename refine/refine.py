@@ -61,7 +61,7 @@ class RefineServer:
         self.token = None
         self.get_csrf()
 
-    def urlopen(self, command, data=None, params=None, project_id=None):
+    def urlopen(self, command, data=None, params=None, files=None, project_id=None):
         """Open a Refine URL and with optional query params and POST data.
 
         data: POST data dict
@@ -83,8 +83,8 @@ class RefineServer:
         if self.token:
             params['csrf_token'] = self.token
         try:
-            if data:
-                response = requests.post(url, data=data, params=params)
+            if data or files:
+                response = requests.post(url, data=data, files=files, params=params)
             else:
                 response = requests.get(url, params=params)
             response.raise_for_status()
@@ -231,108 +231,82 @@ class Refine:
             'include_file_sources': False}
     }
 
-    def new_project(
-            self,
-            project_file=None,
-            project_url=None,
-            project_name=None,
-            project_format='text/line-based/*sv',
-            **kwargs
-    ):
+    def new_project(self, project_file=None, project_url=None, project_name=None, project_format='text/line-based/*sv',
+                    encoding='',
+                    separator=',',
+                    ignore_lines=-1,
+                    header_lines=1,
+                    skip_data_lines=0,
+                    limit=-1,
+                    store_blank_rows=True,
+                    guess_cell_value_types=False,
+                    process_quotes=True,
+                    store_blank_cells_as_nulls=True,
+                    include_file_sources=False,
+                    **opts):
 
-        # if (project_file and project_url) or (not project_file and not project_url):
-        #     raise ValueError('One (only) of project_file and project_url must be set')
-        #
-        # def s(opt):
-        #     if isinstance(opt, bool):
-        #         return 'true' if opt else 'false'
-        #     if opt is None:
-        #         return ''
-        #     return str(opt)
-        # options 'csrf_token': token,
-        options = {'format': project_format}
-        if project_file is not None:
-            options['project-file'] = {
-                'fd': open(project_file),
-                'filename': project_file,
-            }
-        if project_name is None:
-            # make a name for itself by stripping extension and directories
-            project_name = (project_file or 'New project').rsplit('.', 1)[0]
-            project_name = os.path.basename(project_name)
-        options['project-name'] = project_name
-        # params (the API requires a json in the 'option' POST argument)
-        defaults = {'guessCellValueTypes': False, 'headerLines': 1, 'ignoreLines': -1, 'includeFileSources': False,
-                    'limit': -1, 'linesPerRow': 1, 'processQuotes': True, 'separator': ',', 'skipDataLines': 0,
-                    'storeBlankCellsAsNulls': True, 'storeBlankRows': True, 'storeEmptyStrings': True,
-                    'trimStrings': False}
-        options = {'format': project_format}
+        if (project_file and project_url) or (not project_file and not project_url):
+            raise ValueError('One (only) of project_file and project_url must be set')
 
-        if project_file is not None:
-            options['project-file'] = {
-                'fd': open(project_file),
-                'filename': project_file,
-            }
-        if project_name is None:
-            # make a name for itself by stripping extension and directories
-            project_name = (project_file or 'New project').rsplit('.', 1)[0]
-            project_name = os.path.basename(project_name)
-        options['project-name'] = project_name
+        def s(opt):
+            if isinstance(opt, bool):
+                return 'true' if opt else 'false'
+            if opt is None:
+                return ''
+            return str(opt)
 
-        params = defaults
-        params.update(kwargs)
-        params = {'options': json.dumps(params)}
         # the new APIs requires a json in the 'option' POST or GET argument
         # POST is broken at the moment, so we send it in the URL
-        # new_style_options = {
-        #     'encoding': s(encoding),
-        #     **opts,
-        # }
-        # params = {
-        #     'options': json.dumps(new_style_options),
-        # }
+        new_style_options = dict(opts, **{
+            'encoding': s(encoding),
+            'separator': s(separator)
+        })
+        params = {
+            'options': json.dumps(new_style_options),
+        }
 
         # old style options
-        # options = {
-        #     'format': project_format,
-        #     'separator': s(separator),
-        #     'ignore-lines': s(ignore_lines),
-        #     'header-lines': s(header_lines),
-        #     'skip-data-lines': s(skip_data_lines),
-        #     'limit': s(limit),
-        #     'guess-value-type': s(guess_cell_value_types),
-        #     'process-quotes': s(process_quotes),
-        #     'store-blank-rows': s(store_blank_rows),
-        #     'store-blank-cells-as-nulls': s(store_blank_cells_as_nulls),
-        #     'include-file-sources': s(include_file_sources),
-        # }
+        options = {
+            'format': project_format,
+            'ignore-lines': s(ignore_lines),
+            'header-lines': s(header_lines),
+            'skip-data-lines': s(skip_data_lines),
+            'limit': s(limit),
+            'guess-value-type': s(guess_cell_value_types),
+            'process-quotes': s(process_quotes),
+            'store-blank-rows': s(store_blank_rows),
+            'store-blank-cells-as-nulls': s(store_blank_cells_as_nulls),
+            'include-file-sources': s(include_file_sources)
+        }
+        files = {}
 
+        if project_url is not None:
+            options['url'] = project_url
+        elif project_file is not None:
+            files['project-file'] = (project_file, open(project_file))
+            # files['project-file'] = {
+            #     'fd': open(project_file),
+            #     'filename': project_file,
+            # }
+        if project_name is None:
+            # make a name for itself by stripping extension and directories
+            project_name = (project_file or 'New project').rsplit('.', 1)[0]
+            project_name = os.path.basename(project_name)
+        options['project-name'] = project_name
         response = self.server.urlopen(
-            'create-project-from-upload', options, params
+            'create-project-from-upload', options, params, files
         )
+        # response = self.server.urlopen(
+        #     'create-project-from-upload', options, params, files
+        # )
         # expecting a redirect to the new project containing the id in the url
         url_params = urlparse.parse_qs(
-            urlparse.urlparse(response.url).query
-        )
+            urlparse.urlparse(response.url).query)
         if 'project' in url_params:
             project_id = url_params['project'][0]
-            # check number of rows
-            rows = RefineProject(RefineServer(), project_id).do_json('get-rows')['total']
-            if rows > 0:
-                print('{0}: {1}'.format('id', project_id))
-                print('{0}: {1}'.format('rows', rows))
-                return RefineProject(self.server, project_id), project_id, rows
-            else:
-                raise Exception(
-                    'Project contains 0 rows. Please check --help for mandatory arguments for xml, json, xlsx and ods')
+            return RefineProject(self.server, project_id), project_id
         else:
             raise Exception('Project not created')
-
-        # if 'project' in url_params:
-        #     project_id = url_params['project'][0]
-        #     return RefineProject(self.server, project_id)
-        # else:
-        #     raise Exception('Project not created')
 
 
 # noinspection PyPep8Naming

@@ -1,0 +1,43 @@
+regexr_transform: The regexr_transform function is a a Python function that utilizes regular expressions. This function can be particularly useful for extracting, replacing, or transforming parts of text data based on defined patterns. For example,
+
+regexr_transform() contains two arguments: **column** and **expression**. Given the selected **column**, the task is to write the **expression** to process the cell value in the target column. 
+Note that the internal mechanism of **expression** include (1). scan the overall column to implement proper functions on cell values (2). implemented function is working on a single cell instead of the overall column.
+
+Expression MUST BE (**Check**):
+(1). Starts with "jython:"
+(2). "value" parameter is already refer to a single cell value. (DO NOT USE "for" loop to process the cell values.)
+(3). DO NOT manually input text data or Write PROGRAM directly implement the Purpose.
+(4). Function or Module used in the code is working on a single cell ("value"), instead of the whole column. And Code implemented is correct
+(5). Ends with "return" statement and updated "value" transformed by the function.
+
+ALL THE **Check** MUST BE TRUE. Your should ALWAYS focus on the DATA itself.
+
+In the following, we have some examples of how to write Python expression for regexr_transform() operation.
+
+
+/*
+col : Book Title             | Year           | First Name
+row 1 : Against Method.      | Feyerabend,1975| P.
+row 2 : Changing Order       | Collins,1985   | H.M.
+row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
+*/
+Purpose: List all the published year information for all books.
+Current Operation Purpose: The cell values in Year are incorrect but composite strings including year information which prevent it from meeting all data quality criteria.
+Expression: ```jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)```
+Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.search(r'\\b\\d{4}\\b') is executable and capture four digits from the cell values: True (5). Ends with "return" statement and updated "value" transformed by the function: True.
+Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return" is to parse capture the pattern of cell values in target column "Year". "value" parameter represents a single cell in the target column "Year". The code in-between is to search four digits in the cell values of target column Year.
+Output: 1975| 1985 | 2006
+
+
+/*
+col : Year | Competition | Venue | Position | Notes
+row 1 : 1991 | European Junior Championships | Thessaloniki, Greece | 10th | 4.90 m
+row 2 : 1992 | World Junior Championships | Seoul, South Korea | 1st | 5.45 m
+row 3 : 1996 | European Indoor Championships | Stockholm, Sweden | 14th (q) | 5.45 m
+*/
+Purpose: who places 1st in 1991 or 1992
+Current Operation Purpose: The dataset has accuracy concerns, including data type and value pattern issues in "Position" column, which prevent it from meeting all data quality criteria.
+Expression: ```jython:import re\n pattern = re.compile(r'^\d+')\nmatch = pattern.match(value)\nif match:\n  value = match.group(0)\n  return value```
+Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.compile() is executable on a single cell.: True (5). "import re" to use regular expression to capture and match cell values: 10th | 1st | 14th (q), digital part is correctly extracted by applying the "pattern = re.compile(r'^\d+')", so that we could execute the digits to resolve the accuracy concerns: True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
+Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of cell values in target column "Position". "value" parameter represents a single cell in the target column "Position". The code in-between is to find all the matching cells in "value" (target column Position) with the regular expression r'^\d+', and then use group(0) to capture the number only.
+Output: 10 | 1 | 14

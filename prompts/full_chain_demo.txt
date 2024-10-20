@@ -15,9 +15,9 @@ row 2 : 6715     | OHARE      | Entire home/apt     | 255
 row 3 : 228273   | ohare    | Private room        | 109
 */
 Purpose: Return room types that are located near OHare.
-Operation Chain: ```[text_transform, True]```
+Operation Chain: ```[uppercase, True]```
 Explanations:
-1. text_transform on column "neighbourhood" to uppercase the cell values;
+1. uppercase on column "neighbourhood" (string type) to standardize the cell values;
 2. End the full chain: True.
 
 /*
@@ -26,32 +26,29 @@ row 1 : 46154    | OHare      | Entire home/apt     | 65
 row 2 : 6715     | OHARE      | Entire home/apt     | 255 
 row 3 : 228273   | O?Hare     | Private room        | 109
 row 4 : 22820    | ohare      |                     | 120
-row 5 : 12890    | O'Haree     | Private room        | 309
+row 5 : 12890    | O'Haree    | Private room        | 309
 */
 Purpose: Return room types that are located near OHare.
-Operation Chain: ```[mass_edit, text_transform, True]```
+Operation Chain: ```[uppercase, mass_edit, True]```
 Explanations:
-1. mass_edit on column "neighbourhood" to repair "O?Hare" and "O'Haree" into "OHARE";
-2. text_transform on column "neighbourhood" to uppercase the cell values;
+1. uppercase on column "neighbourhood" (string type) to standardize the cell values;
+2. mass_edit on column "neighbourhood" to repair the spellings;
 3. End the full chain: True.
 
 /*
-col : LoanAmount | City     | State  | Zip 
-row 1 : 30333    | Hon      | HI     |96814
-row 2 : 149900   | HONOLULU | HI     | 96814 
-row 3 : 148100   | honolulu | HI     | 96814
-row 4 : 334444   | Chicago  | IL     | 60611
-row 5 : 120      | urbana   | IL     | 61802
-row 6 : 100000   | Chicagoo | IL     | 
-row 7 : 1000.    | CHICAGO  | IL     | 60611
-row 8 : 103420   | CHICAGO  | IL     | 
+col : Code | City     | State  | Zip 
+row 1 : 334444   | Chicago  | IL     | 60611
+row 2 : 120      | urbana   | IL     | 61802
+row 3 : 100000   | Chicagoo | IL     | 
+row 4 : 1000.    | CHICAGO  | IL     | 60611
+row 5 : 103420   | CHICAGO  | IL     | 
 */
 Purpose: Return the city name that the most loan amount are from.
-Operation Chain: ```[text_transform, mass_edit, text_transform, reorder_rows, True]```
+Operation Chain: ```[numeric, uppercase, mass_edit, reorder_rows, True]```
 Explanations: 
-1. text_transform on column "LoanAmount" to convert data into numerical type;
-2. mass_edit on column "City" to correct the spellings: "Hon" to "HONOLULU", "Chicagoo" to "CHICAGO";
-3. text_transform on column "City" to uppercase the spellings;
+1. numeric on column "LoanAmount" (data type: Integer) to convert data into numerical type;
+2. uppercase on column "City" to standardize the spellings;
+3. mass_edit on column "City" to correct the spellings;
 4. reorder_rows on "LoanAmount" to find the "most" number;
 5. End the full chain: True.
 
@@ -63,10 +60,23 @@ row 2 : ISO/IEC 15288 | Published (2008) | 7
 row 3 : ISO/IEC 12207 | Published (2011) | 7
 */
 Purpose: what is the number of standards published in 2011?
-Operation Chain: ```[split_column, rename_column, remove_column, text_transform]```
+Operation Chain: ```[split_column, add_column, regexr_transform, numeric, True]```
 Explanations: 
 1. split_column on "Status" with separator " " to extract year information: two new columns: ["Status 1","Status 2"] are generated;
-2. rename_column on "Status 2" to "Year", to make the column name more meaningful;
-3. remove_column on "Status 1" to remove the unrelated column;
-4. text_transform on "Year", to strip the extra "()" and return the number only;
+2. add_column: add a new column "Year" based on "Status 2" by copying the values;
+3. regexr_transform on "Year", to parse the pattern "\((\d{4})\)" and return the number only;
+4. numeric on "Year", because the data type is number, so use numeric to parse the data into correct data type.
 5. End the full chain: True.
+
+
+/*
+col : ISO/IEC Standard | Publish Date | WG
+row 1 : ISO/IEC TR 19759 | 2005.10.04 | 20
+row 2 : ISO/IEC 15288    | 09/14/2008 | 7
+row 3 : ISO/IEC 12207.   | 2009-10-12 | 7
+*/
+Purpose: what is the most frequent publish date?
+Operation Chain: ```[date, True]```
+Explanations:
+1. date on column "Publish Date" to parse the date of time into ISO format
+2. End the full chain: True.

@@ -1,0 +1,49 @@
+ID,Purposes,Columns-original-data,Columns-for-Purpose,Column Types,Operations,Answer (one simple words/..)
+31,Count how many types of risks are recorded in the dataset.,Risk,,String,"trim, mass_edit, regexr_transform, upper",
+32,What percentages of businesses are inspected as the type: out of business over time? ,Inspection Type,,String,upper,
+33,Identify the main facility types that are inspected.,Facility Type,,String,"mass_edit, upper, trim",
+34,Identify which facility types are inspected least frequently.,Facility Type,,String,"mass_edit, upper, trim",
+35,Verify if any records violate the rule that each company can only have one unique license number.,"DBA Name, License #",,"String, Number","mass_edit, upper, numeric, regexr_transform, add_column",
+36,"List all failed inspections for the establishment with the DBA name ""7-Eleven.""","DBA Name, Results",,"String, String","mass_edit, upper",
+37,"Calculate the inspection passing rate (number of passing inspections/total inspections) for each brand (the same DBA Name), 
+sorting to identify the best brand.","DBA Name, Results",,"String, String","mass_edit, upper",
+38,List the facilities with the best inspection ratings (Risk 3 - Low).,"Facility Type, Risk",,"String, String","mass_edit, upper, trim, regexr_transform",
+39,List the facilities with the worst inspection ratings (Risk 1 - High),"Facility Type, Risk",,"String, String ","mass_edit, upper, trim, regexr_transform",
+40,Identify the most frequently occurring risk rating for each facility type.,"Facility Type, Risk",,"String, String ","mass_edit, upper, trim, regexr_transform",
+41,Identify the facility type associated with the high public risk (risk level is Risk 1).,"Facility Type, Risk",,"String, String","mass_edit, upper, trim, regexr_transform",
+42,Determine how many groceries are classified as high risk.,"Facility Type, Risk",,"String, String","mass_edit, upper, trim, regexr_transform",
+43,"Count how many Mobile-type suppliers failed inspection, creating a new column named ""Mobile-type"" that returns 
+""True"" if the value contains ""Mobile,"" else returns ""False"".","Facility Type, Results",Mobile-type,"String, String","mass_edit, upper, trim, add_column, regexr_transform",
+44,Which gas station stores were inspected between the years 2012 and 2014?,"Facility Type, Inspection Date",Year,"String, Date","upper, mass_edit, trim, add_column, regexr_transform, numeric",
+45,"Which community (Zipcode) has better restaurants, grocery stores, and mobile food dispensers? Create a new column named
+Zip based on Column City State Zip.","Facility Type, City State Zip",Zip,"String, String (composite)","mass_edit, upper, trim, split_column, numeric ",
+46,"Identify the most frequently violated rules for restaurants, and create a new column ""Violations_type"" to detail the 
+violated inspection rules.",Violations,Violations_type,String (Long text),"add_column, regexr_transform",
+47,Determine which types of violations are the least frequently mentioned across all facility types,"Facility Type, Violations",Violations_type,"String, String (Long text)","add_column, regexr_transform, mass_edit, upper, trim",
+48,"Filter facility types based on the indices of violations noted in the ""Violations"" column. You need to create a new column 
+""Violations_type"" to detail the violated inspection indices.","Facility Type, Violations",Violations_type,"String, String (Long text)","add_column, regexr_transform, mass_edit, upper, trim",
+49,"Determine which type of school restaurant is the safest in terms of standards and quality, as indicated by the risk level and inspection results.","Facility Type, Risk, Results",,"String, String, String","mass_edit, upper, trim, regexr_transform, numeric",
+50,Determine which location experienced the largest increase in inspections from one year to the next.,"Address, Inspection Date",Year,"String, Date","trim, regexr_transform, mass_edit, date, add_collumn, numeric",
+51,"List the avenue names where restaurants have failed inspections, and create a new column named ""Address_type"" to 
+categorize address types (e.g., ST, AVE).","Address, Results",Address_type,"String (composite), String","trim, add_column, regexr_transform, mass_edit, upper",
+52,Identify the addresses of facilities that are considered safe for food consumption based on risk and inspection results.,"Address, Risk, Results",,"String (composite), String, String","trim, regexr_transform, mass_edit, upper",
+53,Find the Zip code with the highest number of failed inspections.,"City State Zip, Results",Zip,"String (composite), String","split_column, numeric, upper",
+54,"Identify which specific restaurant had the most high-risk inspection failures, defined as inspections 
+with a risk level of ""Risk 1 (High)"" and a result of ""Fail,"" occurring between the years 2010 and 2015.","Risk, Results, Inspection Date",Year,"String (composite), String, Date","trim, regexr_transform mass_edit, upper, date, add_column, numeric",
+55,"Whether different neighborhoods (indicated by zip code) have distinct food safety patterns,
+such as passing rate.  Create a new column Passing_Results, set the value as 
+Pass if cell value in column Results is PASS, else replace it with Other.","City State Zip, Results, Inspection Type",Zip,"String (composite), String, String","split_column, numeric, upper",
+56,"Determine the number of passed inspections results in Chicago. Create a new column Passing_Results, set the value as 
+Pass if cell value in column Results is PASS, else replace it with Other. Create another new column named City based on City State Zip.","City State Zip, Results","City, Passing_Results","String, String (composite)","split_column, mass_edit, regexr_transform, upper, add_column",
+57,"Investigate whether merchants with multiple addresses have differing inspection results, creating a new column named 
+""DBA_multi_address"" to merge similar DBA names (e.g., Microsoft and Microsoft Corporation should be the same).","DBA Name, Results, Address",DBA_multi_address,"String, String (Long text)","mass_edit, upper, add_column, trim, regexr_transform",
+58,"Calculate the percentage of restaurants in Evanston that passed food inspections. Create a new column Passing_Results, set the value as 
+Pass if cell value in column Results is PASS, else replace it with Other. And create another new column named City based on City State Zip.","City State Zip, Results, Facility Type","City, Passing_Results","String, String, String","split_column, mass_edit, regexr_transform, upper, add_column,trim",
+59,Conduct a risk assessment for facilities in Chicago by year. Create a new column named City based on City State Zip.,"Facility Type, City State Zip, Risk, Inspection Date","City, Year","String, String (composite)","mass_edit, regexr_transform, trim, upper, date, add_column, split_column,
+numeric",
+60,"Find the establishment that failed inspection with the maximum number of violations in 2017, and create new columns for 
+""Violations_type"" and ""Year.""","DBA Name, Results, Inspection Date, Violations","Year, Violations_type","String, String, Date, String (Long text)","mass_edit, upper, date, add_column, regexr_transform, numeric",
+61,"How many food establishments in schools (not including daycares for ages 0-6) in 
+Chicago in 2011 received complaint-type inspections? Create new column named City based on City State Zip. And create a new column Complaint_Type based 
+on Inspection Type to retrieve and aggregate all complaint-type inspections. ","Facility Type, Inspection Type, Inspection Date, City State Zip","City, Year, Complaint_Type","String, String (Long text), Date, String (composite)","mass_edit, regexr_transform, trim, date, add_column, numeric, split_column,
+upper",

@@ -25,8 +25,7 @@ map_ops_func = {
 "core/text-transform": text_transform,
 "core/mass-edit": mass_edit,
 "core/column-rename": rename_column,
-"core/column-removal": remove_column,
-"core/row-reorder": reorder_rows,
+"core/column-removal": remove_column
 }
 
 
@@ -328,12 +327,11 @@ def wf_gen(project_id, log_data, model, purpose):
                                     Target column: {sel_col}
                                     """
             print(prompt_sel_ops)
-            raise NotImplementedError
             while not (sel_op in ops_pool):
                 context, sel_op_desc = gen(prompt_sel_ops, context, model, {'temperature':0.2})
                 sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
-
+            raise NotImplementedError
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]
             args = get_function_arguments('call_or.py', sel_op)
@@ -446,31 +444,8 @@ def wf_gen(project_id, log_data, model, purpose):
                 context, edits_desc = gen(prompt_sel_args, context, model, options)
                 edits_v = extract_exp(edits_desc)[0].replace("edits: ", "")
                 edits_v = parse_edits(edits_v)
-                # except:
-                    # prompt_sel_edits = """Incorrect format of edits, please regenerate the edits ONLY in ``` ```. """
-                    # context, edits_desc = gen(prompt_sel_edits, context, model)
                 print(edits_v)
                 mass_edit(project_id, column=sel_col, edits=edits_v)
-                # Find all matches of the pattern in the provided text
-                # except Exception as e:
-                #     errors.append(e)
-        
-            elif sel_op == "reorder_rows":
-                prompt_sel_args += """\n\nBased on table contents, Purpose and Current Operation Purpose provided as following, output the value of Sort_by ONLY in ``` ```. """ \
-                                    +f"""
-                                    /*
-                                    {col_str}
-                                    */
-                                    Purpose: {purpose}
-                                    Current Operation Purpose: {sum_eod}
-                                    Sort_by: {sel_col}
-                                    """
-                context, sort_col_desc = gen(prompt_sel_args, context, model)
-                sort_col = extract_exp(sort_col_desc)
-                reorder_rows(project_id, sort_by=sort_col)
-            # except Exception as e:
-            #     errors.append(e)
-            #     pass
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
             cur_av_cols = cur_df.columns.to_list() # check if column schema gets changed, current - former

@@ -38,7 +38,7 @@ def export_ops_list(project_id, st=0):
 
 
 def parse_text_transform(ops_list, functions_list):
-    """This is to decompose text_transform to common_transform and regex_based transform""""
+    """This is to decompose text_transform to common_transform and regex_based transform"""
     for id, op in enumerate(ops_list):
         if op=="core/text-transform":
             exp = op['expression']
@@ -52,6 +52,8 @@ def parse_text_transform(ops_list, functions_list):
                 functions_list[id] = "date"
             elif exp.startswith("jython"):
                 functions_list = "regexr_transform"
+            elif exp=="value.toString()":
+                functions_list[id] = "date"
             else:
                 raise NotImplementedError
     return functions_list
@@ -201,10 +203,10 @@ def gen(prompt, context, model, options={'temperature':0.0}):
     for part in r:
         response_part = part['response']
         res.append(response_part)
-        print(''.join(res))
-        print(part)
+        # print(''.join(res))
+        # print(part)
         if part['done'] is True:
-            print(part)
+            # print(part)
             return part['context'], ''.join(res)
     
     raise ValueError
@@ -216,7 +218,7 @@ def parse_edits(raw_string):
     raw_string = raw_string.replace('\n', '').strip()
     
     # pattern =  r'\[(\{.*?\})*,*\]```'
-    result = re.findall(r'(\[(:?\n?.*\n?)*\])', input_str, re.DOTALL)
+    result = re.findall(r'(\[(:?\n?.*\n?)*\])', raw_string, re.DOTALL)
     if result:
         for r in result:
             raw_string = r[0]
@@ -265,7 +267,8 @@ def wf_gen(project_id, log_data, model, purpose):
 
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
     # chunk text_transform: regular_expression-based, common-transform for different data types
-    ops_pool = ["mass_edit", "split_column", "add_column", "regexr_transform", "uppercase", "numeric", "date", "trim"]
+    ops_pool = ["mass_edit", "split_column", "add_column", "regexr_transform", "upper", "numeric", "date", "trim"]
+    print(f'current available operations: {ops_pool}')
     eod_flag = "False" # initialize the end_of_dc_flag to start data_cleaning pipeline
     
     while tg_cols:
@@ -323,9 +326,9 @@ def wf_gen(project_id, log_data, model, purpose):
                                     Purpose: {purpose}
                                     Selected Operation: 
                                     Target column: {sel_col}
-                                    Column type: {col_values.dtype}
                                     """
             print(prompt_sel_ops)
+            raise NotImplementedError
             while not (sel_op in ops_pool):
                 context, sel_op_desc = gen(prompt_sel_ops, context, model, {'temperature':0.2})
                 sel_op = extract_exp(sel_op_desc, ops_pool)
@@ -414,6 +417,7 @@ def wf_gen(project_id, log_data, model, purpose):
                 text_transform(project_id, column=sel_col, expression="value.toNumber()")
             elif sel_op == 'date':
                 text_transform(project_id, column=sel_col, expression="value.toDate()")
+                text_transform(project_id, column=sel_col, expression="value.toString()")
             elif sel_op == 'trim':
                 text_transform(project_id, column=sel_col, expression="value.trim()")
             elif sel_op == 'upper':

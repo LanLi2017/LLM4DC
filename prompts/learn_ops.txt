@@ -3,7 +3,7 @@ Note that: All the cell values before processing is string type!
 
 Available example demos to learn the data cleaning operations are as following:
 
-1. numeric: The numeric function is used to convert cell values in a column that are numbers-like into a numeric data type.  For example,
+1. numeric: The numeric function is used to convert cell values in a column that are numbers-like into a numeric data type, and fix formatting errors for numeric data. For example,
 /*
 col : | code | county | former province | area (km2) | population; census 2009 | capital
 row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
@@ -13,11 +13,10 @@ row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
 Purpose: Figure out the place that has a population in 2009 higher than 500000.
 Selected Operation: ```numeric```
 Target column: population; census 2009
-Column type: Float
 Explanation: The purpose asking about the population, which should be integers. Therefore, numeric is chosen to convert the data into correct integers.
 Output: 939370 | 649311 | 1109735
 
-2. upper: The upper function is used to convert all cell values in a column that are strings into uppercase. This is particularly useful for standardizing data, especially when dealing with categorical variables, to ensure consistency in text representation. Standardizing case can help avoid issues with duplicate entries that differ only in capitalization. For example,
+2. upper: The upper function is used to convert all cell values in a column that are strings into uppercase, fixing formatting error for strings. This is particularly useful for standardizing data, especially when dealing with categorical variables, to ensure consistency in text representation. Standardizing case can help avoid issues with duplicate entries that differ only in capitalization. For example,
 
 /*
 col : id | neighbourhood      | room_type  | price 
@@ -28,11 +27,10 @@ row 3 : 228273   | ohare    | Private room        | 109
 Purpose: Return room types that are located near OHare.
 Selected Operation: ```upper```
 Target column: neighbourhood
-Column type: string
 Explanation: The purpose asks about neighbourhood of OHare, which are in string data type. We use upper on column "neighbourhood" (string type) to standardize the cell values.
 Output: OHARE | OHARE | OHARE
 
-3. date: The date function is used to convert all cell values in a column that are datetime-like into a standardized ISO date format (YYYY-MM-DD). This is especially useful for ensuring consistency in date representation across a dataset, which can facilitate data analysis and prevent issues related to different date formats. For example,
+3. date: The date function is used to convert all cell values in a column that are datetime-like into a standardized ISO date format (YYYY-MM-DD), fixing formatting errors for date type data. This is especially useful for ensuring consistency in date representation across a dataset, which can facilitate data analysis and prevent issues related to different date formats. For example,
 
 /*
 col : ISO/IEC Standard | Publish Date | WG
@@ -43,9 +41,8 @@ row 3 : ISO/IEC 12207.   | 2009-10-12 | 7
 Purpose: what is the most frequent publish date?
 Selected Operation: ```date```
 Target column: Publish Date
-Column type: date
 Explanation: The purpose asks about publish date, which are in datetime type. We use date on column "Publish Date" to parse the date of time into ISO format.
-Output: 2005-10-04 | 2008-09-14 | 2009-10-12
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
 
 4. regexr_transform: The regexr_transform function is a a Python function that utilizes regular expressions. This function can be particularly useful for extracting, replacing, or transforming parts of text data based on defined patterns. For example,
 
@@ -58,7 +55,6 @@ row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
 Purpose: List all the published year information for all books.
 Selected Operation: ```regexr_transform```
 Target column: Year
-Column type: String (composite)
 Explanation: The purpose asks about the publish years, which are composed in cell values from the column Year. We implement a regular expression-based python function: "jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)" to extract year.
 Output: 1975| 1985 | 2006
 
@@ -73,7 +69,6 @@ row 3 : | 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 
 Purpose: Return top 5 competitions that have the most number of audiences.
 Selected Operation: ```add_column```
 Targe column: attendance
-Column type: Integer
 Explanation: (1) check if the "number of audiences" are in current table: NO (2). We copy the value from column "attendance" and create a new column "number_of_audiences".
 Output: 32,092 | 34,186 | 17,503
 
@@ -88,7 +83,6 @@ row 3 : | 3  | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 |
 Purpose: what is the date of the competition with highest attendance?
 Selected Operation: ```split_column```
 Target column: When
-Column type: String (composite)
 Explanation: (1).The data values are in composite string type: True (2). The Purpose asks about the date, which is contained in cell values of column When: True. Therefore,we split the value from column "When".
 Output: April 13 | April 20 | April 28
 
@@ -105,7 +99,6 @@ row 6 : | 100000   | Chicagoo | IL     |
 Purpose: Return how many cities are in the table.
 Selected Operation: ```mass_edit```
 Target column: City
-Column type: String 
 Explanation: Cell values in City are in string: True; To answer the number of city names: True, we need to merge the same city name in different spellings. Such as the spellings for Hon, HONOLULU should be clustered and replaced with Honolulu. similar to CHI and Chicago should be edited to Chicago.
 Output: Honolulu | Honolulu | Honolulu | Chicago | urbana | Chicago
 
@@ -120,11 +113,10 @@ row 3 : | 3 |CD Numancia| 42 | 73 | 21 | 10 | 11 | 68 | 40 | +28
 Purpose: what club placed in the last position?
 Selected Operation: ```reorder_rows```
 Target column: Position 
-Column type: Integer
 Explanation: the Purpose asks about the club in the **last** position. The rows should be sorted by the values in column Position.
 Output: 10 | 3 | 1
 
-9. trim: The trim function is designed to remove leading and trailing whitespaces from strings in a dataset. This is particularly useful in data cleaning processes, where extraneous spaces can lead to inconsistencies, misalignments, and errors during data analysis or processing. By using the trim function, you can ensure that the data is formatted correctly for further operations. For example, 
+9. trim: The trim function is designed to remove leading and trailing whitespaces from strings in a dataset, and can be applied universally. This is particularly useful in data cleaning processes, where extraneous spaces can lead to inconsistencies, misalignments, and errors during data analysis or processing. By using the trim function, you can ensure that the data is formatted correctly for further operations. For example, 
 /*
 col : Book Title             | Year           | First Name
 row 1 :   Against Method.    | Feyerabend,1975| P.
@@ -134,6 +126,5 @@ row 3 :  Exceeding Our Grasp  | Stanford,2006  | P.K.
 Purpose: List all the book titles.
 Selected Operation: ```trim```
 Target column: Book Title
-Column type: String
 Explanation: The purpose asks about values in column Book Title. We trim the column to remove extra white spaces in the cell values.
 Output: Against Method. | Changing Order | Exceeding Our Grasp

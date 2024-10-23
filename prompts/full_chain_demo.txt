@@ -15,10 +15,12 @@ row 2 : 6715     | OHARE      | Entire home/apt     | 255
 row 3 : 228273   | ohare    | Private room        | 109
 */
 Purpose: Return room types that are located near OHare.
-Operation Chain: ```[uppercase, True]```
+Operation Chain: ```[upper, trim, True]```
 Explanations:
 1. uppercase on column "neighbourhood" (string type) to standardize the cell values;
-2. End the full chain: True.
+2. trim on column "neighbourhood" to remove extra whitespaces;
+3. End the full chain: True.
+DO NOT repeat applying upper or trim consecutively or recursively. 
 
 /*
 col : id | neighbourhood      | room_type  | price 
@@ -29,27 +31,29 @@ row 4 : 22820    | ohare      |                     | 120
 row 5 : 12890    | O'Haree    | Private room        | 309
 */
 Purpose: Return room types that are located near OHare.
-Operation Chain: ```[uppercase, mass_edit, True]```
+Operation Chain: ```[upper, mass_edit, upper, True]```
 Explanations:
 1. uppercase on column "neighbourhood" (string type) to standardize the cell values;
 2. mass_edit on column "neighbourhood" to repair the spellings;
-3. End the full chain: True.
+3. upper again to standardize the cell values;
+4. End the full chain: True.
 
 /*
 col : Code | City     | State  | Zip 
-row 1 : 334444   | Chicago  | IL     | 60611
-row 2 : 120      | urbana   | IL     | 61802
-row 3 : 100000   | Chicagoo | IL     | 
-row 4 : 1000.    | CHICAGO  | IL     | 60611
-row 5 : 103420   | CHICAGO  | IL     | 
+row 1 : 334444   |  Chicago    | IL     | 60611
+row 2 : 120      | urbana.     | IL     | 61802
+row 3 : 100000   |  Chicagoo   | IL     | 
+row 4 : 1000.    |    CHICAGO  | IL     | 60611
+row 5 : 103420   | CHICAGO     | IL     | 
 */
 Purpose: Return the city name that the most loan amount are from.
-Operation Chain: ```[numeric, uppercase, mass_edit, reorder_rows, True]```
+Operation Chain: ```[numeric, upper, mass_edit, trim, upper, True]```
 Explanations: 
 1. numeric on column "LoanAmount" (data type: Integer) to convert data into numerical type;
 2. uppercase on column "City" to standardize the spellings;
 3. mass_edit on column "City" to correct the spellings;
-4. reorder_rows on "LoanAmount" to find the "most" number;
+4. trim on column "City" to remove leading and tailing whitesapces
+5. upper on column "City" again to ensure the spellings format are consistent
 5. End the full chain: True.
 
 

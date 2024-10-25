@@ -213,12 +213,13 @@ def gen(prompt, context, model, options={'temperature':0.0}):
                 stream=True
                 )
     res=[]
-    
+
     for part in r:
         response_part = part['response']
         res.append(response_part)
         if part['done'] is True:
             return part['context'], ''.join(res)
+    
     raise ValueError
 
 
@@ -289,22 +290,20 @@ def wf_gen(project_id, log_data, model, purpose):
         sel_col_learn = f.read()
     print(f'current purpose: {purpose}')
     prompt_sel_col = sel_col_learn + f"""
-                                    \n\nBased on table contents and Purpose provided as following, output Selected columns in ``` ``` (e.g., ```['col1', 'col2']```).
+                                    \n\nBased on table contents and purpose provided as following, output column name in ``` ```.
                                     /*
                                     {format_sel_col(df)}
                                     */
                                     Purpose: {purpose}
-                                    Selected columns:
+                                    Selected column:
                                     """
 
     context, sel_col_desc = gen(prompt_sel_col, context, model)
     
     # print(f'description of selected column: {sel_col_desc}')
-    ext_res = extract_exp(sel_col_desc)[0]
-    print(ext_res)
-    tg_cols = ast.literal_eval(ext_res)
+    tg_cols = ast.literal_eval(extract_exp(sel_col_desc)[0])
     print(f'Target columns: {tg_cols}')
-
+    
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
     # Output: False/True
@@ -312,11 +311,11 @@ def wf_gen(project_id, log_data, model, purpose):
         eod_learn = f0.read()
 
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
+    eod_flag = "False" # initialize the end_of_dc_flag to start data_cleaning pipeline
+    log_cols = []
     
     while tg_cols:
-        eod_flag = "False"
         sel_col = tg_cols[0]
-        print(f'Current selected column: {sel_col} from the target column list: {tg_cols}')
         sum_eod = f"Generate proper operations to improve accuracy, completeness, conciseness of the column: {sel_col}"
         # st: start step id, [st:] is to chunk the functions_list on current sel_col ONLY
         st = 0
@@ -325,8 +324,7 @@ def wf_gen(project_id, log_data, model, purpose):
         sel_cols_df = df[tg_cols]
         while eod_flag == "False":
             # ```upper```,  ```trim```, ```add_column```, ```split_column```, ```mass_edit```,  ```regexr_transform```, , ```numeric```, and ```date```
-            # ops_pool = ["upper", "trim", "add_column", "split_column", "mass_edit", "regexr_transform", "numeric", "date"]
-            ops_pool = ["upper", "trim", "mass_edit", "regexr_transform", "numeric", "date"]
+            ops_pool = ["upper", "trim", "add_column", "split_column", "mass_edit", "regexr_transform", "numeric", "date"]
             context = []
             eod_desc = False
             col_values = df[sel_col]
@@ -345,10 +343,10 @@ def wf_gen(project_id, log_data, model, purpose):
 
             # context-learn (full_chain_demo): how the previous operation are related to the current one
             # operation-learn (learn_ops.txt): when to select a proper operation 
-            with open('prompts/learn_ops.txt', 'r')as f_learn_ops:
+            # with open('prompts/learn_ops.txt', 'r')as f_learn_ops:
+            #     dynamic_plan = f_learn_ops.read()
+            with open('prompts/learn_ops_lf.txt', 'r')as f_learn_ops:
                 learn_ops = f_learn_ops.read()
-            # with open('prompts/learn_ops_lf.txt', 'r')as f_learn_ops:
-            #     learn_ops = f_learn_ops.read()
             # with open('prompts/full_chain_demo.txt', 'r')as f_chain:
             #     dynamic_plan = f_chain.read()
             
@@ -480,19 +478,22 @@ Selected Operation:
             elif sel_op == 'upper':
                 text_transform(project_id, column=sel_col, expression="value.toUppercase()")
             elif sel_op == 'mass_edit':
+                #   We choose to return all the related columns
+                #  [city, zip] should work together to repair the data
+                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
                 # sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
                 # sum_edo = sum_eod.replace('\n', ' ')
                 col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
                 print(col_str)
-                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```."""\
-                                + f"""\n
-/*
-{col_str}
-*/
-Purpose: {purpose}
-Current Operation Purpose: {sum_eod}
-edits: 
-"""
+                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ``` ONLY, DO NOT add any extra comments or keywords.""" \
+                                    +f"""
+                                    /*
+                                    {col_str}
+                                    */
+                                    Purpose: {purpose}
+                                    Current Operation Purpose: {sum_eod}
+                                    edits: 
+                                    """
 #                 prompt_sel_args += """\n\nBased on the following table contents, Purpose, and Current Operation Objective, generate the JSON format **edits** ONLY in ```  ````.""" \
 #                     + f"""\n
 # /*
@@ -506,19 +507,16 @@ edits:
                 options = {
                     'temperature': 0.2,
                 }
-                try:
-                    context, edits_desc = gen(prompt_sel_args, context, model, options)
-                    edits_v = extract_exp(edits_desc)
-                    print(f'descriptions for edits: \n\n {edits_desc}')
-                
-                    if edits_v:
-                        edits_v = edits_v[0].replace("edits: ", "")
-                        edits_v = parse_edits(edits_v)
-                        mass_edit(project_id, column=sel_col, edits=edits_v)
-                    else: 
-                        print('No edits are parsed')
-                except:
-                    pass
+                context, edits_desc = gen(prompt_sel_args, context, model, options)
+                edits_v = extract_exp(edits_desc)
+                print(f'descriptions for edits: \n\n {edits_desc}')
+            
+                if edits_v:
+                    edits_v = edits_v[0].replace("edits: ", "")
+                    edits_v = parse_edits(edits_v)
+                    mass_edit(project_id, column=sel_col, edits=edits_v)
+                else: 
+                    print('No edits are parsed')
                 # raise NotImplementedError
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
@@ -566,7 +564,7 @@ edits:
                 eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
                 
             print(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
-        log_data['Columns'].append(sel_col)
+        log_cols.append(sel_col)
         tg_cols.pop(0)
         st += len(functions_list)
         print(f"remaining columns: {tg_cols}")
@@ -655,7 +653,7 @@ def test_main():
     
     ds_file = "datasets/menu_data.csv"
     ds_name = "menu_test"
-    for index, row in pp_df.iloc[5:6].iterrows():
+    for index, row in pp_df.iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -682,11 +680,8 @@ def test_main():
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
             log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
-        # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
-        #     json.dump(log_data, log_f, indent=4)
-        with open(f"{log_dir}/{ds_name}_{pp_id}_log.txt", "w") as log_f:
+        with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
             json.dump(log_data, log_f, indent=4)
-
 
 if __name__ == '__main__':
     test_main()

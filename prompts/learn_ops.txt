@@ -3,35 +3,35 @@ Note that the operation chosen should aim at making data be in BETTER SHAPE that
 
 Available example demos to learn the data cleaning operations are as following:
 
-1. add_column: (1) Check if the information from the Purpose can be directly retrieved from current table. (2). If NOT we use add_column to add a new column for it. For example,
+1. upper: The upper function is used to convert all cell values in a column that are strings into uppercase, fixing formatting error for strings. This is particularly useful for standardizing data, especially when dealing with categorical variables, to ensure consistency in text representation. Standardizing case can help avoid issues with duplicate entries that differ only in capitalization. For example,
 
 /*
-col : | week | when | kickoff | opponent | results; final score | results; team record | game site | attendance
-row 1 : | 1 | saturday, april 13 | 7:00 p.m. | at rhein fire | w 27–21 | 1–0 | rheinstadion | 32,092
-row 2 : | 2 | saturday, april 20 | 7:00 p.m. | london monarchs | w 37–3 | 2–0 | waldstadion | 34,186
-row 3 : | 3 | sunday, april 28 | 6:00 p.m. | at barcelona dragons | w 33–29 | 3–0 | estadi olímpic de montjuïc | 17,503
+col : id | neighbourhood      | room_type  | price 
+row 1 : 46154    | Ohare      | Entire home/apt     | 65
+row 2 : 6715     | OHARE      | Entire home/apt     | 255 
+row 3 : 228273   | ohare    | Private room        | 109
 */
-Purpose: Return top 5 competitions that have the most number of audiences.
-Selected Operation: ```add_column```
-Targe column: attendance
-Explanation: (1) check if the "number of audiences" are in current table: NO (2). We copy the value from column "attendance" and create a new column "number_of_audiences".
-Output: 32,092 | 34,186 | 17,503
+Purpose: Return room types that are located near OHARE.
+Target column: neighbourhood
+Selected Operation: ```upper```
+Explanation: Improve conciseness: The format of cell values in column neighbourhood are inconsistent(mixed with different formats). Therefore, We use upper on column "neighbourhood" to make the format consistent as Uppercase.
+Output: OHARE | OHARE | OHARE
 
-2. split_column: (1). Data values MUST BE composite string (contain more than one category of cell values).(2).The required information from the purpose is contained in this composite value. Both should be Truen then we Select split_column to decompose the column for it. For example,
+2. trim: The trim function is designed to remove leading and trailing whitespaces from strings in a dataset, and can be applied universally. This is particularly useful in data cleaning processes, where extraneous spaces can lead to inconsistencies, misalignments, and errors during data analysis or processing. By using the trim function, you can ensure that the data is formatted correctly for further operations. For example, 
 
 /*
-col : | Week | When | Kickoff | Opponent | Results; Final score | Results; Team record | Game site | Attendance
-row 1 : | 1  | Saturday, April 13 | 7:00 p.m. | at Rhein Fire | W 27–21 | 1–0 | Rheinstadion | 32,092
-row 2 : | 2  | Saturday, April 20 | 7:00 p.m. | London Monarchs | W 37–3 | 2–0 | Waldstadion | 34,186
-row 3 : | 3  | Sunday, April 28 | 6:00 p.m. | at Barcelona Dragons | W 33–29 | 3–0 | Estadi Olímpic de Montjuïc | 17,503
+col : Book Title             | Year           | First Name
+row 1 :   Against Method.    | Feyerabend,1975| P.
+row 2 : Changing Order       | Collins,1985   | H.M.
+row 3 :  Exceeding Our Grasp  | Stanford,2006  | P.K.
 */
-Purpose: what is the date of the competition with highest attendance?
-Selected Operation: ```split_column```
-Target column: When
-Explanation: (1).The data values are in composite string type: True (2). The Purpose asks about the date, which is contained in cell values of column When: True. Therefore,we split the value from column "When".
-Output: April 13 | April 20 | April 28
+Purpose: List all the book titles.
+Target column: Book Title
+Selected Operation: ```trim```
+Explanation: Improve accuracy: There are extra whitespaces in some cell values on column Book Title, therefore, we trim the column to remove extra white spaces in the cell values.
+Output: Against Method. | Changing Order | Exceeding Our Grasp
 
-3. mass_edit(): The mass_edit operation is used to replace a group of similar or related cell values with a string or categorical value across multiple cells. This operation is particularly useful for cleaning and harmonizing data when there are slight variations in entries, such as different spellings, capitalizations, or formats for the same entity (e.g., "NY", "New York", and "N.Y." can all be replaced with "New York"). By unifying these values, the mass_edit operation ensures consistency, reduces redundancy, and makes the dataset more structured for analysis.
+3. mass_edit: The mass_edit operation is used to replace a group of similar or related cell values with a string or categorical value across multiple cells. This operation is particularly useful for cleaning and harmonizing data when there are slight variations in entries, such as different spellings, capitalizations, or formats for the same entity (e.g., "NY", "New York", and "N.Y." can all be replaced with "New York"). By unifying these values, the mass_edit operation ensures consistency, reduces redundancy, and makes the dataset more structured for analysis.
 Example
 /*
 col : | LoanAmount | City     | State  | Zip 
@@ -43,9 +43,9 @@ row 5 : | 120      | urbana   | IL     | 61802
 row 6 : | 100000   | Chicagoo | IL     | 
 */
 Purpose: Return how many cities are in the table.
-Selected Operation: ```mass_edit```
 Target column: City
-Explanation: cell values spellings for Hon, HONOLULU should be clustered and replaced with Honolulu. similar to CHI and Chicago should be edited to Chicago.
+Selected Operation: ```mass_edit```
+Explanation: Improve conciseness and accuracy: cell values spellings for Hon, HONOLULU are incorrect and duplicate with "Honolulu" should be clustered and replaced with Honolulu. similar to CHI and Chicago should be edited to Chicago.
 Output: Honolulu | Honolulu | Honolulu | Chicago | urbana | Chicago
 
 4. regexr_transform: The regexr_transform function is a a Python function that utilizes regular expressions. This function can be particularly useful for extracting, replacing, or transforming parts of text data based on defined patterns. For example,
@@ -57,9 +57,9 @@ row 2 : Changing Order       | Collins,1985   | H.M.
 row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
 */
 Purpose: List all the published year information for all books.
-Selected Operation: ```regexr_transform```
 Target column: Year
-Explanation: The purpose asks about the publish years, which are composed in cell values from the column Year. We implement a regular expression-based python function: "jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)" to extract year.
+Selected Operation: ```regexr_transform```
+Explanation: Improve relavancy and accuracy: cell values in column Year are not accurate enough, which are composed with author information and year info. We implement a regular expression-based python function: "jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)" to extract year.
 Output: 1975| 1985 | 2006
 
 5. numeric: numeric is an operation that identifies and transforms numeric data entries (e.g., strings of decimal float or integers) into their proper numerical format, ensuring they are correctly recognized and treated as numbers in the dataset. For example, float number "2.0" would be converted to "2".
@@ -71,9 +71,9 @@ row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
 row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
 */
 Purpose: Figure out the place that has a population in 2009 higher than 500000.
-Selected Operation: ```numeric```
 Target column: population; census 2009
-Explanation: The purpose asking about the population, which should be integers. Therefore, numeric is chosen to convert the data into correct integers.
+Selected Operation: ```numeric```
+Explanation: Improve accuracy: The cell values in column population; census 2009 are float which is incorrect. Therefore, numeric is chosen to convert the data into correct integers.
 Output: 939370 | 649311 | 1109735
 
 6. date: The date function is used to convert all cell values in a column that are datetime-like into a standardized ISO date format (YYYY-MM-DD), fixing formatting errors for date type data. This is especially useful for ensuring consistency in date representation across a dataset, which can facilitate data analysis and prevent issues related to different date formats. For example,
@@ -85,35 +85,7 @@ row 2 : ISO/IEC 15288    | 09/14/2008 | 7
 row 3 : ISO/IEC 12207.   | 2009-10-12 | 7
 */
 Purpose: what is the most frequent publish date?
-Selected Operation: ```date```
 Target column: Publish Date
-Explanation: The purpose asks about publish date, which are in datetime type. We use date on column "Publish Date" to parse the date of time into ISO format.
+Selected Operation: ```date```
+Explanation: Improve accuracy: The cell values in Publish Date are in different date format, therefore, We use date on column "Publish Date" to normalize all the dates into ISO format.
 Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
-
-7. upper: The upper function is used to convert all cell values in a column that are strings into uppercase, fixing formatting error for strings. This is particularly useful for standardizing data, especially when dealing with categorical variables, to ensure consistency in text representation. Standardizing case can help avoid issues with duplicate entries that differ only in capitalization. For example,
-
-/*
-col : id | neighbourhood      | room_type  | price 
-row 1 : 46154    | OHare      | Entire home/apt     | 65
-row 2 : 6715     | OHARE      | Entire home/apt     | 255 
-row 3 : 228273   | ohare    | Private room        | 109
-*/
-Purpose: Return room types that are located near OHare.
-Selected Operation: ```upper```
-Target column: neighbourhood
-Explanation: The purpose asks about neighbourhood of OHare, which are in string data type. We use upper on column "neighbourhood" (string type) to standardize the cell values.
-Output: OHARE | OHARE | OHARE
-
-8. trim: The trim function is designed to remove leading and trailing whitespaces from strings in a dataset, and can be applied universally. This is particularly useful in data cleaning processes, where extraneous spaces can lead to inconsistencies, misalignments, and errors during data analysis or processing. By using the trim function, you can ensure that the data is formatted correctly for further operations. For example, 
-
-/*
-col : Book Title             | Year           | First Name
-row 1 :   Against Method.    | Feyerabend,1975| P.
-row 2 : Changing Order       | Collins,1985   | H.M.
-row 3 :  Exceeding Our Grasp  | Stanford,2006  | P.K.
-*/
-Purpose: List all the book titles.
-Selected Operation: ```trim```
-Target column: Book Title
-Explanation: The purpose asks about values in column Book Title. We trim the column to remove extra white spaces in the cell values.
-Output: Against Method. | Changing Order | Exceeding Our Grasp

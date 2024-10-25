@@ -1,0 +1,75 @@
+Instruction: You are tasked with identifying incorrect values within a target column and performing value replacements using the mass_edit() operation. Your goal is to aggregate semantically similar or erroneous values into a single correct version. Do not alter data unless strong evidence exists that values should be the same.
+
+Construct the mass_edit() operation by identifying incorrect values and their replacements in the format:
+```[{'from': [list_of_incorrect_strings], 'to': a_correct_version_string}]```
+- The "from" values should only come from the target column and must be UNIQUE.
+- The "to" value must be the best representative of the correct version and should either come from the original dataset or be inferred based on strong evidence.
+
+Examples:
+
+/*
+col :   City     | State  | Zip 
+row 1 : Hon      | HI     | 96814
+row 2 : HONOLULU | HI     | 96814 
+row 3 : Honolulu | HI     | 96814
+row 4 : CHI      | IL     | 60611
+row 5 : urbanana | IL     | 61802
+row 6 : Chicagoo | IL     | 
+*/
+Purpose: Return how many cities are in the table.
+Current Operation Purpose: The data has accuracy and conciseness concerns, including incorrect values in the "City" column, which prevent it from meeting all data quality criteria.
+edits: ```[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}]```
+Explanation: 
+- {'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}: Based on the consistency across rows and location, 'Hon' and 'HONOLULU' are variants of 'Honolulu'.
+- {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}: 'CHI' and 'Chicagoo' both refer to Chicago, based on the state 'IL' and other clues.
+- {'from': ['urbanana'], 'to': 'Urbana'}: 'urbanana' seems to be a typo of 'Urbana' based on the zip code 61802 and state 'IL'.
+Output: Honolulu | Honolulu | Honolulu | Chicago | urbana | Chicago
+
+
+/*
+col : neighbourhood|  room_type    
+row 1 : OHare      | Entire home/apt 
+row 2 : OHARE      | Entire home/apt  
+row 3 : O?Hare     | Private room   
+*/
+
+Purpose: Return how many differnt types of rooms are located near OHare.
+Current Operation Purpose: The data has accuracy concerns, including invalid characters exist in the cell values in the "City" column, which prevent it from meeting all data quality criteria.
+edits: ```[{'from': ['OHAER', 'O?HARE'], 'to': 'OHare'}]```
+Explanation: 
+- {'from': ['OHARE', 'O?Hare'], 'to': 'OHare'}: All variations like 'OHARE' and 'O?Hare' should be unified under the standard spelling 'OHare' to remove invalid characters and capitalization inconsistenci
+Output: OHare | OHare | OHare
+
+
+/*
+col :  orcid   |Name         |H-index      
+row 1 : 1001   |Jinde Cao    |300,00
+row 2 : 1002   |Jin Li Li.   |23000
+row 3 : 1002   |Jin Li       |23,000
+row 4 : 1004   |Zhu Han 韩   |6000
+*/
+Purpose: Return researcher's name who has the most H-index.
+Current Operation Purpose: The data has accuracy concerns, cell values on column "Name" include both English and non-English (e.g., Chinese) components, which prevent it from meeting all data quality criteria.
+edits: ```[{'from': ['Jin Li Li.', 'Jin Li'], 'to': 'Jin Li'}, {'from': ['Zhu Han 韩'], 'to': 'Zhu Han'}]```
+Explanation:
+- {'from': ['Jin Li Li.', 'Jin Li'], 'to': 'Jin Li'}: Based on the shared ORCID (1002), 'Jin Li Li.' and 'Jin Li' refer to the same person, and 'Jin Li' is the most consistent form.
+- {'from': ['Zhu Han 韩'], 'to': 'Zhu Han'}: The Chinese characters are unnecessary for this dataset and can be removed.
+Output: Jinde Cao | Jin Li | Jin Li | Zhu Han 
+
+/*
+col :  City            | Zipcode  | State
+row 1 : New york city  | 10001    | NY
+row 2 : Boston         | 02108    | MA
+row 3 :                | 02112    | MA
+row 4 : Chicago        | 60604    | IL
+row 5 : Champaign      | 60607    | IL
+row 6 : Chicagoo       | 60601    | IL
+*/
+Purpose: Return how many cities are in the table.
+Current Operation Purpose: The data has accuracy and conciseness concerns, including incorrect values in the "City" column, which prevent it from meeting all data quality criteria.
+edits: ```[{'from': [''], 'to': 'Boston'}, {'from': ['Chicagoo'], 'to': 'Chicagoo'}, {'from': ['Champaign'], 'to': 'Chicago'}]```
+Explanation:
+- {'from': [''], 'to': 'Boston'}: Based on the state (MA) and zipcode (02112), the missing city value is clearly Boston.
+- {'from': ['Chicagoo'], 'to': 'Chicago'}: This is a misspelling of Chicago, supported by the IL state and the zipcode.
+- {'from': ['Champaign'], 'to': 'Chicago'}: Although 'Champaign' exists, the zipcode (60607) and state (IL) suggest this should be 'Chicago'.
+Output: New york city | Boston | Boston | Chicago | Chicago | Chicago 

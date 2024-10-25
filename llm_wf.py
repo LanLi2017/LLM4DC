@@ -646,6 +646,13 @@ def main():
 def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
     # ollama.pull(model)
+    models = [
+    "llama3.1:8b-instruct-fp16" ,
+    "llama3.2",
+    "phi3",
+    "gemma2",
+    "mistral"
+    ]
     model = "llama3.1:8b-instruct-fp16"
     log_dir = "CoT.response"
     os.makedirs(log_dir, exist_ok=True)

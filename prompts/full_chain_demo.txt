@@ -1,8 +1,9 @@
-This instruction is to teach how to generate a chain of operations (a.k.a., data cleaning workflow) to address the given data cleaning purpose. 
+This instruction is to teach how to generate a sequence of operations (a.k.a., data cleaning workflow) to address the given data cleaning purpose. 
 Note:
-1. Operation Chain is a list, the order is the execution order of the selected operations.
-2. Correlation exists between previous and current operations. The chosing of current operation depends on how the previous operation modifies the table.
-3. Full Operation Chain will be ended if True is executed.
+1. Data cleaning workflow is a list of data cleaning operations, the order is the execution order of the selected operations.
+2. Operations are selected to improve data quality so that the target columns can be prepared for addressing the purpose.
+3. Operations in the workflow are NOT implemented to execute the question in the purpose! They are processing the data to make it better fit for answering.
+4. Full Operation Chain will be ended if True is executed.
 
 
 Here are example operation chains to address the data cleaning Purpose.
@@ -17,10 +18,9 @@ row 3 : 228273   | ohare    | Private room        | 109
 Purpose: Return room types that are located near OHare.
 Operation Chain: ```[upper, trim, True]```
 Explanations:
-1. uppercase on column "neighbourhood" (string type) to standardize the cell values;
-2. trim on column "neighbourhood" to remove extra whitespaces;
-3. End the full chain: True.
-DO NOT repeat applying upper or trim consecutively or recursively. 
+1. Improve accuracy: uppercase on column "neighbourhood" (string type) to make the format of cell values consistent;
+2. Improve accuracy: trim on column "neighbourhood" to remove extra whitespaces;
+Because current related columns for purpose:neighbourhood and room_type are of high quality: no obvious data errors or duplicates, inconsistencies. So we end the workflow with True.
 
 /*
 col : id | neighbourhood      | room_type  | price 
@@ -31,12 +31,13 @@ row 4 : 22820    | ohare      |                     | 120
 row 5 : 12890    | O'Haree    | Private room        | 309
 */
 Purpose: Return room types that are located near OHare.
-Operation Chain: ```[upper, mass_edit, upper, True]```
+Operation Chain: ```[upper, mass_edit, upper, mass_edit, True]```
 Explanations:
-1. uppercase on column "neighbourhood" (string type) to standardize the cell values;
-2. mass_edit on column "neighbourhood" to repair the spellings;
-3. upper again to standardize the cell values;
-4. End the full chain: True.
+1. Improve accuracy: uppercase on column "neighbourhood" to format the cell values;
+2. Improve conciseness and accuracy: mass_edit on column "neighbourhood" to repair the spellings;
+3. Improve accuracy: upper "neighbourhood" to ensure the cell values are of the same type;
+4. Improve completeness: mass_edit on column "room_type" replacing row 4 from '' to "Unknown".
+Because current cell values in neighbourhood and room_type are of high quality: no obvious data errors or duplicates, inconsistencies. So we end the workflow with True.
 
 /*
 col : Code | City     | State  | Zip 
@@ -49,12 +50,12 @@ row 5 : 103420   | CHICAGO     | IL     |
 Purpose: Return the city name that the most loan amount are from.
 Operation Chain: ```[numeric, upper, mass_edit, trim, upper, True]```
 Explanations: 
-1. numeric on column "LoanAmount" (data type: Integer) to convert data into numerical type;
-2. uppercase on column "City" to standardize the spellings;
-3. mass_edit on column "City" to correct the spellings;
-4. trim on column "City" to remove leading and tailing whitesapces
-5. upper on column "City" again to ensure the spellings format are consistent
-5. End the full chain: True.
+1. Improve accuracy: numeric on column "LoanAmount" to convert data into numerical type;
+2. Improve accuracy: uppercase on column "City" to standardize the spellings;
+3. Improve conciseness: mass_edit on column "City" to correct the spellings;
+4. Improve accuracy: trim on column "City" to remove leading and tailing whitesapces
+5. Improve accuracy: upper on column "City" again to ensure the spellings format are consistent
+Because current cell values in City is of high quality: no obvious data errors or duplicates, inconsistencies. So we end the workflow with True.
 
 
 /*
@@ -66,11 +67,12 @@ row 3 : ISO/IEC 12207 | Published (2011) | 7
 Purpose: what is the number of standards published in 2011?
 Operation Chain: ```[split_column, add_column, regexr_transform, numeric, True]```
 Explanations: 
-1. split_column on "Status" with separator " " to extract year information: two new columns: ["Status 1","Status 2"] are generated;
-2. add_column: add a new column "Year" based on "Status 2" by copying the values;
-3. regexr_transform on "Year", to parse the pattern "\((\d{4})\)" and return the number only;
-4. numeric on "Year", because the data type is number, so use numeric to parse the data into correct data type.
-5. End the full chain: True.
+1. Improve relavancy: split_column on "Status" with separator " " to extract year information: two new columns: ["Status 1","Status 2"] are generated;
+2. Improve relavancy: add_column: add a new column "Year" based on "Status 2" by copying the values;
+3. Improve accuracy: regexr_transform on "Year", to parse the pattern "\((\d{4})\)" and return the number only;
+4. Improve accuracy: numeric on "Year", because the data type is number, so use numeric to parse the data into correct data type.
+Because current cell values in Year is of high quality: no obvious data errors or duplicates, inconsistencies. So we end the workflow with True.
+
 
 
 /*
@@ -82,5 +84,5 @@ row 3 : ISO/IEC 12207.   | 2009-10-12 | 7
 Purpose: what is the most frequent publish date?
 Operation Chain: ```[date, True]```
 Explanations:
-1. date on column "Publish Date" to parse the date of time into ISO format
-2. End the full chain: True.
+1. Improve accuracy: date on column "Publish Date" to parse the date of time into ISO format
+Because current cell values in Publish Date is of high quality: no obvious data errors or duplicates, inconsistencies. So we end the workflow with True.

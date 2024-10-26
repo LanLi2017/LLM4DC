@@ -643,6 +643,35 @@ def main():
             with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
                 json.dump(log_data, log_f, indent=4)
 
+
+def pull_datasets():
+    parent_folder = "CoT.response/datasets_llm"
+    projects = list_projects()
+    for proj_id, v in projects.items():
+        dataset_name = v['name']
+        project_id = int(proj_id)
+        print(dataset_name)
+        df = export_intermediate_tb(project_id)
+        filepath = f"{parent_folder}/{dataset_name}"
+        if not os.path.exists(filepath):
+            df.to_csv(f"{parent_folder}/{dataset_name}.csv")
+
+
+def pull_recipes():
+    parent_folder = "CoT.response/recipes_llm"
+    projects = list_projects()
+    for proj_id, v in projects.items():
+        dataset_name = v['name']
+        project_id = int(proj_id)
+        print(dataset_name)
+        data = get_operations(project_id)
+        filepath = f"{parent_folder}/{dataset_name}.json"
+        if not os.path.exists(filepath):
+           with open(filepath, "w") as workflow:
+                json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        else:
+            print(f"{filepath} Has Been Existed!")
+
 def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
     # ollama.pull(model)
@@ -662,7 +691,7 @@ def test_main():
     
     ds_file = "datasets/menu_data.csv"
     ds_name = "menu_test"
-    for index, row in pp_df.iloc[5:6].iterrows():
+    for index, row in pp_df.iloc[5:12].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -679,6 +708,7 @@ def test_main():
             "Error_Running":[]
         }
         proj_names_list = extract_proj_names()
+        project_id = None
         if project_name in proj_names_list:
             print(f"Project {project_name} already exists!")
             print(project_name)
@@ -693,9 +723,13 @@ def test_main():
         #     json.dump(log_data, log_f, indent=4)
         with open(f"{log_dir}/{ds_name}_{pp_id}_log.txt", "w") as log_f:
             json.dump(log_data, log_f, indent=4)
-
+    
+    # Download all the prepared datasets
+    pull_datasets()
 
 if __name__ == '__main__':
+    # pull_recipes()
+    # pull_datasets()
     test_main()
     # main()
     

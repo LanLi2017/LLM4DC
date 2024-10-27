@@ -240,42 +240,6 @@ def parse_edits(raw_string):
     return parsed_edits
 
 
-# Quality control on selecting operations
-def is_valid_operation(data, operation):
-    """If data-type operation: numeric or upper, or date is selected, check whether they fit for current data types or not"""
-    data = data.dropna()
-    if operation == "numeric":
-        # Check if all values are numeric (convertible to a number)
-        return all(is_numeric(value) for value in data if value)
-    
-    elif operation == "upper":
-        # Check if all values are strings
-        return all(isinstance(value, str) for value in data if value)
-    
-    elif operation == "date":
-        # Check if all values are date strings that can be parsed as dates
-        return all(is_valid_date(value) for value in data)
-    
-    else:
-        return True
-
-def is_numeric(value):
-    """Helper function to check if a value can be converted to a number."""
-    try:
-        float(value)
-        return True
-    except (ValueError, TypeError):
-        return False
-
-def is_valid_date(value):
-    """Helper function to check if a value is a valid date string."""
-    from dateutil.parser import parse
-    try:
-        parse(value)
-        return True
-    except (ValueError, TypeError):
-        return False
-
 def wf_gen(project_id, log_data, model, purpose):
     df = export_intermediate_tb(project_id) # Return current intermediate table
     tb_str = gen_table_str(df, num_rows=10)
@@ -653,8 +617,8 @@ def pull_datasets():
         print(dataset_name)
         df = export_intermediate_tb(project_id)
         filepath = f"{parent_folder}/{dataset_name}"
-        if not os.path.exists(filepath):
-            df.to_csv(f"{parent_folder}/{dataset_name}.csv")
+        # if not os.path.exists(filepath):
+        df.to_csv(f"{parent_folder}/{dataset_name}.csv")
 
 
 def pull_recipes():
@@ -689,15 +653,27 @@ def test_main():
     pp_f = 'purposes/pp_instance_level.csv'
     pp_df = pd.read_csv(pp_f)
     
-    ds_file = "datasets/menu_data.csv"
-    ds_name = "menu_test"
-    for index, row in pp_df.iloc[5:12].iterrows():
+    # ds_file = "datasets/menu_data.csv"
+    # ds_name = "menu_test"
+    for index, row in pp_df.iloc[12:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
         pp_id = row['ID']
         pp_v = row['Purposes']
         print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
+        if 1<= pp_id <=30:
+            ds_name = "menu_test"
+            ds_file = "datasets/menu_data.csv"
+        elif 31<= pp_id <=61:
+            ds_name = "chi_test"
+            ds_file = "datasets/chi_food_data.csv"
+        elif 62<=pp_id<=91:
+            ds_name = "ppp_test"
+            ds_file = "datasets/ppp_data.csv"
+        elif pp_id > 91:
+            ds_name = "dish_test"
+            ds_file = "datasets/dish_data.csv"
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         project_name = f"{ds_name}_{pp_id}"
         log_data = {

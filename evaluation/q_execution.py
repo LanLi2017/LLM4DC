@@ -95,8 +95,19 @@ class QExecute:
         return unique_risks_count
 
     def pp32_exe(df):
-        unique_count = df['Inspection Type'].nunique()
-        return unique_count
+        # Standardize the Results column to lowercase
+        df['Results'] = df['Results'].str.lower()
+
+        # Total inspections
+        total_inspections = len(df)
+
+        # Out-of-business inspections
+        out_of_business_inspections = df[df['Results'] == 'out of business'].shape[0]
+
+        # Calculate the percentage of out-of-business inspections
+        out_of_business_percentage = (out_of_business_inspections / total_inspections) * 100
+
+        return out_of_business_percentage
 
     def pp33_exe(df):
         facility_counts = df['Facility Type'].value_counts()

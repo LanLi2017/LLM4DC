@@ -90,12 +90,14 @@ def format_sel_col(df):
     return res
 
 
-def gen_table_str(df, num_rows=3, tg_col=None):
+def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     # Sample the first 'num_rows' rows
     df = df.head(num_rows)
     
     # If no target column is specified, generate the full table
     if not tg_col:
+        if flag:
+            df = df[flag]
         # Find the maximum length for each column for proper alignment
         col_widths = [max(len(str(col)), df[col].astype(str).map(len).max()) + 2 for col in df.columns]
 
@@ -235,7 +237,8 @@ def parse_edits(raw_string):
     
     # matches = re.findall(pattern, raw_string)
     # Parse the string using ast.literal_eval
-    parsed_edits = ast.literal_eval(raw_string)
+    raw_string.strip('python').strip('sql')
+    parsed_edits = eval(raw_string)
     
     return parsed_edits
 
@@ -323,6 +326,7 @@ def wf_gen(project_id, log_data, model, purpose):
 /*
 {col_str}
 */
+Purpose: {purpose}
 Target column: {sel_col}
 Explanation: {sum_eod}
 Selected Operation: 
@@ -387,37 +391,7 @@ Selected Operation:
             
             # >>>>Start Arguments Generation>>>>
             context = []
-            if sel_op == 'split_column':
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output Separator in ``` ``` . """\
-                                + f"""
-                                    /*
-                                    {col_str}
-                                    */
-                                    Purpose: {purpose}
-                                    Current Operation Purpose: {sum_eod}
-                                    Separator: 
-                                    """
-                context, sep_desc = gen(prompt_sel_args, context, model)
-                sep = extract_exp(sep_desc)
-                print(f'Predicted separator for operation split column: {sep}')
-                sel_args= {'column':sel_col, 'separator':sep}
-                split_column(project_id, **sel_args)
-            elif sel_op == 'add_column':
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression and new_column separately in ``` ```."""\
-                                    +f"""
-                                    /*
-                                    {col_str}
-                                    */
-                                    Purpose: {purpose}
-                                    Current Operation Purpose: {sum_eod}
-                                    Expression:, New_column:
-                                    """
-                context, res_dict_desc = gen(prompt_sel_args, context, model)
-                [exp, new_col] = extract_exp(res_dict_desc)
-                print(f"Expression of add_column: {exp}, New column created: {new_col}")
-                sel_args = {'column': sel_col, 'expression': exp, 'new_column': new_col} 
-                add_column(project_id, column=sel_col, expression=exp, new_column=new_col)
-            elif sel_op == 'regexr_transform':
+            if sel_op == 'regexr_transform':
                 # tb_str = gen_table_str(df, num_rows=50, tg_col=sel_col)
                 col_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
                 prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression in ``` ``` (Ensure the expression format statisifies ALL requirements in the **Check**). """ \
@@ -630,11 +604,13 @@ def pull_recipes():
         print(dataset_name)
         data = get_operations(project_id)
         filepath = f"{parent_folder}/{dataset_name}.json"
-        if not os.path.exists(filepath):
-           with open(filepath, "w") as workflow:
-                json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-        else:
-            print(f"{filepath} Has Been Existed!")
+        with open(filepath, "w") as workflow:
+            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        # if not os.path.exists(filepath):
+        #    with open(filepath, "w") as workflow:
+        #         json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        # else:
+        #     print(f"{filepath} Has Been Existed!")
 
 def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
@@ -650,12 +626,12 @@ def test_main():
     log_dir = "CoT.response"
     os.makedirs(log_dir, exist_ok=True)
 
-    pp_f = 'purposes/pp_instance_level.csv'
+    pp_f = 'purposes/queries.csv'
     pp_df = pd.read_csv(pp_f)
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[12:].iterrows():
+    for index, row in pp_df.iloc[16:17].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -702,6 +678,7 @@ def test_main():
     
     # Download all the prepared datasets
     pull_datasets()
+    pull_recipes()
 
 if __name__ == '__main__':
     # pull_recipes()

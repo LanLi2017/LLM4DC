@@ -257,7 +257,7 @@ def wf_gen(project_id, log_data, model, logging, purpose):
         sel_col_learn = f.read()
     print(f'current purpose: {purpose}')
     prompt_sel_col = sel_col_learn + f"""\
-\n\nBased on table contents and Purpose provided as following, you need to output Selected columns in a list and the value must be in ``` ```.
+\n\nBased on table contents and Purpose provided as following, output Selected columns as a list in ``` ``` ONLY. 
 /*
 {format_sel_col(df)}
 */
@@ -284,6 +284,7 @@ Selected columns:
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
     
     while tg_cols:
+        ops_pool = ["upper", "trim", "mass_edit", "regexr_transform", "numeric", "date"]
         eod_flag = "False"
         sel_col = tg_cols[0]
         print(f'Current selected column: {sel_col} from the target column list: {tg_cols}')
@@ -293,7 +294,6 @@ Selected columns:
         while eod_flag == "False":
             # ```upper```,  ```trim```, ```add_column```, ```split_column```, ```mass_edit```,  ```regexr_transform```, , ```numeric```, and ```date```
             # ops_pool = ["upper", "trim", "add_column", "split_column", "mass_edit", "regexr_transform", "numeric", "date"]
-            ops_pool = ["upper", "trim", "mass_edit", "regexr_transform", "numeric", "date"]
             context = []
             eod_desc = False
             # Clean the column one by one
@@ -317,7 +317,7 @@ Selected columns:
 
             # context-learn (full_chain_demo): how the previous operation are related to the current one
             # operation-learn (learn_ops.txt): when to select a proper operation 
-            with open('prompts/learn_ops.txt', 'r')as f_learn_ops:
+            with open('prompts/learn_ops_.txt', 'r')as f_learn_ops:
                 learn_ops = f_learn_ops.read()
             
             prompt_sel_ops = learn_ops +\
@@ -423,14 +423,14 @@ Selected Operation:
             elif sel_op == 'upper':
                 text_transform(project_id, column=sel_col, expression="value.toUppercase()")
             elif sel_op == 'mass_edit':
-                # sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
+                sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
                 # sum_edo = sum_eod.replace('\n', ' ')
-                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
-                print(col_str)
-                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```ONLY. Do not add any comments in the edits."""\
+                # col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
+                # print(col_str)
+                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```. DO NOT add any comments in the list!"""\
                                 + f"""\n
 /*
-{col_str}
+{sel_cols_str}
 */
 Purpose: {purpose}
 Current Operation Purpose: {sum_eod}
@@ -631,7 +631,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[29:].iterrows():
+    for index, row in pp_df.iloc[34:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -646,13 +646,13 @@ def test_main():
             ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}.csv"
         elif 62<=pp_id<=91:
             ds_name = "ppp_test"
-            ds_file = "datasets/ppp_dataset/ppp_data_p{pp_id}.csv"
+            ds_file = f"datasets/ppp_datasets/ppp_data_p{pp_id}.csv"
         elif pp_id > 91:
             ds_name = "dish_test"
-            ds_file = "datasets/dish_data.csv" 
+            ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         logging_name = f"CoT.response/logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
-        logging.basicConfig(filename=logging_name, level=logging.DEBUG) # TODO: change filename 
+        logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
 
         project_name = f"{ds_name}_{pp_id}"
         log_data = {

@@ -256,15 +256,16 @@ def wf_gen(project_id, log_data, model, logging, purpose):
     with open("prompts/f_select_column.txt", 'r')as f:
         sel_col_learn = f.read()
     print(f'current purpose: {purpose}')
-    prompt_sel_col = sel_col_learn + f"""
-                                    \n\nBased on table contents and Purpose provided as following, you need to output Selected columns in a list and the value must be in ``` ```.
-                                    /*
-                                    {format_sel_col(df)}
-                                    */
-                                    Purpose: {purpose}
-                                    Selected columns:
+    prompt_sel_col = sel_col_learn + f"""\
+\n\nBased on table contents and Purpose provided as following, you need to output Selected columns in a list and the value must be in ``` ```.
+/*
+{format_sel_col(df)}
+*/
+Purpose: {purpose}
+Selected columns:
                                     """
     logging.info(f"#TASK I: select target columns: \n\n {prompt_sel_col}")
+    # print(prompt_sel_col)
     context, sel_col_desc = gen(prompt_sel_col, context, model)
     logging.info(sel_col_desc)
     
@@ -630,7 +631,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[].iterrows():
+    for index, row in pp_df.iloc[:2].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

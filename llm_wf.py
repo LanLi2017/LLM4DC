@@ -289,15 +289,15 @@ def wf_gen(project_id, log_data, model, logging, purpose):
         sum_eod = f"Generate proper operations to improve accuracy, completeness, conciseness of the column: {sel_col}"
         # st: start step id, [st:] is to chunk the functions_list on current sel_col ONLY
         st = 0
-        # Clean the column one by one
-        df = export_intermediate_tb(project_id) # Return current intermediate table
-        sel_cols_df = df[tg_cols]
         while eod_flag == "False":
             # ```upper```,  ```trim```, ```add_column```, ```split_column```, ```mass_edit```,  ```regexr_transform```, , ```numeric```, and ```date```
             # ops_pool = ["upper", "trim", "add_column", "split_column", "mass_edit", "regexr_transform", "numeric", "date"]
             ops_pool = ["upper", "trim", "mass_edit", "regexr_transform", "numeric", "date"]
             context = []
             eod_desc = False
+            # Clean the column one by one
+            df = export_intermediate_tb(project_id) # Return current intermediate table
+            sel_cols_df = df[tg_cols]
             col_values = df[sel_col]
             num_rows = len(df)
             av_cols = df.columns.to_list() # current column names list 
@@ -308,6 +308,8 @@ def wf_gen(project_id, log_data, model, logging, purpose):
             if functions_list:
                 functions_list = parse_text_transform(ops_history, functions_list)
                 print(f'Applied operation history: {functions_list}')
+                if 'trim' in functions_list:
+                    ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
             col_str = gen_table_str(df, num_rows=15, tg_col=sel_col) # only keep first 15 rows for operation selection
             sel_cols_str = gen_table_str(sel_cols_df, num_rows=15)
             print(f'Selected first {num_rows} rows for current table: {col_str}')
@@ -316,10 +318,6 @@ def wf_gen(project_id, log_data, model, logging, purpose):
             # operation-learn (learn_ops.txt): when to select a proper operation 
             with open('prompts/learn_ops.txt', 'r')as f_learn_ops:
                 learn_ops = f_learn_ops.read()
-            # with open('prompts/learn_ops_lf.txt', 'r')as f_learn_ops:
-            #     learn_ops = f_learn_ops.read()
-            # with open('prompts/full_chain_demo.txt', 'r')as f_chain:
-            #     dynamic_plan = f_chain.read()
             
             prompt_sel_ops = learn_ops +\
                              f"""\
@@ -335,6 +333,7 @@ Selected Operation:
                               """
             print("----start-------")
             print(prompt_sel_ops)
+            logging.info(f"#TASK II: select operations: \n\n {prompt_sel_ops}")
 
             options_sel_op = {
                     'temperature': 0.1,
@@ -347,6 +346,7 @@ Selected Operation:
             # TODO: Quality control
             context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
             print(sel_op_desc)
+            logging.info(f"\n\n{sel_op_desc}")
             sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
 
@@ -384,6 +384,7 @@ Selected Operation:
             # Regular expression to extract the desired sentence
             # eod_pattern= r"Next operation:\s*(.*?)\."
             print(one_sent_eod_desc)
+            logging.info(f'data cleaning objectives: {one_sent_eod_desc}')
             eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
             # Search for the pattern in the text
             eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
@@ -407,6 +408,7 @@ Selected Operation:
                                     """
                 # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
                 context, exp_desc = gen(prompt_sel_args, context, model)
+                logging.info(f"#TASK III: generate regexr arguments: \n\n {exp_desc}")
                 exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
                 print(f'********predicted expression: {exp}')
                 text_transform(project_id, column=sel_col, expression=exp)
@@ -424,7 +426,7 @@ Selected Operation:
                 # sum_edo = sum_eod.replace('\n', ' ')
                 col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
                 print(col_str)
-                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```."""\
+                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```ONLY. Do not add any comments in the edits."""\
                                 + f"""\n
 /*
 {col_str}
@@ -433,14 +435,6 @@ Purpose: {purpose}
 Current Operation Purpose: {sum_eod}
 edits: 
 """
-#                 prompt_sel_args += """\n\nBased on the following table contents, Purpose, and Current Operation Objective, generate the JSON format **edits** ONLY in ```  ````.""" \
-#                     + f"""\n
-# /*
-# {col_str}
-# */
-# Purpose: {purpose}
-# Current Operation Objective: {sel_op_desc}
-# edits: """
                 print("prompts for generating edits:")
                 print(prompt_sel_args)
                 options = {
@@ -450,6 +444,7 @@ edits:
                     context, edits_desc = gen(prompt_sel_args, context, model, options)
                     edits_v = extract_exp(edits_desc)
                     print(f'descriptions for edits: \n\n {edits_desc}')
+                    logging.info(f"#TASK III: generate mass_edit arguments: \n\n {edits_desc}")
                 
                     if edits_v:
                         edits_v = edits_v[0].replace("edits: ", "")
@@ -495,7 +490,8 @@ edits:
                 eod_flag = extract_exp(eod_desc, ['False', 'True'])
                 eod_flag_list.append(eod_flag)
                 eod_desc_list.append(eod_desc)
-            if any([x == "True" for x in eod_flag_list]):
+            thread_length = 8 # the longest number of steps on a single column
+            if any([x == "True" for x in eod_flag_list]) or len(functions_list)>thread_length:
                 eod_flag = "True"
                 ops_data += functions_list # appending the operations if done...
                 ops_gen[sel_col] = functions_list #TODO... the functions_list are the whole...    
@@ -504,6 +500,7 @@ edits:
                 eod_flag  = "False"
                 mask = [int(x == "False") for x in eod_flag_list]
                 eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
+                logging.info(f"#TASK IV: data quality inspection: \n\n {eod_desc}")
                 
             print(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
         log_data['Columns'].append(sel_col)
@@ -668,6 +665,7 @@ def test_main():
         project_id = None
         if project_name in proj_names_list:
             print(f"Project {project_name} already exists!")
+            logging.info(f'Project {project_name} already exists!')
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
@@ -675,6 +673,7 @@ def test_main():
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
+            logging.info(f"Project {project_name} creation finished.")
             log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
         # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
         #     json.dump(log_data, log_f, indent=4)

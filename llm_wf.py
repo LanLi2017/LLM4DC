@@ -12,6 +12,7 @@ from datetime import datetime
 import pandas as pd
 import ast
 import random
+import logging 
 # from history_update_problem.call_or import export_rows
 from call_or import *
 
@@ -243,7 +244,7 @@ def parse_edits(raw_string):
     return parsed_edits
 
 
-def wf_gen(project_id, log_data, model, purpose):
+def wf_gen(project_id, log_data, model, logging, purpose):
     df = export_intermediate_tb(project_id) # Return current intermediate table
     tb_str = gen_table_str(df, num_rows=10)
     av_cols = df.columns.to_list() # current column schema 
@@ -256,15 +257,16 @@ def wf_gen(project_id, log_data, model, purpose):
         sel_col_learn = f.read()
     print(f'current purpose: {purpose}')
     prompt_sel_col = sel_col_learn + f"""
-                                    \n\nBased on table contents and Purpose provided as following, output Selected columns in ``` ``` (e.g., ```['col1', 'col2']```).
+                                    \n\nBased on table contents and Purpose provided as following, you need to output Selected columns in a list and the value must be in ``` ```.
                                     /*
                                     {format_sel_col(df)}
                                     */
                                     Purpose: {purpose}
                                     Selected columns:
                                     """
-
+    logging.info(f"#TASK I: select target columns: \n\n {prompt_sel_col}")
     context, sel_col_desc = gen(prompt_sel_col, context, model)
+    logging.info(sel_col_desc)
     
     # print(f'description of selected column: {sel_col_desc}')
     ext_res = extract_exp(sel_col_desc)[0]
@@ -631,7 +633,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[16:17].iterrows():
+    for index, row in pp_df.iloc[].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -643,14 +645,17 @@ def test_main():
             ds_file = "datasets/menu_data.csv"
         elif 31<= pp_id <=61:
             ds_name = "chi_test"
-            ds_file = "datasets/chi_food_data.csv"
+            ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}.csv"
         elif 62<=pp_id<=91:
             ds_name = "ppp_test"
-            ds_file = "datasets/ppp_data.csv"
+            ds_file = "datasets/ppp_dataset/ppp_data_p{pp_id}.csv"
         elif pp_id > 91:
             ds_name = "dish_test"
-            ds_file = "datasets/dish_data.csv"
+            # ds_file = "datasets/dish_data.csv" TODO 
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
+        logging_name = f"CoT.response/logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
+        logging.basicConfig(filename=logging_name, level=logging.DEBUG) # TODO: change filename 
+
         project_name = f"{ds_name}_{pp_id}"
         log_data = {
             "ID": pp_id,
@@ -666,11 +671,11 @@ def test_main():
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
-            log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model,logging, purpose=pp_v)
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
-            log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
         # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
         #     json.dump(log_data, log_f, indent=4)
         with open(f"{log_dir}/{ds_name}_{pp_id}_log.txt", "w") as log_f:

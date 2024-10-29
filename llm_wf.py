@@ -631,7 +631,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:2].iterrows():
+    for index, row in pp_df.iloc[29:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -649,7 +649,7 @@ def test_main():
             ds_file = "datasets/ppp_dataset/ppp_data_p{pp_id}.csv"
         elif pp_id > 91:
             ds_name = "dish_test"
-            # ds_file = "datasets/dish_data.csv" TODO 
+            ds_file = "datasets/dish_data.csv" 
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         logging_name = f"CoT.response/logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.DEBUG) # TODO: change filename 

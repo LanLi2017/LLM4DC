@@ -38,7 +38,7 @@ class QExecute:
         return res 
 
     def pp7_exe(df: pd.DataFrame):
-        res = len(df[df['occasion'].str.lower() == 'daily'])
+        res = len(df[df['occasion'].astype(str).str.lower() == 'daily'])
         return res
 
     def pp8_exe(df:pd.DataFrame):
@@ -126,7 +126,7 @@ class QExecute:
         return failed_inspections_7eleven
 
     def pp37_exe(df):
-        df['Results'] = df['Results'].str.lower()
+        df['Results'] = df['Results'].astype(str).str.lower()
         # Group by DBA_Name and calculate the passing rate
         passing_rate = (
             df.groupby('DBA Name')
@@ -158,14 +158,23 @@ class QExecute:
         return unique_facility_types
 
     def pp42_exe(df):
-        high_risk_groceries_count = df[(df['Facility Type'].str.lower() == 'grocery store') & 
-                                (df['Risk'].str.contains('risk 1', case=False))].shape[0]
+        try:
+            high_risk_groceries_count = df[(df['Facility Type'].str.lower() == 'grocery store') & 
+                                    (df['Risk'].str.contains('risk 1', case=False))].shape[0]
+        except:
+            high_risk_groceries_count = df[(df['Facility Type'].astype(str).str.lower() == 'grocery store') & 
+                                (df['Risk'].astype(str).str.contains('risk 1', case=False))].shape[0]
         return high_risk_groceries_count
 
     def pp49_exe(df):
-        safest_school_restaurants_count = df[(df['Facility Type'].str.lower() == 'school') & 
-                                      (df['Risk'].str.contains('risk 3', case=False)) & 
-                                      (df['Results'].str.lower() == 'pass')].shape[0]
+        try:
+            safest_school_restaurants_count = df[(df['Facility Type'].str.lower() == 'school') & 
+                                        (df['Risk'].str.contains('risk 3', case=False)) & 
+                                        (df['Results'].str.lower() == 'pass')].shape[0]
+        except:
+            safest_school_restaurants_count = df[(df['Facility Type'].astype(str).str.lower() == 'school') & 
+                                        (df['Risk'].astype(str).str.contains('risk 3', case=False)) & 
+                                        (df['Results'].astype(str).str.lower() == 'pass')].shape[0]
         return safest_school_restaurants_count
 
     def pp52_exe(df):
@@ -405,22 +414,41 @@ class QExecute:
         Identify which dishes have been on the menu for the shortest duration, based on their 'first_appeared' and 'last_appeared' dates.
         cols: first_appeared, last_appeared
         """
-        df['duration'] = df['last_appeared'] - df['first_appeared']
+        df['last_appeared'] = pd.to_datetime(df['last_appeared'], errors='coerce')
+        df['first_appeared'] = pd.to_datetime(df['first_appeared'], errors='coerce')
+
+        # Calculate the difference in years
+        df['duration'] = (df['last_appeared'] - df['first_appeared']).dt.days
+        # if pd.api.types.is_datetime64_any_dtype(df['last_appeared']) and pd.api.types.is_datetime64_any_dtype(df['first_appeared']):
+        #     # Calculate duration as the difference in days if both are datetime
+        #     df['duration'] = (df['last_appeared'] - df['first_appeared']).dt.days
+        # elif pd.api.types.is_integer_dtype(df['last_appeared']) and pd.api.types.is_integer_dtype(df['first_appeared']):
+        #     # Calculate duration as a direct difference if both are integers
+        #     df['duration'] = df['last_appeared'] - df['first_appeared']
+        # else:
+        #     print("Columns are neither both datetime nor both integer.")
+        #     df['duration'] = False
 
         # Filter to identify dishes with the shortest duration
         shortest_duration = df['duration'].min()
         shortest_duration_dishes = df[df['duration'] == shortest_duration]
-        return shortest_duration_dishes['name'].tolist()
+        return shortest_duration_dishes['name'].tolist() 
+        
     
     def pp94_exe(df):
         """
         Identify which dishes have been on the menu for the longest duration, based on their 'first_appeared' and 'last_appeared' dates.
         cols:first_appeared, last_appeared
         """
-        df['duration'] = df['last_appeared'] - df['first_appeared']
-        longest_duration = df['duration'].max()
-        longest_duration_dishes = df[df['duration'] == longest_duration]
-        return longest_duration_dishes['name'].tolist()
+        try:
+            # Calculate duration as a direct difference if both are integers
+            df['duration'] = df['last_appeared'] - df['first_appeared']
+            longest_duration = df['duration'].max()
+            longest_duration_dishes = df[df['duration'] == longest_duration]
+            return longest_duration_dishes['name'].tolist()
+        except:
+            print("Columns are neither both datetime nor both integer.")
+            return []
     
     def pp98_exe(df):
         """
@@ -499,15 +527,16 @@ class QExecute:
         cols: name, times_appeared, highest_price
         """
         top_dishes = df.sort_values(by='times_appeared', ascending=False).head(10)
-        return top_dishes[['name', 'highest_price', 'times_appeared']].to_json()
-    
+        # return top_dishes[['name', 'highest_price', 'times_appeared']].to_json()
+        return {'name': top_dishes['name'].tolist(), 'highest_price': top_dishes['highest_price'].tolist()}
+
     def pp105_exe(df):
         """
         Analyze how the lowest price has evolved for the top 10 popular dishes, sorting the "times_appeared" column to define the popularity of the dishes.
         cols: name, times_appeared, lowest price
         """
         top_dishes = df.sort_values(by='times_appeared', ascending=True).head(10)
-        return top_dishes[['name', 'highest_price', 'times_appeared']].to_json()
+        return {'name': top_dishes['name'].tolist(), 'lowest_price': top_dishes['lowest_price'].tolist()}
     
     def pp106_exe(df):
         """
@@ -526,11 +555,14 @@ class QExecute:
         Identify which dishes have experienced a highest price difference between highest price and lowest price.
         cols: name, hightest_price, lowest_price
         """    
-        df['price_difference'] = df['highest_price'] - df['lowest_price']
+        try:
+            df['price_difference'] = df['highest_price'] - df['lowest_price']
 
-        # Identify the dish with the highest price difference
-        highest_price_difference_dish = df.loc[df['price_difference'].idxmax()]
-        return highest_price_difference_dish['name']
+            # Identify the dish with the highest price difference
+            highest_price_difference_dish = df.loc[df['price_difference'].idxmax()]
+            return highest_price_difference_dish['name']
+        except:
+            return " "
 
 
     def pp108_exe(df):
@@ -563,6 +595,9 @@ class QExecute:
         # Sort the dishes by the number of times appeared in descending order
         top_10_popular_dishes = df.sort_values(by='times_appeared', ascending=False).head(10)
 
+        top_10_popular_dishes['lowest_price'] = pd.to_numeric(top_10_popular_dishes['lowest_price'], errors='coerce')
+        top_10_popular_dishes['highest_price'] = pd.to_numeric(top_10_popular_dishes['highest_price'], errors='coerce')
+
         # Calculate the average price for each dish
         top_10_popular_dishes['average_price'] = top_10_popular_dishes[['lowest_price', 'highest_price']].mean(axis=1)
         return top_10_popular_dishes[['name', 'average_price']].to_json()
@@ -580,24 +615,41 @@ if __name__ == '__main__':
     ppp_df = pd.read_csv(ppp_gd)
     dish_df = pd.read_csv(dish_gd)
     
+    groundtruth_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/queries.csv')
-    for query_id in range(1,111):
+
+    # load results by LLMs
+    # model = "llama3.1"
+    # model = "gemma2"
+    model = "mistral"
+    llm_folder = f"CoT.response/{model}/datasets_llm"
+    for query_id in range(111):
         row = query_contents[query_contents['ID'] == query_id]
 
         if len(row) == 0:
             continue
         func = f'pp{query_id}_exe'
         print(func)
-        if query_id >= 62 and query_id <= 91:
-            target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/ppp_/ppp_p{query_id}.csv'
-        elif query_id >= 92:
-            target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/dish/dish_p{query_id}.csv'
-        elif query_id >= 31 and query_id <= 61:
-            target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/chicago_food_inspections/chi_p{query_id}.csv'
-        elif query_id <31:
-            target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/menu/menu_p{query_id}.csv'
+        if groundtruth_tag: 
+            if query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/cleaned_tables/ppp_sample_p{query_id}.csv'
+            elif query_id >= 92:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/dish_datasets/cleaned_tables/dish_sample_p{query_id}.csv'
+            elif query_id >= 31 and query_id <= 61:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/chi_food_inspection_datasets/cleaned_tables/chi_sample_p{query_id}.csv'
+            elif query_id <31:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/menu/menu_p{query_id}.csv'
+        else: 
+            if query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_ppp_test_{query_id}.csv'
+            elif query_id >= 92:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_dish_test_{query_id}.csv'
+            elif query_id >= 31 and query_id <= 61:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_chi_test_{query_id}.csv'
+            elif query_id <31:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_menu_test_{query_id}.csv'
         target_df = pd.read_csv(target_path)
         
         answer = getattr(qexecute, func)(target_df)
@@ -610,7 +662,7 @@ if __name__ == '__main__':
         # with open('answer_65-110.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        with open('answer_1-110.json', 'a') as f:
+        with open(f'answer_1-110_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
         

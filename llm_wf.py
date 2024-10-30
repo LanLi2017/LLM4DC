@@ -94,11 +94,12 @@ def format_sel_col(df):
 def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     # Sample the first 'num_rows' rows
     df = df.head(num_rows)
-    
+    dropna=True
     # If no target column is specified, generate the full table
     if not tg_col:
         if flag:
             df = df[flag]
+            
         # Find the maximum length for each column for proper alignment
         col_widths = [max(len(str(col)), df[col].astype(str).map(len).max()) + 2 for col in df.columns]
 
@@ -117,6 +118,9 @@ def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     # If a target column is specified, return just that column's values
     else:
         column_values = df[tg_col]
+        if dropna:
+            column_values = column_values.replace("", float("NaN"))
+            column_values = column_values.dropna()
         formatted_output = [f"col: {tg_col}"]
         for i, value in enumerate(column_values, start=1):
             formatted_output.append(f"row {i}: {value}")
@@ -430,14 +434,13 @@ Selected Operation:
             elif sel_op == 'upper':
                 text_transform(project_id, column=sel_col, expression="value.toUppercase()")
             elif sel_op == 'mass_edit':
-                sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
+                # sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
                 # sum_edo = sum_eod.replace('\n', ' ')
-                # col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
-                # print(col_str)
+                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
                 prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```. DO NOT add any comments in the list!"""\
                                 + f"""\n
 /*
-{sel_cols_str}
+{col_str}
 */
 Purpose: {purpose}
 Current Operation Purpose: {sum_eod}
@@ -599,25 +602,26 @@ def test_main():
     "gemma2",
     "mistral"
     ]
-    # model = "llama3.1:8b-instruct-fp16"
-    model_name = "mistral:7b-instruct"
-    ollama.pull(model_name)
-    model = "mistral" 
-    log_dir = f"CoT.response/{model}/logging"
+    model = "llama3.1:8b-instruct-fp16"
+    # model_name = "mistral:7b-instruct"
+    # model = "mistral" 
+    model_name = model.split(':')[0]
+    log_dir = f"CoT.response/{model_name}/logging"
     os.makedirs(log_dir, exist_ok=True)
 
-    ds_dir = f"CoT.response/{model}/datasets_llm"
+    ds_dir = f"CoT.response/{model_name}/datasets_llm"
     os.makedirs(ds_dir, exist_ok=True)
 
-    recipe_dir = f"CoT.response/{model}/recipes_llm"
+    recipe_dir = f"CoT.response/{model_name}/recipes_llm"
     os.makedirs(recipe_dir, exist_ok=True)
 
-    pp_f = 'purposes/queries.csv'
+    # pp_f = 'purposes/queries.csv'
+    pp_f = 'queries_left.csv'
     pp_df = pd.read_csv(pp_f)
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:1].iterrows():
+    for index, row in pp_df.iloc[:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -638,10 +642,11 @@ def test_main():
             ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         # logging_name = f"{log_data}/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
-        logging_name = f"{log_dir}/{model}_{ds_name}_{pp_id}.log"
+        logging_name = f"{log_dir}/{model_name}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
 
         project_name = f"{model}_{ds_name}_{pp_id}"
+        # project_name = f"{ds_name}_{pp_id}" # old setting for llama3.1
         log_data = {
             "ID": pp_id,
             "Purposes": pp_v,
@@ -657,12 +662,12 @@ def test_main():
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
-            log_data = wf_gen(project_id, log_data, model_name,logging, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model,logging, purpose=pp_v)
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
             logging.info(f"Project {project_name} creation finished.")
-            log_data = wf_gen(project_id, log_data, model_name, logging, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
         # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
         #     json.dump(log_data, log_f, indent=4)
         with open(f"{log_dir}/{ds_name}_{pp_id}_log.txt", "w") as log_f:

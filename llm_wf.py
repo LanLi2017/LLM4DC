@@ -93,8 +93,11 @@ def format_sel_col(df):
 
 def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     # Sample the first 'num_rows' rows
-    df = df.head(num_rows)
+    num_rows = min(num_rows, len(df))
+    df = df.sample(n=num_rows)
     dropna=True
+    max_length = 20
+
     # If no target column is specified, generate the full table
     if not tg_col:
         if flag:
@@ -121,6 +124,8 @@ def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
         if dropna:
             column_values = column_values.replace("", float("NaN"))
             column_values = column_values.dropna()
+        if len(column_values) >= max_length:
+            column_values = column_values.sample(n=max_length, random_state=42)
         formatted_output = [f"col: {tg_col}"]
         for i, value in enumerate(column_values, start=1):
             formatted_output.append(f"row {i}: {value}")
@@ -602,8 +607,8 @@ def test_main():
     "gemma2",
     "mistral"
     ]
-    model = "llama3.1:8b-instruct-fp16"
-    # model_name = "mistral:7b-instruct"
+    # model = "llama3.1:8b-instruct-fp16"
+    model = "mistral:7b-instruct"
     # model = "mistral" 
     model_name = model.split(':')[0]
     log_dir = f"CoT.response/{model_name}/logging"
@@ -615,13 +620,13 @@ def test_main():
     recipe_dir = f"CoT.response/{model_name}/recipes_llm"
     os.makedirs(recipe_dir, exist_ok=True)
 
-    # pp_f = 'purposes/queries.csv'
-    pp_f = 'queries_left.csv'
+    pp_f = 'purposes/queries.csv'
+    # pp_f = 'queries_left.csv'
     pp_df = pd.read_csv(pp_f)
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:].iterrows():
+    for index, row in pp_df.iloc[10:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -645,7 +650,7 @@ def test_main():
         logging_name = f"{log_dir}/{model_name}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
 
-        project_name = f"{model}_{ds_name}_{pp_id}"
+        project_name = f"{model_name}_{ds_name}_{pp_id}"
         # project_name = f"{ds_name}_{pp_id}" # old setting for llama3.1
         log_data = {
             "ID": pp_id,

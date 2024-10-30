@@ -1,0 +1,145 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   value = value.lower() # convert all characters to lowercase\n   value = re.sub(r'\\s+', ' ', value) # remove extra whitespaces\n   value = re.sub(r'[^a-z0-9\\s]', '', value) # remove non-alphanumeric characters\n   value = re.sub(r'\\b(\\w)\\W+\\1\\b', '', value) # remove duplicate words\n   value = re.sub(r'\\s+,+', ',', value) # replace multiple commas with single comma\n   value = re.sub(r'^([a-z])|([a-z])$', lambda x: x.group(1).upper() + x.group(2).lower(), value) # capitalize first and last letter of each word\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   value = value.lower() # convert all characters to lowercase\n   value = re.sub(r'\\s+', ' ', value) # remove extra whitespaces\n   value = re.sub(r'[^a-z0-9\\s]', '', value) # remove non-alphanumeric characters\n   value = re.sub(r'\\b(\\w)\\W+\\1\\b', '', value) # remove duplicate words\n   value = re.sub(r'\\s+,+', ',', value) # replace multiple commas with single comma\n   value = re.sub(r'^([a-z])|([a-z])$', lambda x: x.group(1).upper() + x.group(2).lower(), value) # capitalize first and last letter of each word\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_semicolon = re.search(r';', value)\n   if match_semicolon:\n       value = re.sub(r';', ' ', value)\n\n   match_colon = re.search(r':', value)\n   if match_colon:\n       value = re.sub(r':', ' ', value)\n\n   match_period = re.search(r'\\.', value)\n   if match_period:\n       value = re.sub(r'\\.', ' ', value)\n\n   match_space = re.search(r'\\s{2,}', value)\n   if match_space:\n       value = re.sub(r'\\s{2,}', ' ', value)\n\n   return value.strip().lower()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_semicolon = re.search(r';', value)\n   if match_semicolon:\n       value = re.sub(r';', ' ', value)\n\n   match_colon = re.search(r':', value)\n   if match_colon:\n       value = re.sub(r':', ' ', value)\n\n   match_period = re.search(r'\\.', value)\n   if match_period:\n       value = re.sub(r'\\.', ' ', value)\n\n   match_space = re.search(r'\\s{2,}', value)\n   if match_space:\n       value = re.sub(r'\\s{2,}', ' ', value)\n\n   return value.strip().lower()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\nvalue = value.lower()\\nif re.search(r'[a-z]+', value):\\n   return value.title()\\nelse:\\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\nvalue = value.lower()\\nif re.search(r'[a-z]+', value):\\n   return value.title()\\nelse:\\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\n# Assuming you have an external source (e.g., API) to estimate prices based on the dish name\n# This is a placeholder and should be replaced with actual code to fetch prices\nprice_estimator = {\n    \"Toasted Rolls\": 3.5,\n    \"Bean Curd\": 4.2,\n    \"california fresh FRUit SALAD\": 7.8,\n    \"Johannisbeersaft\": 2.9,\n    \"Grenadine Cocktail\": 6.5,\n    \"Banana Fritters\": 4.8,\n    \"Roast fancy capon\": 15.0,\n    \"Flannel Cakes\": 3.2,\n    \"Schweinskotelette vom Grill\": 9.5,\n    \"Vermouth\": 7.0,\n    \"BEEF BOURGUIGNONNE\": 18.0,\n    \"Mondaine\": 6.0,\n    \"Munchner Sauerkrautplatte\": 5.2,\n    \"(Half) Florida Grapefruit (in season)\": 3.0,\n    \"Strawberry, peach or raspberry jam\": 1.5,\n    \"Chinese Mushrooms and Pork Chow Mein\": 8.5,\n    \"__creme du nord\": 4.9,\n    \"Bowl of Cold Rice and Milk\": 2.0,\n    \"Tomato, Stuffed a la Meyer (1)\": 6.0,\n    \"White Rock mineral water\": 1.5,\n    \"__creme du nord__\": 4.9, # This is a duplicate entry, ensure to remove it from the price_estimator dictionary\n}\n\ndef add_price_column(data):\n    new_columns = ['Price'] + data.columns.tolist()\n    new_data = pd.DataFrame(columns=new_columns)\n\n    for index, row in data.iterrows():\n        if row['name'] in price_estimator:\n            new_data.loc[index, 'Price'] = price_estimator[row['name']]\n        else:\n            new_data.loc[index, 'Price'] = None # If the dish name is not found in the price_estimator dictionary, set the price as None\n\n    return pd.concat([data, new_data], axis=1)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\n# Assuming you have an external source (e.g., API) to estimate prices based on the dish name\n# This is a placeholder and should be replaced with actual code to fetch prices\nprice_estimator = {\n    \"Toasted Rolls\": 3.5,\n    \"Bean Curd\": 4.2,\n    \"california fresh FRUit SALAD\": 7.8,\n    \"Johannisbeersaft\": 2.9,\n    \"Grenadine Cocktail\": 6.5,\n    \"Banana Fritters\": 4.8,\n    \"Roast fancy capon\": 15.0,\n    \"Flannel Cakes\": 3.2,\n    \"Schweinskotelette vom Grill\": 9.5,\n    \"Vermouth\": 7.0,\n    \"BEEF BOURGUIGNONNE\": 18.0,\n    \"Mondaine\": 6.0,\n    \"Munchner Sauerkrautplatte\": 5.2,\n    \"(Half) Florida Grapefruit (in season)\": 3.0,\n    \"Strawberry, peach or raspberry jam\": 1.5,\n    \"Chinese Mushrooms and Pork Chow Mein\": 8.5,\n    \"__creme du nord\": 4.9,\n    \"Bowl of Cold Rice and Milk\": 2.0,\n    \"Tomato, Stuffed a la Meyer (1)\": 6.0,\n    \"White Rock mineral water\": 1.5,\n    \"__creme du nord__\": 4.9, # This is a duplicate entry, ensure to remove it from the price_estimator dictionary\n}\n\ndef add_price_column(data):\n    new_columns = ['Price'] + data.columns.tolist()\n    new_data = pd.DataFrame(columns=new_columns)\n\n    for index, row in data.iterrows():\n        if row['name'] in price_estimator:\n            new_data.loc[index, 'Price'] = price_estimator[row['name']]\n        else:\n            new_data.loc[index, 'Price'] = None # If the dish name is not found in the price_estimator dictionary, set the price as None\n\n    return pd.concat([data, new_data], axis=1)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'\\s+', value) # remove extra spaces\n   value = value.strip() if match1 else value\n   match2 = re.search(r'[,;.:\\(\\)]', value) # remove punctuations and brackets\n   value = re.sub(r'[,;.:\\(\\)]', '', value) if match2 else value\n   match3 = re.search(r'\\d+', value) # remove numbers\n   value = re.sub(r'\\d+', '', value) if match3 else value\n   match4 = re.search(r'[A-Za-z]+ \\([A-Za-z]+\\)', value) # remove dish names with parentheses\n   value = re.sub(r'[A-Za-z]+ \\([A-Za-z]+\\)', '', value) if match4 else value\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'\\s+', value) # remove extra spaces\n   value = value.strip() if match1 else value\n   match2 = re.search(r'[,;.:\\(\\)]', value) # remove punctuations and brackets\n   value = re.sub(r'[,;.:\\(\\)]', '', value) if match2 else value\n   match3 = re.search(r'\\d+', value) # remove numbers\n   value = re.sub(r'\\d+', '', value) if match3 else value\n   match4 = re.search(r'[A-Za-z]+ \\([A-Za-z]+\\)', value) # remove dish names with parentheses\n   value = re.sub(r'[A-Za-z]+ \\([A-Za-z]+\\)', '', value) if match4 else value\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match_spacing = re.search(r'\\s{2,}', value)\n   if match_spacing:\n       value = re.sub(r'\\s{2,}', ' ',value)\n\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_special_characters = re.search(r'[.,/!?:;@#$%^&*()_+-=<>{}|\"~\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match_spacing = re.search(r'\\s{2,}', value)\n   if match_spacing:\n       value = re.sub(r'\\s{2,}', ' ',value)\n\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_special_characters = re.search(r'[.,/!?:;@#$%^&*()_+-=<>{}|\"~\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\n# Remove extra spaces, commas, and periods\nvalue = re.sub(r'\\s{2,}|,|\\\\.', ' ', value)\\n# Convert all characters to lowercase\nvalue = value.lower()\\n# Remove any non-alphanumeric characters except for hyphens, underscores, and spaces\nvalue = re.sub(r'[^a-z0-9-\\s]', '', value)\\n# Replace multiple hyphens with a single hyphen\nvalue = value.replace('--', '-')\\n# Replace multiple underscores with a single underscore\nvalue = value.replace('___', '_')\\n# Remove any duplicate words separated by spaces\nvalue = ' '.join(value.split())\\n# Remove any empty strings from the start or end of the string\nvalue = value.strip()\\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\n# Remove extra spaces, commas, and periods\nvalue = re.sub(r'\\s{2,}|,|\\\\.', ' ', value)\\n# Convert all characters to lowercase\nvalue = value.lower()\\n# Remove any non-alphanumeric characters except for hyphens, underscores, and spaces\nvalue = re.sub(r'[^a-z0-9-\\s]', '', value)\\n# Replace multiple hyphens with a single hyphen\nvalue = value.replace('--', '-')\\n# Replace multiple underscores with a single underscore\nvalue = value.replace('___', '_')\\n# Remove any duplicate words separated by spaces\nvalue = ' '.join(value.split())\\n# Remove any empty strings from the start or end of the string\nvalue = value.strip()\\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_special_characters = re.search(r'[.,;:/\\\\\\s]+', value)\n   if match_special_characters:\n       value = re.sub(r'[.,;:/\\\\\\s]+', ' ', value).strip()\n\n   match_capitalization = re.search(r'(?i)\\b([a-z])|([A-Z][a-z]*)+ ([A-Z])', value)\n   if match_capitalization:\n       value = match_capitalization.group(0).replace(' ', '').title()\n\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_special_characters = re.search(r'[.,;:/\\\\\\s]+', value)\n   if match_special_characters:\n       value = re.sub(r'[.,;:/\\\\\\s]+', ' ', value).strip()\n\n   match_capitalization = re.search(r'(?i)\\b([a-z])|([A-Z][a-z]*)+ ([A-Z])', value)\n   if match_capitalization:\n       value = match_capitalization.group(0).replace(' ', '').title()\n\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "lowest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "times_appeared",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column times_appeared using expression value.toNumber()"
+    }
+]

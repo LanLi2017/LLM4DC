@@ -1,0 +1,167 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   if re.search(r'\\[.*?\\]', value):\n      return re.sub(r'\\[.*?\\]', '', value)\n   elif re.search(r'[,]+', value):\n      return re.sub(r'[,]+', ',', value)\n   elif re.search(r'\\s+', value):\n      return value.replace('  ', ' ')\n   elif re.search(r'\\.', value):\n      return value.replace('.', '')\n   else:\n      return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   if re.search(r'\\[.*?\\]', value):\n      return re.sub(r'\\[.*?\\]', '', value)\n   elif re.search(r'[,]+', value):\n      return re.sub(r'[,]+', ',', value)\n   elif re.search(r'\\s+', value):\n      return value.replace('  ', ' ')\n   elif re.search(r'\\.', value):\n      return value.replace('.', '')\n   else:\n      return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match_description = re.search(r'[.,;:\\s]+', value)\n   if match_description:\n       description = match_description.group(0)\n       dish_name = re.sub(r'[.,;:\\s]+', '', value)\n       dish_name = re.sub(r'\\s+', ' ', dish_name).strip()\n       return dish_name, description\n   else:\n       dish_name = re.sub(r'\\s+', ' ', value).strip()\n       return dish_name, ''\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match_description = re.search(r'[.,;:\\s]+', value)\n   if match_description:\n       description = match_description.group(0)\n       dish_name = re.sub(r'[.,;:\\s]+', '', value)\n       dish_name = re.sub(r'\\s+', ' ', dish_name).strip()\n       return dish_name, description\n   else:\n       dish_name = re.sub(r'\\s+', ' ', value).strip()\n       return dish_name, ''\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'[A-Za-z]+ \\*', value)\n   if match1:\n       value = re.sub(r'[A-Za-z]+ \\*', '', value)\n\n   match2 = re.search(r'\\s+', value)\n   if match2:\n       value = re.sub(r'\\s+', ' ', value)\n\n   match3 = re.search(r'[,;.:]', value)\n   if match3:\n       value = re.sub(r'[,;.:]', '', value)\n\n   match4 = re.search(r'^\\s+|\\s+$', value)\n   if match4:\n       value = value.strip()\n\n   match5 = re.search(r'\\d+\\s*([A-Za-z]+)?\\s*(BOTTLE|HALF BOTTLE)', value)\n   if match5:\n       value = match5.group(0).split(' ')[0] + ' ' + (match5.group(1) or '') + ' PRICE'\n\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'[A-Za-z]+ \\*', value)\n   if match1:\n       value = re.sub(r'[A-Za-z]+ \\*', '', value)\n\n   match2 = re.search(r'\\s+', value)\n   if match2:\n       value = re.sub(r'\\s+', ' ', value)\n\n   match3 = re.search(r'[,;.:]', value)\n   if match3:\n       value = re.sub(r'[,;.:]', '', value)\n\n   match4 = re.search(r'^\\s+|\\s+$', value)\n   if match4:\n       value = value.strip()\n\n   match5 = re.search(r'\\d+\\s*([A-Za-z]+)?\\s*(BOTTLE|HALF BOTTLE)', value)\n   if match5:\n       value = match5.group(0).split(' ')[0] + ' ' + (match5.group(1) or '') + ' PRICE'\n\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\nvalue = value.lower() # convert all characters to lowercase\\nvalue = re.sub(r'\\s+', ' ', value) # remove extra whitespaces\\nvalue = re.sub(r'[[]]', '', value) # remove brackets\\nvalue = re.sub(r'\\.', '', value) # remove dots\\nvalue = re.sub(r':', '', value) # remove colons\\nvalue = re.sub(r';', '', value) # remove semicolons\\nif re.search(r'[a-z0-9]+', value): # check if the string contains only alphanumeric characters\\n    return value\\nelse:\\nreturn None\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\nvalue = value.lower() # convert all characters to lowercase\\nvalue = re.sub(r'\\s+', ' ', value) # remove extra whitespaces\\nvalue = re.sub(r'[[]]', '', value) # remove brackets\\nvalue = re.sub(r'\\.', '', value) # remove dots\\nvalue = re.sub(r':', '', value) # remove colons\\nvalue = re.sub(r';', '', value) # remove semicolons\\nif re.search(r'[a-z0-9]+', value): # check if the string contains only alphanumeric characters\\n    return value\\nelse:\\nreturn None\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "lowest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "lowest_price",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "1.5",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "1.75",
+                    "0.0",
+                    "1.3",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.38",
+                    "0.9",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.0",
+                    "0.0"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": []
+            },
+            {
+                "from": [],
+                "fromBlank": false,
+                "fromError": false,
+                "to": [
+                    "average_price_change"
+                ]
+            }
+        ],
+        "description": "Mass edit cells in column lowest_price"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "times_appeared",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column times_appeared using expression value.toNumber()"
+    }
+]

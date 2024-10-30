@@ -1,0 +1,252 @@
+[
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "FRESH FRUIT COCKTAIL EIRE STYLE"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "fresh fruit cocktail ire style"
+            },
+            {
+                "from": [
+                    "new-laid eggs"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "new laid eggs"
+            },
+            {
+                "from": [
+                    "Surprise of Fruit"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "surprise of fruit"
+            },
+            {
+                "from": [
+                    "Key West Turtle Soup"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "key west turtle soup"
+            },
+            {
+                "from": [
+                    "Bacon    with eggs"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "bacon with eggs"
+            },
+            {
+                "from": [
+                    "Rye bread and butter"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "rye bread and butter"
+            },
+            {
+                "from": [
+                    "Potatoes or Pot Cheese with Sour Cream"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "potatoes or pot cheese with sour cream"
+            },
+            {
+                "from": [
+                    "Fried (3) Oysters"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "fried 3 oysters"
+            },
+            {
+                "from": [
+                    "Ziti with Calabrese sauce"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "ziti with calabrese sauce"
+            },
+            {
+                "from": [
+                    "chateauneuf du Pape [1933]"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "chateauneuf du pape 1933"
+            },
+            {
+                "from": [
+                    "Broiled Calf's Liver with Bacon or Onions, Mashed Potatoes"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "broiled calf s liver with bacon or onions mashed potatoes"
+            },
+            {
+                "from": [
+                    "Santa Clara Cabernet"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "santa clara cabernet"
+            },
+            {
+                "from": [
+                    "Ox-tongue Mikado"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "ox tongue mikado"
+            },
+            {
+                "from": [
+                    "Conch Stew with Peas & Rice, Coleslaw, Potato Salad, Vegetables or Bake Potato"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "conch stew with peas & rice coleslaw potato salad vegetables or bake potato"
+            },
+            {
+                "from": [
+                    "REUBEN'S SPECIAL Turkey, Roast Virginia Ham, Swiss Cheese, Cole Slaw, Russian Dressing"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "reuben s special turkey roast virginia ham swiss cheese cole slaw russian dressing"
+            },
+            {
+                "from": [
+                    "Pea Pods with Water Chesnuts and Pork"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "pea pods with water chestnuts and pork"
+            },
+            {
+                "from": [
+                    "MacedoinE de Fruits au Marasquin"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "macedoine de fruits au marasquin"
+            },
+            {
+                "from": [
+                    "Calf's Brains Fried, Tomato Sauce"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "calf s brains fried tomato sauce"
+            },
+            {
+                "from": [
+                    "Broiled   or Fried Green Bluefish"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "broiled or fried green bluefish"
+            },
+            {
+                "from": [
+                    "Ecarlate"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "ecarlate"
+            }
+        ],
+        "description": "Mass edit cells in column name"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   if re.search(r'\\d+', value):\n      # If the cell already contains a number, assume it's the price, do nothing and return the original value\n      return value\n   else:\n      # If no number is found, standardize the dish name by converting to lowercase and removing special characters\n      value = re.sub(r'[^a-zA-Z0-9\\s]', '', value).lower()\n      # Add a placeholder price (e.g., 0) for dishes without pricing information\n      return value + ' 0'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   if re.search(r'\\d+', value):\n      # If the cell already contains a number, assume it's the price, do nothing and return the original value\n      return value\n   else:\n      # If no number is found, standardize the dish name by converting to lowercase and removing special characters\n      value = re.sub(r'[^a-zA-Z0-9\\s]', '', value).lower()\n      # Add a placeholder price (e.g., 0) for dishes without pricing information\n      return value + ' 0'\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   if re.search(r'\\s+', value):\n      value = value.replace(' ', '_')\n   elif re.search(r'[A-Za-z]+ \\([A-Za-z]+\\)', value):\n      value = re.sub(r'[A-Za-z]+ \\([A-Za-z]+\\)', '', value) + '_' + value.lower()\n   elif re.search(r'\\[.*\\]$', value):\n      value = value.replace('[', '').replace(']', '') + '_' + value.lower()\n   elif re.search(r'^[A-Za-z]+$', value):\n      value += '_' + value.lower()\n   else:\n      pass # no need to modify the original value\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   if re.search(r'\\s+', value):\n      value = value.replace(' ', '_')\n   elif re.search(r'[A-Za-z]+ \\([A-Za-z]+\\)', value):\n      value = re.sub(r'[A-Za-z]+ \\([A-Za-z]+\\)', '', value) + '_' + value.lower()\n   elif re.search(r'\\[.*\\]$', value):\n      value = value.replace('[', '').replace(']', '') + '_' + value.lower()\n   elif re.search(r'^[A-Za-z]+$', value):\n      value += '_' + value.lower()\n   else:\n      pass # no need to modify the original value\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\n# Remove extra spaces and special characters from 'name' column\nmatch_space = re.search(r'\\s{2,}', value)\nif match_space:\n    value = re.sub(r'\\s{2,}', ' ',value)\n\nmatch_special = re.search(r'[\\[\\];\\:\\.\\(\\)]', value)\nif match_special:\n    value = re.sub(r'[\\[\\];\\:\\.\\(\\)]', '', value)\n\n# Convert all uppercase to lowercase for easier comparison and analysis\nvalue = value.lower()\n\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\n# Remove extra spaces and special characters from 'name' column\nmatch_space = re.search(r'\\s{2,}', value)\nif match_space:\n    value = re.sub(r'\\s{2,}', ' ',value)\n\nmatch_special = re.search(r'[\\[\\];\\:\\.\\(\\)]', value)\nif match_special:\n    value = re.sub(r'[\\[\\];\\:\\.\\(\\)]', '', value)\n\n# Convert all uppercase to lowercase for easier comparison and analysis\nvalue = value.lower()\n\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\nprice_dict = {\"ecarlate\": 5, \"sloe gin fizz, imp\": 7, \"broiled or fried green bluefish\": 10, \"vintage port martinez 1963\": 200, \"ox tongue mikado\": 15, \"potatoes or pot cheese with sour cream\": 4, \"cill mantain peas\": 3, \"santa clara cabernet\": 25, \"lobster, full order\": 35, \"chateauneuf du pape 1933\": 500, \"salade de betterave\": 6, \"grape fruit yoghurt-mischgetranke\": 4, \"bayerische creme\": 7, \"hominy fritters currant sauce\": 5, \"broiled calf s liver with bacon or onions mashed potatoes\": 12, \"surprise of fruit\": 8, \"gebackene eier 'americaine' mit gegrilltem speck\": 6, \"bacon with eggs\": 4, \"conch stew with peas & rice, coleslaw, potato salad, vegetables or bake potato\": 10, \"hollandaise-salat\": 9}\\nmatch = re.search(r'(\\w+)', value)\\nif match:\\n   return price_dict.get(match.group(0), 0)\\nelse:\\nreturn 0\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\nprice_dict = {\"ecarlate\": 5, \"sloe gin fizz, imp\": 7, \"broiled or fried green bluefish\": 10, \"vintage port martinez 1963\": 200, \"ox tongue mikado\": 15, \"potatoes or pot cheese with sour cream\": 4, \"cill mantain peas\": 3, \"santa clara cabernet\": 25, \"lobster, full order\": 35, \"chateauneuf du pape 1933\": 500, \"salade de betterave\": 6, \"grape fruit yoghurt-mischgetranke\": 4, \"bayerische creme\": 7, \"hominy fritters currant sauce\": 5, \"broiled calf s liver with bacon or onions mashed potatoes\": 12, \"surprise of fruit\": 8, \"gebackene eier 'americaine' mit gegrilltem speck\": 6, \"bacon with eggs\": 4, \"conch stew with peas & rice, coleslaw, potato salad, vegetables or bake potato\": 10, \"hollandaise-salat\": 9}\\nmatch = re.search(r'(\\w+)', value)\\nif match:\\n   return price_dict.get(match.group(0), 0)\\nelse:\\nreturn 0\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "lowest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
+    }
+]

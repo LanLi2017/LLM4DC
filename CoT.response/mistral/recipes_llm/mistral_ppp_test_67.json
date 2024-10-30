@@ -1,0 +1,207 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "jython:import re\nmatch = re.search(r'Honolulu', value, re.IGNORECASE)\nif match:\n    return 'Honolulu'.lower()\nelse:\n    return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression jython:import re\nmatch = re.search(r'Honolulu', value, re.IGNORECASE)\nif match:\n    return 'Honolulu'.lower()\nelse:\n    return value\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Lender",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "American Savings Bank, FSB(First State Bank)",
+                    "American Savings Bank, FSB"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "American Savings Bank, FSB"
+            },
+            {
+                "from": [
+                    "Hawaii National Bank."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Hawaii National Bank"
+            },
+            {
+                "from": [
+                    "Bank of Hawaii"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Bank of Hawaii"
+            },
+            {
+                "from": [
+                    "Central Pacific Bank"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Central Pacific Bank"
+            },
+            {
+                "from": [
+                    "Fundbox, Inc."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Fundbox, Inc."
+            },
+            {
+                "from": [
+                    "Kabbage, Inc."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Kabbage, Inc."
+            },
+            {
+                "from": [
+                    "FIRST HAWAIIAN BANK"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "First Hawaiian Bank"
+            },
+            {
+                "from": [
+                    "Gather FCU"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Gather Federal Credit Union"
+            },
+            {
+                "from": [
+                    "Central Pacific Bank"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Central Pacific Bank"
+            }
+        ],
+        "description": "Mass edit cells in column Lender"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Lender",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "American Savings Bank, FSB",
+                    "American Savings Bank"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "American Savings Bank"
+            },
+            {
+                "from": [
+                    "Central Pacific Bank"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Central Pacific Bank (Honolulu)"
+            },
+            {
+                "from": [
+                    "First Hawaiian Bank"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "First Hawaiian Bank (Honolulu)"
+            }
+        ],
+        "description": "Mass edit cells in column Lender"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "CD",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "HI-01",
+                    "HI-02"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "HI-Honolulu"
+            },
+            {
+                "from": [
+                    "HI-01"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "HI-Unknown"
+            }
+        ],
+        "description": "Mass edit cells in column CD"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "CD",
+        "expression": "jython:import re\nmatch_state = re.search(r'HI-(\\w+)', value)\nif match_state:\n    state = match_state.group(1).upper()\n    match_city = re.search(r'\\b(Honolulu|Unknown)\\b', value)\n    if match_city:\n        city = match_city.group(0).lower()\n        if city == 'honolulu':\n            return f'{state}-{city}'\n        else:\n            return f'{state}-Honolulu'\n    else:\n        return f'{state}-Unknown'\nelse:\n    return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column CD using expression jython:import re\nmatch_state = re.search(r'HI-(\\w+)', value)\nif match_state:\n    state = match_state.group(1).upper()\n    match_city = re.search(r'\\b(Honolulu|Unknown)\\b', value)\n    if match_city:\n        city = match_city.group(0).lower()\n        if city == 'honolulu':\n            return f'{state}-{city}'\n        else:\n            return f'{state}-Honolulu'\n    else:\n        return f'{state}-Unknown'\nelse:\n    return value\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "CD",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "HI-Unknown"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "HI-Honolulu"
+            },
+            {
+                "from": [
+                    "HI-"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": null
+            }
+        ],
+        "description": "Mass edit cells in column CD"
+    }
+]

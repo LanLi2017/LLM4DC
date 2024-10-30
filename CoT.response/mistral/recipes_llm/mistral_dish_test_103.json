@@ -1,0 +1,267 @@
+[
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "Mad\u00e8re"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Madeira"
+            },
+            {
+                "from": [
+                    "BEEF PEPPER STEAK.  Served with vegetable, salad, roll, and choice of potato or rice"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Beef Pepper Steak"
+            },
+            {
+                "from": [
+                    "[Hot + Buns]"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Hot Dog"
+            },
+            {
+                "from": [
+                    "Filet of beef with mushrooms"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Filet Mignon with Mushrooms"
+            },
+            {
+                "from": [
+                    "Sea Food a la Miramar."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Seafood a la Miramar"
+            },
+            {
+                "from": [
+                    "Roast spring lamb, mint sauce (ready)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Roast Spring Lamb, Mint Sauce (Ready)"
+            },
+            {
+                "from": [
+                    "Ch Dillon, N Johnston"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Ch. Dillon, N. Johnston"
+            },
+            {
+                "from": [
+                    "Coffee Sundae"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Coffee Sundae"
+            },
+            {
+                "from": [
+                    "Vol au Vent of Chicken, Fresh String Beans, Straw Potatoes, Choice of Salad or Dessert, Coffee or Tea"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Chicken Vol-au-Vent, Fresh Green Beans, Straw Potatoes, Choice of Salad or Dessert, Coffee or Tea"
+            },
+            {
+                "from": [
+                    "Butter served Free with orders amounting to 40c"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Free Butter with Orders Over 40c"
+            },
+            {
+                "from": [
+                    "Eisbein mit Erbsenbrei und Sauerkohl"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Eisbein with Sausage Kraut and Boiled Peas"
+            },
+            {
+                "from": [
+                    "Johannisberg Clauss '86"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Johannisberg Clauss 1986"
+            },
+            {
+                "from": [
+                    "Cold Lobster, Mayonnaise Sauce, half"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Cold Lobster, Mayo Sauce (Half)"
+            },
+            {
+                "from": [
+                    "Hot Wagon Service"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Hot Wagon Service"
+            },
+            {
+                "from": [
+                    "[DINNER READY]"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dinner Ready"
+            },
+            {
+                "from": [
+                    "Broiled Fresh Pompano Filet in Lemon Butter"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Broiled Fresh Pompano Filet, Lemon Butter"
+            },
+            {
+                "from": [
+                    "[Salade Monegasque]"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Monaco Salad"
+            },
+            {
+                "from": [
+                    "Toast au Lait"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Toast au Lait"
+            },
+            {
+                "from": [
+                    "chicken   Fricassee with Boiled Rice"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Chicken Fricassee, Boiled Rice"
+            },
+            {
+                "from": [
+                    "Banana Cream Pie"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Banana Cream Pie"
+            }
+        ],
+        "description": "Mass edit cells in column name"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n      value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_duplicates = re.search(r'(\\b(sparkling|hot|cold|half|ready|broiled|sea)\\s+)', value, re.IGNORECASE)\n   if match_duplicates:\n      words = match_duplicates.group(1).split()\n      for word in words:\n         if word in value.lower():\n            index = value.lower().index(word)\n            if index > len(words) // 2 and index < len(value) - len(words) // 2:\n               prefix = value[:index]\n               suffix = value[index + len(word):]\n               value = prefix + ' '.join(words).lower() + suffix\n\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n      value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_duplicates = re.search(r'(\\b(sparkling|hot|cold|half|ready|broiled|sea)\\s+)', value, re.IGNORECASE)\n   if match_duplicates:\n      words = match_duplicates.group(1).split()\n      for word in words:\n         if word in value.lower():\n            index = value.lower().index(word)\n            if index > len(words) // 2 and index < len(value) - len(words) // 2:\n               prefix = value[:index]\n               suffix = value[index + len(word):]\n               value = prefix + ' '.join(words).lower() + suffix\n\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_colon = re.search(r':', value)\n   if match_colon:\n       value = re.sub(r':', ' ', value)\n\n   match_semicolon = re.search(r';', value)\n   if match_semicolon:\n       value = re.sub(r';', '', value)\n\n   match_dot = re.search(r'\\.', value)\n   if match_dot:\n       value = re.sub(r'\\.', ' ', value)\n\n   match_space = re.search(r' {2,}', value)\n   if match_space:\n       value = re.sub(r' {2,}', ' ', value)\n\n   match_special_characters = re.search(r'\\W+', value)\n   if match_special_characters:\n       value = re.sub(r'\\W+', '', value)\n\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match_brackets = re.search(r'\\[.*?\\]', value)\n   if match_brackets:\n       value = re.sub(r'\\[.*?\\]', '', value)\n\n   match_colon = re.search(r':', value)\n   if match_colon:\n       value = re.sub(r':', ' ', value)\n\n   match_semicolon = re.search(r';', value)\n   if match_semicolon:\n       value = re.sub(r';', '', value)\n\n   match_dot = re.search(r'\\.', value)\n   if match_dot:\n       value = re.sub(r'\\.', ' ', value)\n\n   match_space = re.search(r' {2,}', value)\n   if match_space:\n       value = re.sub(r' {2,}', ' ', value)\n\n   match_special_characters = re.search(r'\\W+', value)\n   if match_special_characters:\n       value = re.sub(r'\\W+', '', value)\n\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "times_appeared",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column times_appeared using expression value.toNumber()"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "times_appeared",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "1",
+                    "1"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "1"
+            },
+            {
+                "from": [
+                    "2",
+                    "2"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "2"
+            },
+            {
+                "from": [
+                    "0"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "0"
+            },
+            {
+                "from": [
+                    "3"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "3"
+            },
+            {
+                "from": [
+                    "4"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "4"
+            }
+        ],
+        "description": "Mass edit cells in column times_appeared"
+    }
+]

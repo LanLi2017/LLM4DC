@@ -1,0 +1,132 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   if re.search(r'\\[.*?\\]', value):\n      value = re.sub(r'\\[.*?\\]', '', value)\n   elif re.search(r'[,;.:]', value):\n      value = re.sub(r'[,;.:]', ' ', value)\n   elif re.search(r'\\s+', value):\n      value = re.sub(r'\\s+', ' ', value)\n   elif re.search(r'\\W+', value):\n      value = value.replace(' ', '_')\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   if re.search(r'\\[.*?\\]', value):\n      value = re.sub(r'\\[.*?\\]', '', value)\n   elif re.search(r'[,;.:]', value):\n      value = re.sub(r'[,;.:]', ' ', value)\n   elif re.search(r'\\s+', value):\n      value = re.sub(r'\\s+', ' ', value)\n   elif re.search(r'\\W+', value):\n      value = value.replace(' ', '_')\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   mapping = {\"Bluefish\": \"Bluefish\", \"Green Bluefish\": \"Bluefish\",\n             \"Macedoine de Fruits au Marasquin\": \"Fruit Salad with Maraschino Cherries\",\n             \"Rhubarb Pie\": \"Rhubarb Pie\",\n             \"Fresh Fruit Salad, Country Cottage Cheese, Sour Cream Salad Dressing\": \"Fresh Fruit Salad\",\n             \"Pouding a l'imperatrix\": \"Imperial Pudding\",\n             \"Kippered Alaska Cod;\": \"Kippered Alaska Cod\",\n             \"Thee, Kaffee, Hafercacao\": \"Tea, Coffee, Hot Cocoa\",\n             \"Schweserpasteten\": \"Savory Pastries\",\n             \"Cream Caroline soup\": \"Caroline Soup with Cream\",\n             \"Roast Hot House Baby Lamb, Mint Sauce\": \"Roasted Baby Lamb with Mint Sauce\",\n             \"Creme d'Asperges Nouvelles aux Fleurons\": \"New Potato Cream with Asparagus Tips\",\n             \"Frecciarossa;\": \"Frecciarossa\",\n             \"Squab Casserole\": \"Squab Casserole\",\n             \"Malteser [Reis-Creme]\": \"Maltesers (Rice Cream)\",\n             \"Bluefort Cheese and [Crackers]\": \"Bluefort Cheese with Crackers\",\n             \"Saumon bouilli\": \"Boiled Salmon\",\n             \"fr Ochsenbrust 'Flamisch' mit Bouillonkartoffeln und Sahnemeerrettich\": \"Flamish Ox Roast with Bouillon Potatoes and Sauerkraut\",\n             \"Souther Colada - Southern comfort, Ananassaft, Kokosnu\u00dfcreme\": \"Pina Colada - Southern Comfort, Pineapple Juice, Coconut Cream\",\n             \"Strawberry, peach or raspberry jam\": \"Fruit Jam\",\n             \"Bean Curd with Chinese Mushrooms\": \"Tofu with Chinese Mushrooms\"}\n   value = re.sub(r'\\s+', ' ', value).lower()\n   if value in mapping:\n       return mapping[value]\n   else:\n       return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   mapping = {\"Bluefish\": \"Bluefish\", \"Green Bluefish\": \"Bluefish\",\n             \"Macedoine de Fruits au Marasquin\": \"Fruit Salad with Maraschino Cherries\",\n             \"Rhubarb Pie\": \"Rhubarb Pie\",\n             \"Fresh Fruit Salad, Country Cottage Cheese, Sour Cream Salad Dressing\": \"Fresh Fruit Salad\",\n             \"Pouding a l'imperatrix\": \"Imperial Pudding\",\n             \"Kippered Alaska Cod;\": \"Kippered Alaska Cod\",\n             \"Thee, Kaffee, Hafercacao\": \"Tea, Coffee, Hot Cocoa\",\n             \"Schweserpasteten\": \"Savory Pastries\",\n             \"Cream Caroline soup\": \"Caroline Soup with Cream\",\n             \"Roast Hot House Baby Lamb, Mint Sauce\": \"Roasted Baby Lamb with Mint Sauce\",\n             \"Creme d'Asperges Nouvelles aux Fleurons\": \"New Potato Cream with Asparagus Tips\",\n             \"Frecciarossa;\": \"Frecciarossa\",\n             \"Squab Casserole\": \"Squab Casserole\",\n             \"Malteser [Reis-Creme]\": \"Maltesers (Rice Cream)\",\n             \"Bluefort Cheese and [Crackers]\": \"Bluefort Cheese with Crackers\",\n             \"Saumon bouilli\": \"Boiled Salmon\",\n             \"fr Ochsenbrust 'Flamisch' mit Bouillonkartoffeln und Sahnemeerrettich\": \"Flamish Ox Roast with Bouillon Potatoes and Sauerkraut\",\n             \"Souther Colada - Southern comfort, Ananassaft, Kokosnu\u00dfcreme\": \"Pina Colada - Southern Comfort, Pineapple Juice, Coconut Cream\",\n             \"Strawberry, peach or raspberry jam\": \"Fruit Jam\",\n             \"Bean Curd with Chinese Mushrooms\": \"Tofu with Chinese Mushrooms\"}\n   value = re.sub(r'\\s+', ' ', value).lower()\n   if value in mapping:\n       return mapping[value]\n   else:\n       return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'\\[.*?\\]', value) # Remove brackets\n   if match1:\n       value = value.replace(match1.group(0), '')\n\n   match2 = re.search(r'[,]+', value) # Remove extra commas\n   if match2:\n       value = value.replace(match2.group(0), ',')\n\n   match3 = re.search(r'\\s+', value) # Remove extra spaces\n   if match3:\n       value = value.replace(match3.group(0), ' ')\n\n   match4 = re.search(r'[.!?]+$', value) # Remove punctuation at the end of string\n   if match4:\n       value = value[:-len(match4.group(0))]\n\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'\\[.*?\\]', value) # Remove brackets\n   if match1:\n       value = value.replace(match1.group(0), '')\n\n   match2 = re.search(r'[,]+', value) # Remove extra commas\n   if match2:\n       value = value.replace(match2.group(0), ',')\n\n   match3 = re.search(r'\\s+', value) # Remove extra spaces\n   if match3:\n       value = value.replace(match3.group(0), ' ')\n\n   match4 = re.search(r'[.!?]+$', value) # Remove punctuation at the end of string\n   if match4:\n       value = value[:-len(match4.group(0))]\n\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\nmatch_list = [re.search(r'[\\[\\]]', value), re.search(r'\\s+', value)]\nif any(match for match in match_list):\n    if re.search(r'\\[.*\\]', value):\n        return re.sub(r'\\[.*\\]', '', value).strip()\n    elif re.search(r'\\s+', value):\n        return value.replace(' ', '').strip()\nelse:\n    return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\nmatch_list = [re.search(r'[\\[\\]]', value), re.search(r'\\s+', value)]\nif any(match for match in match_list):\n    if re.search(r'\\[.*\\]', value):\n        return re.sub(r'\\[.*\\]', '', value).strip()\n    elif re.search(r'\\s+', value):\n        return value.replace(' ', '').strip()\nelse:\n    return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\n match_data_type = re.search(r'[A-Za-z]+', value) # check if cell value is a string\n match_mixed_case = re.search(r'\\W+', value)  # check if cell value has mixed case or special characters\n\n if match_data_type and not match_mixed_case:\n     return value.lower() # standardize to lower case if it's a string with no mixed case or special characters\n elif match_mixed_case:\n     return value.replace(' ', '_').replace('-', '_').replace('.', '').replace('/', '').replace('\\\\', '').replace(':', '').replace(';', '').replace('!', '').replace('@', '').replace('#', '').replace('$', '').replace('%', '').replace('^', '').replace('&', '').replace('*', '').replace('(', '').replace(')', '').replace('_', '').replace('+', '').replace('=', '').replace('{', '').replace('}', '').replace('[', '').replace(']', '').replace('|', '').replace('~', '').replace('<', '').replace('>', '').replace('\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\n match_data_type = re.search(r'[A-Za-z]+', value) # check if cell value is a string\n match_mixed_case = re.search(r'\\W+', value)  # check if cell value has mixed case or special characters\n\n if match_data_type and not match_mixed_case:\n     return value.lower() # standardize to lower case if it's a string with no mixed case or special characters\n elif match_mixed_case:\n     return value.replace(' ', '_').replace('-', '_').replace('.', '').replace('/', '').replace('\\\\', '').replace(':', '').replace(';', '').replace('!', '').replace('@', '').replace('#', '').replace('$', '').replace('%', '').replace('^', '').replace('&', '').replace('*', '').replace('(', '').replace(')', '').replace('_', '').replace('+', '').replace('=', '').replace('{', '').replace('}', '').replace('[', '').replace(']', '').replace('|', '').replace('~', '').replace('<', '').replace('>', '').replace('\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'[A-Z][a-z]* [A-Z][a-z]*', value) # Match two words with capitalized first letter\n   if match1:\n       return match1.group(0).replace(' ', '-') # Replace spaces with hyphens and return the transformed value\n   match2 = re.search(r'[A-Z]+', value) # Match one or more uppercase letters\n   if match2:\n       return match2.group(0).lower() + '-' + value[match2().end():] # Convert to lowercase and append the remaining part of the string, then return the transformed value\n   match3 = re.search(r'\\s+', value) # Match one or more spaces\n   if match3:\n       return value.replace(' ', '-') # Replace spaces with hyphens and return the transformed value\n   else:\n       return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'[A-Z][a-z]* [A-Z][a-z]*', value) # Match two words with capitalized first letter\n   if match1:\n       return match1.group(0).replace(' ', '-') # Replace spaces with hyphens and return the transformed value\n   match2 = re.search(r'[A-Z]+', value) # Match one or more uppercase letters\n   if match2:\n       return match2.group(0).lower() + '-' + value[match2().end():] # Convert to lowercase and append the remaining part of the string, then return the transformed value\n   match3 = re.search(r'\\s+', value) # Match one or more spaces\n   if match3:\n       return value.replace(' ', '-') # Replace spaces with hyphens and return the transformed value\n   else:\n       return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'\\s+', value) # replace consecutive whitespaces with a single space\n   value = value.replace(' ', '') if not match1 else value.replace(' ', ' ')\n   match2 = re.search(r'[A-Za-z]+,', value) # remove comma at the beginning of the string\n   value = value[match2.end() if match2 else 0:] if match2 else value\n   match3 = re.search(r'\\s+,', value) # remove extra commas\n   value = value.replace(', ', ',') if match3 else value\n   match4 = re.search(r'[.,!?]+$', value) # remove punctuation at the end of the string\n   value = value[:match4.start()] if match4 else value\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'\\s+', value) # replace consecutive whitespaces with a single space\n   value = value.replace(' ', '') if not match1 else value.replace(' ', ' ')\n   match2 = re.search(r'[A-Za-z]+,', value) # remove comma at the beginning of the string\n   value = value[match2.end() if match2 else 0:] if match2 else value\n   match3 = re.search(r'\\s+,', value) # remove extra commas\n   value = value.replace(', ', ',') if match3 else value\n   match4 = re.search(r'[.,!?]+$', value) # remove punctuation at the end of the string\n   value = value[:match4.start()] if match4 else value\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   if re.search(r'[^a-zA-Z0-9\\s]', value):\n      return re.sub(r'[^a-zA-Z0-9\\s]', '', value).lower()\n   else:\n      return value.lower()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   if re.search(r'[^a-zA-Z0-9\\s]', value):\n      return re.sub(r'[^a-zA-Z0-9\\s]', '', value).lower()\n   else:\n      return value.lower()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'\\s+', value) # remove extra spaces\n   value = re.sub(r'\\s+', ' ', value) if match1 else value\n\n   match2 = re.search(r'[A-Za-z]+,', value) # separate food items with commas\n   if match2:\n       parts = match2.group(0).split(',')\n       for i in range(1, len(parts)):\n           parts[i] = parts[i].strip()\n       value = ','.join(parts)\n\n   match3 = re.search(r'\\[.*\\]\",', value) # remove brackets\n   if match3:\n       value = value.replace(match3.group(0), '')\n\n   match4 = re.search(r'[.,!?]+$', value) # remove punctuation at the end of string\n   if match4:\n       value = value[:-len(match4.group(0))]\n\n   match5 = re.search(r'\\b(bean|beans?)\\b', value.lower()) # standardize bean and beans\n   if match5:\n       value = value.replace('bean', 'beans')\n\n   match6 = re.search(r'\\b(cheese|Cheese)\\b', value.lower()) # standardize cheese\n   if match6:\n       value = value.replace('cheese', 'Cheese')\n\n   match7 = re.search(r'\\b(squab|Squab)\\b', value.lower()) # standardize squab\n   if match7:\n       value = value.replace('squab', 'Squab')\n\n   match8 = re.search(r'\\b(mutton|Mutton)\\b', value.lower()) # standardize mutton\n   if match8:\n       value = value.replace('mutton', 'Mutton')\n\n   match9 = re.search(r'\\b(lamb|Lamb)\\b', value.lower()) # standardize lamb\n   if match9:\n       value = value.replace('lamb', 'Lamb')\n\n   match10 = re.search(r'\\b(fresh|Fresh)\\b', value.lower()) # standardize fresh\n   if match10:\n       value = value.replace('fresh', 'Fresh')\n\n   match11 = re.search(r'\\b(home-made|Home-made)\\b', value.lower()) # standardize home-made\n   if match11:\n       value = value.replace('home-made', 'Home-made')\n\n   match12 = re.search(r'\\b(roast|Roast)\\b', value.lower()) # capitalize roast\n   if match12:\n       value = value.replace('roast', 'Roast')\n\n   match13 = re.search(r'\\b(hot|Hot)\\b', value.lower()) # capitalize hot\n   if match13:\n       value = value.replace('hot', 'Hot')\n\n   match14 = re.search(r'\\b(house|House)\\b', value.lower()) # capitalize house\n   if match14:\n       value = value.replace('house', 'House')\n\n   match15 = re.search(r'\\b(baby|Baby)\\b', value.lower()) # capitalize baby\n   if match15:\n       value = value.replace('baby', 'Baby')\n\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'\\s+', value) # remove extra spaces\n   value = re.sub(r'\\s+', ' ', value) if match1 else value\n\n   match2 = re.search(r'[A-Za-z]+,', value) # separate food items with commas\n   if match2:\n       parts = match2.group(0).split(',')\n       for i in range(1, len(parts)):\n           parts[i] = parts[i].strip()\n       value = ','.join(parts)\n\n   match3 = re.search(r'\\[.*\\]\",', value) # remove brackets\n   if match3:\n       value = value.replace(match3.group(0), '')\n\n   match4 = re.search(r'[.,!?]+$', value) # remove punctuation at the end of string\n   if match4:\n       value = value[:-len(match4.group(0))]\n\n   match5 = re.search(r'\\b(bean|beans?)\\b', value.lower()) # standardize bean and beans\n   if match5:\n       value = value.replace('bean', 'beans')\n\n   match6 = re.search(r'\\b(cheese|Cheese)\\b', value.lower()) # standardize cheese\n   if match6:\n       value = value.replace('cheese', 'Cheese')\n\n   match7 = re.search(r'\\b(squab|Squab)\\b', value.lower()) # standardize squab\n   if match7:\n       value = value.replace('squab', 'Squab')\n\n   match8 = re.search(r'\\b(mutton|Mutton)\\b', value.lower()) # standardize mutton\n   if match8:\n       value = value.replace('mutton', 'Mutton')\n\n   match9 = re.search(r'\\b(lamb|Lamb)\\b', value.lower()) # standardize lamb\n   if match9:\n       value = value.replace('lamb', 'Lamb')\n\n   match10 = re.search(r'\\b(fresh|Fresh)\\b', value.lower()) # standardize fresh\n   if match10:\n       value = value.replace('fresh', 'Fresh')\n\n   match11 = re.search(r'\\b(home-made|Home-made)\\b', value.lower()) # standardize home-made\n   if match11:\n       value = value.replace('home-made', 'Home-made')\n\n   match12 = re.search(r'\\b(roast|Roast)\\b', value.lower()) # capitalize roast\n   if match12:\n       value = value.replace('roast', 'Roast')\n\n   match13 = re.search(r'\\b(hot|Hot)\\b', value.lower()) # capitalize hot\n   if match13:\n       value = value.replace('hot', 'Hot')\n\n   match14 = re.search(r'\\b(house|House)\\b', value.lower()) # capitalize house\n   if match14:\n       value = value.replace('house', 'House')\n\n   match15 = re.search(r'\\b(baby|Baby)\\b', value.lower()) # capitalize baby\n   if match15:\n       value = value.replace('baby', 'Baby')\n\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "lowest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
+    }
+]

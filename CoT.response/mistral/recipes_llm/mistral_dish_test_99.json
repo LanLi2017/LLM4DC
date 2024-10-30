@@ -1,0 +1,141 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\n# Remove punctuations and spaces\nvalue = re.sub(r'[,\\.\\s]', '', value)\\n# Convert to lowercase\nvalue = value.lower()\\n# Standardize spelling variations (e.g., ox-tongue -> ox tongue, h\u00f8nsekod -> chicken cod)\nvalue = re.sub(r'(ox\\-tongue|h\u00f8nsekod)', r'ox tongue', value)\\n# Create a new column with estimated prices based on given descriptions (This is just an example, actual estimation should be based on your specific criteria)\nif 'ox tongue' in value or 'chicken cod' in value:\\n    return 10\\nelse:\\n    # Assign arbitrary price for other dishes\n    return 5\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\n# Remove punctuations and spaces\nvalue = re.sub(r'[,\\.\\s]', '', value)\\n# Convert to lowercase\nvalue = value.lower()\\n# Standardize spelling variations (e.g., ox-tongue -> ox tongue, h\u00f8nsekod -> chicken cod)\nvalue = re.sub(r'(ox\\-tongue|h\u00f8nsekod)', r'ox tongue', value)\\n# Create a new column with estimated prices based on given descriptions (This is just an example, actual estimation should be based on your specific criteria)\nif 'ox tongue' in value or 'chicken cod' in value:\\n    return 10\\nelse:\\n    # Assign arbitrary price for other dishes\n    return 5\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match = re.search(r'\\d{1,5}(\\.\\d{2})?', value)\n   if match:\n      return f\"{value} ${match.group(0)}\"\n   else:\n      return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match = re.search(r'\\d{1,5}(\\.\\d{2})?', value)\n   if match:\n      return f\"{value} ${match.group(0)}\"\n   else:\n      return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\nmatch_colname = re.search(r'[A-Za-z]+ \\w+', name) # match any word followed by a space or end of string\nif match_colname:\n    colname = match_colname.group(0).replace(' ', '').title() # replace spaces with nothing and capitalize the first letter\nelse:\n    colname = name # if no match, return original value\n\nmatch_item = re.search(r'[A-Za-z]+ \\w+|[A-Za-z]+\\s*[\\(\\)]|\\s*\\[\\w+\\]|\\s*:\\s*|,\\s*|,', value) # match any word followed by a space or end of string, words with parentheses, words in brackets, colons, commas\nif match_item:\n    item = match_item.group(0).replace(' ', '').lower() # replace spaces with nothing and convert to lowercase\n    item = re.sub(r'[()]', '', item) # remove parentheses\n    item = re.sub(r'\\[.*?\\]', '', item) # remove brackets\n    item = re.sub(r':|,|\\s+', ' ', item) # remove colons, commas and extra spaces\n    return item.capitalize() # capitalize the first letter of the cleaned item\nelse:\n    return value # if no match, return original value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\nmatch_colname = re.search(r'[A-Za-z]+ \\w+', name) # match any word followed by a space or end of string\nif match_colname:\n    colname = match_colname.group(0).replace(' ', '').title() # replace spaces with nothing and capitalize the first letter\nelse:\n    colname = name # if no match, return original value\n\nmatch_item = re.search(r'[A-Za-z]+ \\w+|[A-Za-z]+\\s*[\\(\\)]|\\s*\\[\\w+\\]|\\s*:\\s*|,\\s*|,', value) # match any word followed by a space or end of string, words with parentheses, words in brackets, colons, commas\nif match_item:\n    item = match_item.group(0).replace(' ', '').lower() # replace spaces with nothing and convert to lowercase\n    item = re.sub(r'[()]', '', item) # remove parentheses\n    item = re.sub(r'\\[.*?\\]', '', item) # remove brackets\n    item = re.sub(r':|,|\\s+', ' ', item) # remove colons, commas and extra spaces\n    return item.capitalize() # capitalize the first letter of the cleaned item\nelse:\n    return value # if no match, return original value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toUppercase()"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "Alaskan King Crab",
+                    "Lobster Thermidor",
+                    "Porterhouse Steak",
+                    "Filet Mignon",
+                    "Rack of Lamb"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": 100
+            },
+            {
+                "from": [
+                    "Shrimp Scampi",
+                    "Grilled Salmon",
+                    "Chicken Alfredo",
+                    "Beef Wellington",
+                    "Veal Marsala"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": 25
+            },
+            {
+                "from": [
+                    "Clam Chowder",
+                    "Caesar Salad",
+                    "Fettuccine Carbonara",
+                    "Tuna Tartare",
+                    "Eggplant Parmesan"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": 10
+            }
+        ],
+        "description": "Mass edit cells in column name"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
+    }
+]

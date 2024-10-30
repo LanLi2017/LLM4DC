@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\nvalue = value.lower()\\nvalue = re.sub(r'\\s+', ' ', value)\\nvalue = re.sub(r'[.,!?:;()\\[\\]]', '', value)\\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\nvalue = value.lower()\\nvalue = re.sub(r'\\s+', ' ', value)\\nvalue = re.sub(r'[.,!?:;()\\[\\]]', '', value)\\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\npattern = r'(?i)\\b(broiled|brandy|lamp|mignardises|pickled|sweetbread|verschiedene|julienue)\\b' \\nif re.search(pattern, value):\\n    if 'broiled' in value: return 'Grilled' \\n    elif 'brandy' in value: return 'Brandied' \\n    elif 'lamp' in value: return 'Lamb' \\n    elif 'mignardises' in value: return 'Desserts' \\n    elif 'pickled' in value: return 'Pickled' \\n    elif 'sweetbread' in value: return 'Sweetbreads' \\n    elif 'verschiedene' in value: return 'Various' \\n    elif 'julienue' in value: return 'Julienne' \\nelse:\\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\npattern = r'(?i)\\b(broiled|brandy|lamp|mignardises|pickled|sweetbread|verschiedene|julienue)\\b' \\nif re.search(pattern, value):\\n    if 'broiled' in value: return 'Grilled' \\n    elif 'brandy' in value: return 'Brandied' \\n    elif 'lamp' in value: return 'Lamb' \\n    elif 'mignardises' in value: return 'Desserts' \\n    elif 'pickled' in value: return 'Pickled' \\n    elif 'sweetbread' in value: return 'Sweetbreads' \\n    elif 'verschiedene' in value: return 'Various' \\n    elif 'julienue' in value: return 'Julienne' \\nelse:\\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match1 = re.search(r'\\[.*?\\]', value) # Remove brackets\n   match2 = re.search(r'[,;.:]', value) # Remove punctuations\n   match3 = re.search(r'\\s+', value) # Remove extra spaces\n   if match1 or match2:\n       value = re.sub(r'\\[.*?\\]|[,;.:]|\\s+', ' ', value).strip()\n   if len(value.split()) > 30: # Limit the length of dish names to improve conciseness\n       value = value.split()[0:15] + ['...']\n   match4 = re.search(r'\\d{4}', value) # Check if the dish was introduced before 2000\n   if not match4:\n       print(\"Warning: Dish \" + value + \" might have been introduced after 2000\")\n   return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match1 = re.search(r'\\[.*?\\]', value) # Remove brackets\n   match2 = re.search(r'[,;.:]', value) # Remove punctuations\n   match3 = re.search(r'\\s+', value) # Remove extra spaces\n   if match1 or match2:\n       value = re.sub(r'\\[.*?\\]|[,;.:]|\\s+', ' ', value).strip()\n   if len(value.split()) > 30: # Limit the length of dish names to improve conciseness\n       value = value.split()[0:15] + ['...']\n   match4 = re.search(r'\\d{4}', value) # Check if the dish was introduced before 2000\n   if not match4:\n       print(\"Warning: Dish \" + value + \" might have been introduced after 2000\")\n   return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   import datetime\n   if re.search(r'\\d{4}', value):\n       year = int(re.findall(r'\\d{4}', value)[0])\n       if year < 2000:\n           return f'Year of Origin: {year}, Name: {value}'\n       else:\n           return f'Name: {value}'\n   elif re.search(r'in', value) and re.search(r'\\d{4}', value.split(' ')[-1]):\n       year = int(re.findall(r'\\d{4}', value.split(' ')[-1])[0])\n       if year < 2000:\n           return f'Year of Origin: {year}, Name: {value}'\n       else:\n           return f'Name: {value}'\n   elif re.search(r'\\d{4}-\\d{2}-\\d{2}', value):\n       date = re.findall(r'\\d{4}-\\d{2}-\\d{2}', value)[0]\n       year = datetime.datetime.strptime(date, '%Y-%m-%d').year\n       if year < 2000:\n           return f'Year of Origin: {year}, Name: {value}'\n       else:\n           return f'Name: {value}'\n   else:\n       return 'No Year or Origin found in the name.'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   import datetime\n   if re.search(r'\\d{4}', value):\n       year = int(re.findall(r'\\d{4}', value)[0])\n       if year < 2000:\n           return f'Year of Origin: {year}, Name: {value}'\n       else:\n           return f'Name: {value}'\n   elif re.search(r'in', value) and re.search(r'\\d{4}', value.split(' ')[-1]):\n       year = int(re.findall(r'\\d{4}', value.split(' ')[-1])[0])\n       if year < 2000:\n           return f'Year of Origin: {year}, Name: {value}'\n       else:\n           return f'Name: {value}'\n   elif re.search(r'\\d{4}-\\d{2}-\\d{2}', value):\n       date = re.findall(r'\\d{4}-\\d{2}-\\d{2}', value)[0]\n       year = datetime.datetime.strptime(date, '%Y-%m-%d').year\n       if year < 2000:\n           return f'Year of Origin: {year}, Name: {value}'\n       else:\n           return f'Name: {value}'\n   else:\n       return 'No Year or Origin found in the name.'\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "jython:import re\\nif int(value) >= 2000:\\n    return None\\nelse:\\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column first_appeared using expression jython:import re\\nif int(value) >= 2000:\\n    return None\\nelse:\\nreturn value\nreturn value"
+    }
+]

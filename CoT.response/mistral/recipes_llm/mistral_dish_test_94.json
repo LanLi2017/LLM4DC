@@ -1,0 +1,93 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\\nimport datetime\\n# Remove special characters and convert to lowercase\\nvalue = re.sub(r'[^\\w\\s]', '', value).lower()\\n# Split by space or comma\\nparts = value.split(None, 2)\\n# If there are three parts, assume it's a dish name and date format\\nif len(parts) == 3:\\n   # Extract the date and convert to datetime object\\n   date_str = parts[2].strip()\\n   date = datetime.datetime.strptime(date_str, '%B %d, %Y')\\n   # Create new columns 'first_appeared' and 'last_appeared'\\n   first_appeared = date if row == 1 else min(first_appeared, date)\\n   last_appeared = date\\nelse:\\n   first_appeared = None\\n   last_appeared = None\\n# Return the cleaned dish name and new columns\\nreturn value, first_appeared, last_appeared\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\\nimport datetime\\n# Remove special characters and convert to lowercase\\nvalue = re.sub(r'[^\\w\\s]', '', value).lower()\\n# Split by space or comma\\nparts = value.split(None, 2)\\n# If there are three parts, assume it's a dish name and date format\\nif len(parts) == 3:\\n   # Extract the date and convert to datetime object\\n   date_str = parts[2].strip()\\n   date = datetime.datetime.strptime(date_str, '%B %d, %Y')\\n   # Create new columns 'first_appeared' and 'last_appeared'\\n   first_appeared = date if row == 1 else min(first_appeared, date)\\n   last_appeared = date\\nelse:\\n   first_appeared = None\\n   last_appeared = None\\n# Return the cleaned dish name and new columns\\nreturn value, first_appeared, last_appeared\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   match = re.search(r'\\s+', value)\n   if match:\n       value = value.strip()\n       first_appeared = \"Unknown\"\n       last_appeared = \"Unknown\"\n       if \"(\" in value:\n           index = value.index(\"(\")\n           last_appeared = value[index+1:-1]\n           value = value[:index]\n   else:\n       match = re.search(r'[A-Za-z]+,', value)\n       if match:\n           value = value.split(\",\")[0].strip()\n           first_appeared = \"Unknown\"\n           if \")\" in value:\n               index = value.index(\")\")\n               first_appeared = value[:index]\n   return value, first_appeared, last_appeared\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   match = re.search(r'\\s+', value)\n   if match:\n       value = value.strip()\n       first_appeared = \"Unknown\"\n       last_appeared = \"Unknown\"\n       if \"(\" in value:\n           index = value.index(\"(\")\n           last_appeared = value[index+1:-1]\n           value = value[:index]\n   else:\n       match = re.search(r'[A-Za-z]+,', value)\n       if match:\n           value = value.split(\",\")[0].strip()\n           first_appeared = \"Unknown\"\n           if \")\" in value:\n               index = value.index(\")\")\n               first_appeared = value[:index]\n   return value, first_appeared, last_appeared\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\n# Remove any non-alphabets, numbers, spaces, hyphens, commas, periods, and colons from the dish names\nmatch = re.search(r'[^a-zA-Z0-9\\s-\\.,:\\s]', value)\nif match:\n    value = re.sub(r'[^a-zA-Z0-9\\s-\\.,:\\s]', '', value)\n\n# Remove any leading or trailing spaces from the dish names\nvalue = value.strip()\n\n# Split the dish name by space and store it in a list\ndish_parts = value.split(' ')\n\n# Initialize first_appeared and last_appeared as None\nfirst_appeared = None\nlast_appeared = None\n\n# Iterate through each part of the dish name to find the first and last appearance of the dish\nfor i, part in enumerate(dish_parts):\n    if part.isdigit():  # If a part is a number, it might be the year of first or last appearance\n        if first_appeared is None:\n            first_appeared = int(part)\n        else:\n            last_appeared = int(part)\n            break\n\n# If first_appeared and last_appeared are found, add them as new columns for the dish\nif first_appeared is not None and last_appeared is not None:\n    value += ',' + str(first_appeared) + ',' + str(last_appeared)\n\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\n# Remove any non-alphabets, numbers, spaces, hyphens, commas, periods, and colons from the dish names\nmatch = re.search(r'[^a-zA-Z0-9\\s-\\.,:\\s]', value)\nif match:\n    value = re.sub(r'[^a-zA-Z0-9\\s-\\.,:\\s]', '', value)\n\n# Remove any leading or trailing spaces from the dish names\nvalue = value.strip()\n\n# Split the dish name by space and store it in a list\ndish_parts = value.split(' ')\n\n# Initialize first_appeared and last_appeared as None\nfirst_appeared = None\nlast_appeared = None\n\n# Iterate through each part of the dish name to find the first and last appearance of the dish\nfor i, part in enumerate(dish_parts):\n    if part.isdigit():  # If a part is a number, it might be the year of first or last appearance\n        if first_appeared is None:\n            first_appeared = int(part)\n        else:\n            last_appeared = int(part)\n            break\n\n# If first_appeared and last_appeared are found, add them as new columns for the dish\nif first_appeared is not None and last_appeared is not None:\n    value += ',' + str(first_appeared) + ',' + str(last_appeared)\n\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "jython:import re\n\n match = re.search(r'\\D{4}', value)\n if not match:\n    return value\n else:\n    return match.group(0)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column first_appeared using expression jython:import re\n\n match = re.search(r'\\D{4}', value)\n if not match:\n    return value\n else:\n    return match.group(0)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "last_appeared",
+        "expression": "jython:import re\\nif value == \"0\":\\n return False\\nelse:\\n match = re.search(r'^[1-9][0-9]{3}$', value)\\nif match:\\n return True\\nelse:\\n return False\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column last_appeared using expression jython:import re\\nif value == \"0\":\\n return False\\nelse:\\n match = re.search(r'^[1-9][0-9]{3}$', value)\\nif match:\\n return True\\nelse:\\n return False\nreturn value"
+    }
+]

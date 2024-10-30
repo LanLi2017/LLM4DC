@@ -1,0 +1,86 @@
+Instruction: You are a data cleaning expert and need to prepare the table for future analysis by choosing the most appropriate cleaning Operations. Your goal is to improve the data's format, conciseness, and usability, but do not directly solve the analysis Purpose. Instead, focus on making the data well-structured and clean for further use.
+The Operations pool you can choose from contains ```upper```,  ```trim```, ```mass_edit```,  ```regexr_transform```, ```numeric```, and ```date```.
+
+Following examples demostrate the usage of each data cleaning Operation. 
+
+1. ```upper```: The upper function is used to convert all cell values in a column that are strings into uppercase, fixing formatting error for strings. For example,
+
+/*
+col : id | neighbourhood      | room_type  | price 
+row 1 : 46154    | Ohare      | Entire home/apt     | 65
+row 2 : 6715     | OHARE      | Entire home/apt     | 255 
+row 3 : 228273   | ohare    | Private room        | 109
+*/
+Target column: neighbourhood
+Explanation: Improve conciseness: The format of cell values in column neighbourhood are inconsistent(mixed with different formats). Therefore, We use upper on column "neighbourhood" to make the format consistent as Uppercase.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: The trim function is designed to remove extra leading and trailing whitespaces from strings in a dataset, and can be applied universally. For example, 
+
+/*
+col : Book Title             | Year           | First Name
+row 1 :   Against Method.    | Feyerabend,1975| P.
+row 2 : Changing Order       | Collins,1985   | H.M.
+row 3 :  Exceeding Our Grasp  | Stanford,2006  | P.K.
+*/
+Target column: Book Title
+Explanation: Improve accuracy: There are extra whitespaces in some cell values on column Book Title, therefore, we trim the column to remove extra white spaces in the cell values.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: The mass_edit operation is used to replace a group of similar or related cell values with a string or categorical value across multiple cells.  When the same data is represented differently (e.g., spelling variations or abbreviations), replace them to a single consistent value. For example,
+/*
+col : | LoanAmount | City     | State  | Zip 
+row 1 : | 30333    | Hon      | HI     |96814
+row 2 : | 149900   | HONOLULU | HI     | 96814 
+row 3 : | 148100   | Honolulu | HI     | 96814
+row 4 : | 334444   | CHI      | IL     | 60611
+row 5 : | 120      | urbana   | IL     | 61802
+row 6 : | 100000   | Chicagoo | IL     | 
+*/
+Target column: City
+Explanation: Improve conciseness and accuracy: cell values spellings for Hon, HONOLULU are incorrect and duplicate with "Honolulu" should be clustered and replaced with Honolulu. similar to CHI and Chicago should be edited to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | urbana | Chicago
+
+4. ```regexr_transform```: The regexr_transform function is a function that utilizes regular expressions. This function can be particularly useful for extracting, replacing, or transforming parts of text data based on defined patterns. For example,
+
+/*
+col : Book Title             | Year           | First Name
+row 1 : Against Method.      | Feyerabend,1975| P.
+row 2 : Changing Order       | Collins,1985   | H.M.
+row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
+*/
+Target column: Year
+Explanation: Improve relavancy and accuracy: cell values in column Year are not accurate enough, which are composed with author information and year info. We implement a regular expression-based function: "jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)" to extract year.
+Selected Operation: ```regexr_transform```
+Output: 1975| 1985 | 2006
+
+5. ```numeric```: numeric is an operation that identifies and transforms numeric data entries (e.g., strings of decimal float or integers) into their proper numerical format, ensuring they are correctly recognized and treated as numbers in the dataset. For example, float number "2.0" would be converted to "2".
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: Improve accuracy: The cell values in column population; census 2009 are float which is incorrect. Therefore, numeric is chosen to convert the data into correct integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: The date function is used to convert all **string-type** cell values in a column that are datetime-like into ISO date format (YYYY-MM-DD), fixing formatting errors for date type data. For example,
+
+/*
+col : ISO/IEC Standard | Publish Date | WG
+row 1 : ISO/IEC TR 19759 | 2005.10.04 | 20
+row 2 : ISO/IEC 15288    | 09/14/2008 | 7
+row 3 : ISO/IEC 12207.   | 2009-10-12 | 7
+*/
+Target column: Publish Date
+Explanation: Improve accuracy: The cell values in Publish Date are in different date format, therefore, We use date on column "Publish Date" to normalize all the dates into ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+Note that all operations must work on the CORRECT types of data. For instance, ```numeric``` cannot work on strings or date-time cell values. Verse visa. 

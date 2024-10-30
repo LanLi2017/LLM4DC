@@ -1,0 +1,48 @@
+Given the Current Operation Purpose, the task is to write the **Expression** to process the cell value based on the Current Operation Purpose. 
+
+the output Expression MUST BE in a ``` ``` and follow (**Check**):
+(1). Starts with "jython:"
+(2). "value" parameter is already refer to a single cell value. (DO NOT USE "for" loop to process the cell values.)
+(3). Library restriction [ONLY allowed]: import re.
+(4). Based on the Current Operation Purpose, define the patter: if the pattern matched, then return the parsed value; else if not matched, return the original value. DO NOT REPLACE THEM.
+(5). NO comments, No data values impute, No "def" is allowed
+(6). Ends with "return" statement and updated "value" transformed by the function. DO NOT replace the values.
+
+ALL THE **Check** MUST BE followed. In the following, we have some examples of how to write Expression for regexr_transform() operation.
+
+
+/*
+col :   Year           
+row 1 : Feyerabend,1975
+row 2 : Collins,1985  
+row 3 : Stanford,2006  
+*/
+Current Operation Purpose: The cell values in Year are not correct, we need to parse the string and extract four digits.
+Expression: ```jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)\nelse:\nreturn value```
+Explanation: Expression starts with "jython:",  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return" is to parse capture the pattern of cell values in target column "Year", if not match, return the original "value". "value" parameter represents a single cell in the target column "Year". The code in-between is to search four digits in the cell values of target column Year.
+Output: 1975| 1985 | 2006
+
+
+/*
+col :  Position
+row 1 :   10  th 
+row 2 : 1  st  
+row 3 :  14th  (q) 
+*/
+Current Operation Purpose: The dataset has accuracy and conciseness concerns, you need to remove consecutive white spaces in the cell values of the "Position" column.
+Expression: ```import re\n match = re.search(r'\s{2,}', value)\nif match:\nvalue = re.sub(r'\s{2,}', ' ',value)\nreturn value\nelse:\nreturn value\n```
+Explanation: Expression starts with "jython:",  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of cell values in target column "Position". "value" parameter represents a single cell in the target column "Position". The code in-between is to find all the matching cells in "value" (target column Position) with the regular expression match = re.search(r'\s{2,}', value), and then use value = re.sub(r'\s{2,}', ' ',value) to trim the extra whitespaces.
+Output: 10 | 1 | 14
+
+/*
+col :  Competition 
+row 1 : European Junior [Championships] 
+row 2 : ?World   Junior Championships:   
+row 3 : European Indoor Championships;. 
+*/
+Current Operation Purpose: The dataset has accuracy concerns, removing invalid brackets, semicolon, dots, colon appear in "Competition" column.
+Expression: ```jython:import re\n if re.search(r'[\[\];\.:]', value):\n return re.sub(r'[\[\];\.:]', '', value)\n else:\n return value```
+Explanation: Expression startswith "jython:",  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of cell values in target column "Position". "value" parameter represents a single cell in the target column "Position". The code in-between is to find all the invalid characters and strip them
+Output: European Junior Championships | World Junior Championships | European Indoor Championships 
+
+

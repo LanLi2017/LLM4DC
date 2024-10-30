@@ -4,26 +4,11 @@ The structure of the **edits** is a list of dictionaries:
 [{'from':[list_of_incorrect_strings], 'to':a_correct_version_string}, {other edits}, ...]
 - 'from': A list of UNIQUE strings that represent the incorrect values or variations of a name. values in from list SHOULD ONLY come from the target column.
 - 'to': A SINGLE string that indicates the correct version of the value, which the incorrect values should be transformed into.
+- NO comments are allowed in this list.
 
 Here are examples of edits prediction for operation mass_edit().
 
 Examples:
-
-/*
-col : LoanAmount | City     | State  | Zip 
-row 1 : 30333    | Hon      | HI     |96814
-row 2 : 149900   | HONOLULU | HI     | 96814 
-row 3 : 148100   | Honolulu | HI     | 96814
-row 4 : 334444   | CHI      | IL     | 60611
-row 5 : 120      | urbana   | IL     | 61802
-row 6 : 100000   | Chicagoo | IL     | 
-*/
-Purpose: Return how many cities are in the table.
-Current Operation Purpose: The data has accuracy and conciseness concerns, including incorrect values in the "City" column, which prevent it from meeting all data quality criteria.
-edits: ```[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}]```
-Explanation: Mispellings and different formats of data need to be revised.  edits: variations like 'Hon' and 'HONOLULU' should be transformed into 'Honolulu', variations like 'CHI' and 'Chicagoo' should be transformed into 'Chicago'.The lowercase version 'urbana' should be capitalized as 'Urbana'.
-Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
-
 
 /*
 col : id | neighbourhood      | room_type  | price 
@@ -52,15 +37,15 @@ Output: Jinde Cao | Jin Li | Zhu Han
 
 /*
 col : LoanAmount | City     | State  | Zip 
-row 1 : 30333    | Honolulu | HI     |96814
-row 2 : 149900   | Honolulu | HI     | 96814 
-row 3 : 148100   |          | HI     | 
-row 4 : 334444   |          |        | 
-row 5 : 120      |          | IL     | 
+row 1 : 30333    | Hon      | HI     |96814
+row 2 : 149900   | HONOLULU | HI     | 96814 
+row 3 : 148100   | Honolulu | HI     | 96814
+row 4 : 334444   | CHI      | IL     | 60611
+row 5 : 120      | urbana   | IL     | 61802
 row 6 : 100000   | Chicagoo | IL     | 
 */
 Purpose: Return how many cities are in the table.
 Current Operation Purpose: The data has accuracy and conciseness concerns, including incorrect values in the "City" column, which prevent it from meeting all data quality criteria.
-edits: ```[{'from': [''], 'to': 'Unknown'}, {'from': ['Chicagoo'], 'to': 'Chicagoo'}]```
-Explanation: Missing values can ONLY be replaced with the special word 'Unknown', in this way, the completeness gets improved. Replace the incorrect value Chicagoo with Chicago. The accuracy gets improved. 
-Output: Honolulu | Honolulu | Unknown | Unknown | Unknown | Chicago
+edits: ```[{'from': ['Hon', 'HONOLULU'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}, {'from': ['urbana'], 'to': 'Urbana'}]```
+Explanation: Mispellings and different formats of data need to be revised.  edits: variations like 'Hon' and 'HONOLULU' should be transformed into 'Honolulu', variations like 'CHI' and 'Chicagoo' should be transformed into 'Chicago'.The lowercase version 'urbana' should be capitalized as 'Urbana'.
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago

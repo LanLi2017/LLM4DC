@@ -56,7 +56,7 @@ def parse_text_transform(ops_list, functions_list):
             elif exp=="value.toString()":
                 functions_list[idx] = "date"
             else:
-                raise NotImplementedError
+                return False
     return functions_list
 
 def export_intermediate_tb(project_id):
@@ -270,11 +270,13 @@ Selected columns:
     logging.info(sel_col_desc)
     
     # print(f'description of selected column: {sel_col_desc}')
-    ext_res = extract_exp(sel_col_desc)[0]
-    print(ext_res)
-    tg_cols = ast.literal_eval(ext_res)
+    try:
+        tg_cols = ast.literal_eval(sel_col_desc)
+    except:
+        ext_res = extract_exp(sel_col_desc)[0]
+        print(ext_res)
+        tg_cols = ast.literal_eval(ext_res)
     print(f'Target columns: {tg_cols}')
-
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
     # Output: False/True
@@ -306,11 +308,11 @@ Selected columns:
             # TASK II: select operations
             sel_op = None
             ops_history, functions_list = export_ops_list(project_id, st)
-            if functions_list:
-                functions_list = parse_text_transform(ops_history, functions_list)
-                print(f'Applied operation history: {functions_list}')
-                if 'trim' in functions_list:
-                    ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
+            # if functions_list:
+            #     functions_list = parse_text_transform(ops_history, functions_list)
+            #     print(f'Applied operation history: {functions_list}')
+            #     if 'trim' in functions_list:
+            #         ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
             col_str = gen_table_str(df, num_rows=15, tg_col=sel_col) # only keep first 15 rows for operation selection
             sel_cols_str = gen_table_str(sel_cols_df, num_rows=15)
             print(f'Selected first {num_rows} rows for current table: {col_str}')
@@ -353,15 +355,20 @@ Selected Operation:
 
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]
-            if sel_op not in ['numeric', 'trim', 'upper', 'date', 'regexr_transform']:
+            # if sel_op not in ['numeric', 'trim', 'upper', 'date']:
+            #     args = get_function_arguments('call_or.py', sel_op)
+            #     args.remove('project_id')  # No need to predict project_id
+            #     args.remove('column')
+            #     print(f'Current args need to be generated: {args}')
+            if sel_op == "regexr_transform":
+                args = get_function_arguments('call_or.py', 'text_transform')
+                args.remove('project_id')
+                args.remove('column')
+            elif sel_op == "mass_edit":
                 args = get_function_arguments('call_or.py', sel_op)
                 args.remove('project_id')  # No need to predict project_id
                 args.remove('column')
                 print(f'Current args need to be generated: {args}')
-            elif sel_op == "regexr_transform":
-                args = get_function_arguments('call_or.py', 'text_transform')
-                args.remove('project_id')
-                args.remove('column')
             else:
                 print(f'No arguments need to generate for {sel_op}')
             
@@ -582,36 +589,6 @@ def main():
                 json.dump(log_data, log_f, indent=4)
 
 
-def pull_datasets():
-    parent_folder = "CoT.response/datasets_llm"
-    projects = list_projects()
-    for proj_id, v in projects.items():
-        dataset_name = v['name']
-        project_id = int(proj_id)
-        print(dataset_name)
-        df = export_intermediate_tb(project_id)
-        filepath = f"{parent_folder}/{dataset_name}"
-        # if not os.path.exists(filepath):
-        df.to_csv(f"{parent_folder}/{dataset_name}.csv")
-
-
-def pull_recipes():
-    parent_folder = "CoT.response/recipes_llm"
-    projects = list_projects()
-    for proj_id, v in projects.items():
-        dataset_name = v['name']
-        project_id = int(proj_id)
-        print(dataset_name)
-        data = get_operations(project_id)
-        filepath = f"{parent_folder}/{dataset_name}.json"
-        with open(filepath, "w") as workflow:
-            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-        # if not os.path.exists(filepath):
-        #    with open(filepath, "w") as workflow:
-        #         json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-        # else:
-        #     print(f"{filepath} Has Been Existed!")
-
 def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
     # ollama.pull(model)
@@ -622,16 +599,25 @@ def test_main():
     "gemma2",
     "mistral"
     ]
-    model = "llama3.1:8b-instruct-fp16"
-    log_dir = "CoT.response"
+    # model = "llama3.1:8b-instruct-fp16"
+    model_name = "mistral:7b-instruct"
+    ollama.pull(model_name)
+    model = "mistral" 
+    log_dir = f"CoT.response/{model}/logging"
     os.makedirs(log_dir, exist_ok=True)
+
+    ds_dir = f"CoT.response/{model}/datasets_llm"
+    os.makedirs(ds_dir, exist_ok=True)
+
+    recipe_dir = f"CoT.response/{model}/recipes_llm"
+    os.makedirs(recipe_dir, exist_ok=True)
 
     pp_f = 'purposes/queries.csv'
     pp_df = pd.read_csv(pp_f)
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[34:].iterrows():
+    for index, row in pp_df.iloc[:1].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -651,10 +637,11 @@ def test_main():
             ds_name = "dish_test"
             ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
-        logging_name = f"CoT.response/logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
+        # logging_name = f"{log_data}/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
+        logging_name = f"{log_dir}/{model}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
 
-        project_name = f"{ds_name}_{pp_id}"
+        project_name = f"{model}_{ds_name}_{pp_id}"
         log_data = {
             "ID": pp_id,
             "Purposes": pp_v,
@@ -670,24 +657,28 @@ def test_main():
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
-            log_data = wf_gen(project_id, log_data, model,logging, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model_name,logging, purpose=pp_v)
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
             logging.info(f"Project {project_name} creation finished.")
-            log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model_name, logging, purpose=pp_v)
         # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
         #     json.dump(log_data, log_f, indent=4)
         with open(f"{log_dir}/{ds_name}_{pp_id}_log.txt", "w") as log_f:
             json.dump(log_data, log_f, indent=4)
+        
+        # download dataset 
+        df = export_intermediate_tb(project_id)
+        ds_path = f"{ds_dir}/{project_name}.csv"
+        df.to_csv(ds_path)
+        
+        # download recipes 
+        data = get_operations(project_id)
+        recipe_path = f"{recipe_dir}/{project_name}.json"
+        with open(recipe_path, "w") as workflow:
+            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
     
-    # Download all the prepared datasets
-    pull_datasets()
-    pull_recipes()
-
 if __name__ == '__main__':
-    # pull_recipes()
-    # pull_datasets()
     test_main()
-    # main()
     

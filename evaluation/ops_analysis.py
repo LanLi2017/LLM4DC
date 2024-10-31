@@ -1,5 +1,7 @@
 import numpy as np
 import json
+import pandas as pd
+
 # TODO: parse json to operation list from ground_truth and prediction workflow json files
 def parse_recipe(pp_id, recipe):
     res = []
@@ -41,10 +43,11 @@ def calculate_operation_metrics(ground_truth, predictions):
     for gt, pred in zip(ground_truth, predictions):
         gt_set = set(gt)
         pred_set = set(pred)
-
+        single_match = 0
         # Exact match for accuracy
         if gt_set == pred_set:
             exact_matches += 1
+            single_match = 1
 
         # Precision and Recall for each sample
         true_positives = len(gt_set & pred_set)
@@ -53,7 +56,7 @@ def calculate_operation_metrics(ground_truth, predictions):
 
         # F1 Score for each sample
         f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) else 0
-        results.append({'accuracy': exact_matches, 'precision': precision, 'recall': recall, 'f1': 1})
+        results.append({'accuracy': single_match, 'precision': precision, 'recall': recall, 'f1': f1})
         # Accumulate macro metrics
         total_precision += precision
         total_recall += recall
@@ -65,4 +68,4 @@ def calculate_operation_metrics(ground_truth, predictions):
     macro_recall = total_recall / total_samples
     macro_f1 = total_f1 / total_samples
 
-    return pd.DataFrame(results), {'accuracy': accuracy, 'macro_precision': macro_precision, 'macro_recall': macro_recall, 'macro_f1': macro_f1}    
+    return pd.DataFrame(results) #, {'accuracy': accuracy, 'macro_precision': macro_precision, 'macro_recall': macro_recall, 'macro_f1': macro_f1}    

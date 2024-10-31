@@ -16,8 +16,9 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
     else:
         target_columns = [tg_columns]
     # Iterate over each target column to calculate match ratio
-    match_count = 0
     for column in target_columns:
+        match_count = 0
+
         # Filter for rows where both dataframes have non-null values in the column
         non_null_matches = np.where(gd_df[column].notnull() & pred_df[column].notnull())[0]
 
@@ -37,8 +38,8 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
         # match_count = (gd_df[column][non_null_matches] == pred_df[column][non_null_matches]).sum()
 
         # Calculate the match ratio for the column
-        print(match_count)
-        print(len(gd_df))
+        # print(match_count)
+        # print(len(gd_df))
         match_ratio = match_count / len(gd_df)  # Divide by total row count
 
         # Append the match ratio for this column

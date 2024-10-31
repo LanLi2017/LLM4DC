@@ -33,19 +33,23 @@ def semantic_similarity(gt: str, pred: str) -> float:
     return SequenceMatcher(None, gt, pred).ratio()  # Returns a ratio between 0 and 1
 
 # Evaluate an answer based on the ground truth
-def evaluate_answer(gt: Any, pred: Any) -> Dict[str, float]:
+def calculate_answer_metrics(gt: Any, pred: Any) -> Dict[str, float]:
     # Parse inputs
     gt, pred = parse_input(gt), parse_input(pred)
     
     # Initialize results
-    results = {"accuracy": 0, "precision": 0, "recall": 0, "f1": 0, "semantic_similarity": 0}
+    results = {"accuracy": 0, "semantic_similarity": 0, "precision": 0, "recall":0, "f1":0}
     
     # Check type and apply appropriate metrics
     if isinstance(gt, float) and isinstance(pred, float):
         results["accuracy"] = 1.0 if isclose(gt, pred, rel_tol=1e-2) else 0.0  # Accuracy for floats with tolerance
+        precision, recall = results["accuracy"], results["accuracy"]
+        results.update({"precision": precision, "recall": recall, "f1": 2 * precision * recall / (precision + recall) if precision + recall > 0 else 0})
     
     elif isinstance(gt, str) and isinstance(pred, str):
         results["accuracy"] = accuracy_metric(gt, pred)
+        precision, recall = results["accuracy"], results["accuracy"]
+        results.update({"precision": precision, "recall": recall, "f1": 2 * precision * recall / (precision + recall) if precision + recall > 0 else 0})
         results["semantic_similarity"] = semantic_similarity(gt, pred)
     
     elif isinstance(gt, list) and isinstance(pred, list):

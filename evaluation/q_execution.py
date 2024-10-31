@@ -112,14 +112,16 @@ class QExecute:
     def pp33_exe(df):
         facility_counts = df['Facility Type'].value_counts()
         # Identify the facility type with the most inspections
-        most_inspections_count = facility_counts.max()
-        return int(most_inspections_count)
+        # Retrieve the most occurred value
+        most_occurred_value = facility_counts.idxmax()
+        return most_occurred_value
 
 
     def pp34_exe(df):
         facility_counts = df['Facility Type'].value_counts()
-        least_inspections_count = facility_counts.min()
-        return int(least_inspections_count)
+        min_count = facility_counts.min()
+        least_occurred_values = facility_counts[facility_counts == min_count].index.tolist()
+        return least_occurred_values
 
     def pp36_exe(df):
         failed_inspections_7eleven = df[(df['DBA Name'].str.lower() == '7-eleven'.lower()) & (df['Results'].str.lower() == 'fail')].to_json()
@@ -309,10 +311,15 @@ class QExecute:
         """
         # Group by City and calculate total loan amounts
         city_loan_totals = df.groupby('City').agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
+        print(city_loan_totals)
 
         # Sort by Total Loan Amount in descending order
         top_cities = city_loan_totals.sort_values(by='TotalLoanAmount', ascending=False)
-        return top_cities['City'][0]
+        print(top_cities['City'][0])
+        print(top_cities)
+        print(top_cities.iloc[0]['City'])
+        # return top_cities['City'][0]
+        return top_cities.iloc[0]['City']
     
     def pp77_exe(df):
         """
@@ -323,7 +330,7 @@ class QExecute:
 
         # Sort by Total Loan Amount in ascending order
         lowest_cities = city_loan_totals.sort_values(by='TotalLoanAmount', ascending=True)
-        return lowest_cities['City'][0]
+        return lowest_cities.iloc[0]['City']
     
     def pp78_exe(df):
         """
@@ -334,7 +341,7 @@ class QExecute:
 
         # Sort by Total Loan Amount in descending order
         highest_zip_codes = zip_loan_totals.sort_values(by='TotalLoanAmount', ascending=False)
-        return str(highest_zip_codes['Zip'][0])
+        return str(highest_zip_codes.iloc[0]['Zip'])
     
     def pp79_exe(df):
         """
@@ -345,7 +352,7 @@ class QExecute:
 
         # Sort by Total Loan Amount in descending order
         lowest_zip_codes = zip_loan_totals.sort_values(by='TotalLoanAmount', ascending=True)
-        return str(lowest_zip_codes['Zip'][0])
+        return str(lowest_zip_codes.iloc[0]['Zip'])
     
     def pp80_exe(df):
         """
@@ -356,7 +363,7 @@ class QExecute:
 
         # Sort by Total Loan Amount in descending order
         highest_race = race_loan_totals.sort_values(by='TotalLoanAmount', ascending=False)
-        return highest_race['RaceEthnicity'][0]
+        return highest_race.iloc[0]['RaceEthnicity']
     
     def pp81_exe(df):
         """
@@ -368,7 +375,7 @@ class QExecute:
 
         # Sort by Total Loan Amount in descending order
         lowest_race = race_loan_totals.sort_values(by='TotalLoanAmount', ascending=True)
-        return lowest_race['RaceEthnicity'][0]
+        return lowest_race.iloc[0]['RaceEthnicity']
     
     def pp87_exe(df):
         """
@@ -615,7 +622,8 @@ if __name__ == '__main__':
     ppp_df = pd.read_csv(ppp_gd)
     dish_df = pd.read_csv(dish_gd)
     
-    groundtruth_tag = False
+    # groundtruth_tag = False
+    groundtruth_tag = True
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/queries.csv')
@@ -625,7 +633,7 @@ if __name__ == '__main__':
     # model = "gemma2"
     model = "mistral"
     llm_folder = f"CoT.response/{model}/datasets_llm"
-    for query_id in range(111):
+    for query_id in range(0,111):
         row = query_contents[query_contents['ID'] == query_id]
 
         if len(row) == 0:
@@ -641,7 +649,16 @@ if __name__ == '__main__':
                 target_path = f'/projects/bces/lanl2/LLM4DC/datasets/chi_food_inspection_datasets/cleaned_tables/chi_sample_p{query_id}.csv'
             elif query_id <31:
                 target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/menu/menu_p{query_id}.csv'
-        else: 
+        elif model == "llama3.1": 
+            if query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/ppp_test_{query_id}.csv'
+            elif query_id >= 92:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/dish_test_{query_id}.csv'
+            elif query_id >= 31 and query_id <= 61:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/chi_test_{query_id}.csv'
+            elif query_id <31:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/menu_test_{query_id}.csv'
+        else:
             if query_id >= 62 and query_id <= 91:
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_ppp_test_{query_id}.csv'
             elif query_id >= 92:
@@ -659,10 +676,10 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        # with open('answer_65-110.json', 'a') as f:
+        # with open('answer_1-110_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        with open(f'answer_1-110_{model}.json', 'a') as f:
-            f.write(json.dumps(result_single))
-            f.write('\n')
+        # with open(f'answer_1-110_{model}.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
         

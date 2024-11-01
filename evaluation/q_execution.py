@@ -68,7 +68,7 @@ class QExecute:
         sponsor_dish_counts = df.groupby('sponsor')['dish_count'].sum()
         # Find the sponsor(s) with the highest number of dishes
         highest_dish_count = sponsor_dish_counts.max()
-        top_sponsors = sponsor_dish_counts[sponsor_dish_counts == highest_dish_count].tolist()
+        top_sponsors = sponsor_dish_counts[sponsor_dish_counts == highest_dish_count].index.tolist()
         return top_sponsors
 
     def pp15_exe(df):
@@ -86,7 +86,7 @@ class QExecute:
     def pp18_exe(df):
         sponsor_event_counts = df.groupby('sponsor')['event'].count()
         # Filter sponsors with two or more events
-        multiple_events_sponsors = sponsor_event_counts[sponsor_event_counts >= 2].to_json()
+        multiple_events_sponsors = sponsor_event_counts[sponsor_event_counts >= 2].index.tolist()
         return multiple_events_sponsors
 
     def pp31_exe(df):
@@ -124,7 +124,7 @@ class QExecute:
         return least_occurred_values
 
     def pp36_exe(df):
-        failed_inspections_7eleven = df[(df['DBA Name'].str.lower() == '7-eleven'.lower()) & (df['Results'].str.lower() == 'fail')].to_json()
+        failed_inspections_7eleven = df[(df['DBA Name'].str.lower() == '7-eleven'.lower()) & (df['Results'].str.lower() == 'fail')]['Inspection ID'].tolist()
         return failed_inspections_7eleven
 
     def pp37_exe(df):
@@ -406,7 +406,7 @@ class QExecute:
         geo_distribution = df.groupby(['City', 'State', 'Zip']).agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
         geo_distribution = geo_distribution.loc[geo_distribution['TotalLoanAmount'].idxmax()]
         # geo_distribution = geo_distribution.sort_values(by='TotalLoanAmount', ascending=False)
-        return geo_distribution[['City', 'State', 'Zip']].to_json()
+        return [str(x) for x in geo_distribution[['City', 'State', 'Zip']].tolist()]
     
     def pp92_exe(df):
         """
@@ -623,15 +623,19 @@ if __name__ == '__main__':
     dish_df = pd.read_csv(dish_gd)
     
     # groundtruth_tag = False
-    groundtruth_tag = True
+    dirty_tag = False
+    groundtruth_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/queries.csv')
-
+    # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
     # model = "gemma2"
     model = "mistral"
+    model = "llama3.1_1"
+    # model = "mistral:7b-instruct"
+    # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
     for query_id in range(0,111):
         row = query_contents[query_contents['ID'] == query_id]
@@ -658,6 +662,16 @@ if __name__ == '__main__':
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/chi_test_{query_id}.csv'
             elif query_id <31:
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/menu_test_{query_id}.csv'
+        elif dirty_tag:
+            print('dirty data loading...')
+            if query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/ppp_data_p{query_id}.csv'
+            elif query_id >= 92:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/dish_datasets/dish_data_p{query_id}.csv'
+            elif query_id >= 31 and query_id <= 61:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/chi_food_inspection_datasets/chi_food_data_p{query_id}.csv'
+            elif query_id <31:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/menu/menu_data.csv'
         else:
             if query_id >= 62 and query_id <= 91:
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_ppp_test_{query_id}.csv'
@@ -667,6 +681,7 @@ if __name__ == '__main__':
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_chi_test_{query_id}.csv'
             elif query_id <31:
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_menu_test_{query_id}.csv'
+        print(target_path)
         target_df = pd.read_csv(target_path)
         
         answer = getattr(qexecute, func)(target_df)
@@ -676,10 +691,10 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        # with open('answer_1-110_gt.json', 'a') as f:
+        # with open('answer_1-110_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        # with open(f'answer_1-110_{model}.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
+        with open(f'answer_1-110_{model}.json', 'a') as f:
+            f.write(json.dumps(result_single))
+            f.write('\n')
         

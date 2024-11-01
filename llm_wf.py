@@ -607,10 +607,10 @@ def test_main():
     "gemma2",
     "mistral"
     ]
-    # model = "llama3.1:8b-instruct-fp16"
-    model = "mistral:7b-instruct"
+    model = "llama3.1:8b-instruct-fp16"
+    # model = "mistral:7b-instruct"
     # model = "mistral" 
-    model_name = model.split(':')[0]
+    model_name = f"{model.split(':')[0]}_test"
     log_dir = f"CoT.response/{model_name}/logging"
     os.makedirs(log_dir, exist_ok=True)
 
@@ -626,7 +626,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[10:].iterrows():
+    for index, row in pp_df.iloc[18:19].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -638,7 +638,7 @@ def test_main():
             ds_file = "datasets/menu_data.csv"
         elif 31<= pp_id <=61:
             ds_name = "chi_test"
-            ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}.csv"
+            ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}_test.csv"
         elif 62<=pp_id<=91:
             ds_name = "ppp_test"
             ds_file = f"datasets/ppp_datasets/ppp_data_p{pp_id}.csv"

@@ -200,31 +200,74 @@ def extract_exp(content, refs=None):
             return False
 
 
-def gen(prompt, context, model, options={'temperature':0.0}):
-    """
-    options ref: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values 
-    {'temperature':
-    'stop':
-    'num_predict':
-    'top_p'
-    'mirostat': 0(default), 1(mirostat1),2(mirostat2)
-    }
-    """
-    r = generate(model=model, 
-                 prompt=prompt, 
-                 context=context,
-                 options=options,
-                stream=True
-                )
-    res=[]
+# def gen(prompt, context, model, options={'temperature':0.0}):
+#     """
+#     options ref: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values 
+#     {'temperature':
+#     'stop':
+#     'num_predict':
+#     'top_p'
+#     'mirostat': 0(default), 1(mirostat1),2(mirostat2)
+#     }
+#     """
+#     r = generate(model=model, 
+#                  prompt=prompt, 
+#                  context=context,
+#                  options=options,
+#                 stream=True
+#                 )
+#     res=[]
     
-    for part in r:
-        response_part = part['response']
-        res.append(response_part)
-        if part['done'] is True:
-            return part['context'], ''.join(res)
-    raise ValueError
+#     for part in r:
+#         response_part = part['response']
+#         res.append(response_part)
+#         if part['done'] is True:
+#             return part['context'], ''.join(res)
+#     raise ValueError
 
+
+def gen(prompt, context, model,options={'temperature':0.0}):
+    """
+    Send a POST request to generate a response based on the provided prompt and context.
+
+    Parameters:
+        prompt (str): The input prompt for the generation.
+        context (str): The context to be used for the generation.
+        model (str): The model to be used for the generation. Defaults to 'default-model'.
+
+    Returns:
+        str: The context from the response if generation is done.
+
+    Raises:
+        Exception: If there is an error in the response.
+    """
+    r = requests.post('http://localhost:11434/api/generate',
+                      json={
+                          'model': model,
+                          'prompt': prompt,
+                          'context': context,
+                          'options': options,
+                      },
+                      stream=True)
+    print(f'response: {r}')
+    r.raise_for_status()
+    
+    res = []
+    for line in r.iter_lines():
+        body = json.loads(line)
+        response_part = body.get('response', '')
+        # the response streams one token at a time, print that as we receive it
+        # print(response_part, end='', flush=True)
+        res.append(response_part)
+        print(response_part, end='', flush=True)
+        # log_f.write(response_part)
+
+        if 'error' in body:
+            raise Exception(body['error'])
+
+        if body.get('done', False):
+            return body['context'], ''.join(res)
+        
 
 # parse edits by LLMs into a list
 def parse_edits(raw_string):
@@ -559,69 +602,6 @@ def create_projects(project_name, ds_fp):
     _, proj_id = create_project(data_fp=ds_fp, project_name=project_name)
     return proj_id
 
-def main():
-    # model = "llama3.2"
-    model = "llama3.1:8b-instruct-fp16"
-    log_dir = "CoT.response"
-    os.makedirs(log_dir, exist_ok=True)
-
-    pp_par_folder = "purposes"
-    # purpose_file = ["menu_about", "ppp_about", "dish_about", "chi_food_inspect_about"]
-    purpose_file = ["menu_about"]
-    pp_paths = [f"{pp_par_folder}/{file}.csv" for file in purpose_file]
-
-    ds_par_folder = "datasets"
-    # ds_file = ["menu_data", "ppp_data", "dish_data", "chi_food_data"]
-    ds_file = ["menu_data"]
-    ds_paths = [f"{ds_par_folder}/{file}.csv" for file in ds_file]
-    
-    # start from menu
-    rounds = list(range(len(pp_paths))) #[0,1,2,3]
-
-    for round in rounds:
-        # Four datasets: Four rounds
-        pp_f = pp_paths[round]
-        ds = ds_paths[round]
-        ds_name = ds_file[round]
-        pp_df = pd.read_csv(pp_f)
-        logs = []
-        for index, row in pp_df.iterrows():
-            timestamp = datetime.now()
-            timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
-            print(timestamp_str)
-            pp_id = row['ID']
-            pp_v = row['Purposes']
-            print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
-            project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
-            log_data = {
-                "ID": pp_id,
-                "Purposes": pp_v,
-                "Columns": [],
-                "Operations": [],
-                "Error_Running":[]
-            }
-            proj_names_list = extract_proj_names()
-            if project_name in proj_names_list:
-                print(f"Project {project_name} already exists!")
-                print(project_name)
-                project_id = get_project_id(project_name)
-                ops_history, funcs = export_ops_list(project_id)
-                # if ops_history:
-                #     print(f"Data cleaning task has been finished in {project_id}: {project_name}")
-                #     pass
-                # else:
-                wf_res, log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
-                logs.append(log_data)
-            else:
-                project_id = create_projects(project_name, ds)
-                print(f"Project {project_name} creation finished.")
-                wf_res, log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
-                logs.append(log_data)
-            # log_file = open(, "w")
-            # Initialize empty log data
-            with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
-                json.dump(log_data, log_f, indent=4)
-
 
 def pull_datasets():
     parent_folder = "CoT.response/datasets_llm"
@@ -629,7 +609,6 @@ def pull_datasets():
     for proj_id, v in projects.items():
         dataset_name = v['name']
         project_id = int(proj_id)
-        print(dataset_name)
         df = export_intermediate_tb(project_id)
         filepath = f"{parent_folder}/{dataset_name}"
         # if not os.path.exists(filepath):
@@ -651,12 +630,11 @@ def pull_recipes():
         else:
             print(f"{filepath} Has Been Existed!")
 
-def test_main():
+def user_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
     # ollama.pull(model)
     logging.basicConfig(filename='my_log.log', level=logging.DEBUG) # TODO: change filename 
     logging.info('Hello, world!')
-
 
     models = [
     "llama3.1:8b-instruct-fp16" ,
@@ -669,15 +647,15 @@ def test_main():
     log_dir = "CoT.response"
     os.makedirs(log_dir, exist_ok=True)
 
-    pp_f = 'purposes/pp_instance_level.csv'
+    pp_f = 'purposes/q_user.csv'
     pp_df = pd.read_csv(pp_f)
     
-    # ds_file = "datasets/menu_data.csv"
+    ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[39:40].iterrows():
-        timestamp = datetime.now()
-        timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
-        print(timestamp_str)
+    for index, row in pp_df.iloc[:].iterrows():
+        # timestamp = datetime.now()
+        # timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
+        # print(timestamp_str)
         pp_id = row['ID']
         pp_v = row['Purposes']
         print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
@@ -714,18 +692,7 @@ def test_main():
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
             log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
-        # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
-        #     json.dump(log_data, log_f, indent=4)
-        with open(f"{log_dir}/{ds_name}_{pp_id}_log.txt", "w") as log_f:
-            json.dump(log_data, log_f, indent=4)
-    
-    # Download all the prepared datasets
-    pull_datasets()
-    pull_recipes()
 
 if __name__ == '__main__':
-    # pull_recipes()
-    # pull_datasets()
-    test_main()
-    # main()
+    user_main()
     

@@ -293,6 +293,47 @@ def parse_edits(raw_string):
     return parsed_edits
 
 
+def case_checking(col_content):
+    """This function is to check whether the case formats in a column
+    are consistent"""
+     # Drop null values
+    column_values = col_content.dropna()
+    # Ensure all values are strings for case checks
+    column_values = column_values.astype(str)
+
+    # Initialize counters
+    total = len(column_values)
+    uppercase_count = column_values.apply(str.isupper).sum()
+    lowercase_count = column_values.apply(str.islower).sum()
+    mixed_count = total - uppercase_count - lowercase_count
+
+    # If all are uppercase or lowercase, return 1
+    if uppercase_count == total or lowercase_count == total:
+        return 1
+
+    # Calculate ratios
+    return {
+        "uppercase": uppercase_count / total,
+        "lowercase": lowercase_count / total,
+        "mixed": mixed_count / total
+    }
+
+
+def profiling(col_content):
+    """This function is to profiling current intermediate table
+    Input: current intermediate table(column); Purpose
+    Output: data profiling results in a string [will be used for prompting]
+    """
+    format_ratio = case_checking(col_content)
+    if format_ratio == 1:
+        format_report = "Case format is consistent"
+    else:
+        format_report = f"Case format is inconsistent: {format_ratio}"
+    comp_ratio = (len(col_content) - len(col_content.isnull())) / len(col_content)
+    uniq_ratio = len(col_content.unique()) / len(col_content)
+
+    return f""" {format_report}, Completeness ratio: {comp_ratio}, Uniqueness ratio: {uniq_ratio} """
+
 def wf_gen(project_id, log_data, model, purpose):
     df = export_intermediate_tb(project_id) # Return current intermediate table
     tb_str = gen_table_str(df, num_rows=10)
@@ -431,6 +472,9 @@ Selected Operation:
             _, eod_desc = gen(prompt_eod, [], model, {'temperature': 0.2}) #clear out context
             prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
             _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], model, {'temperature': 0.2, 'top_p': 0.95})
+            profile_report = profiling(df[sel_col])
+            print(f'Profiling report: {profile_report}')
+            raise NotImplementedError
             # Regular expression to extract the desired sentence
             # eod_pattern= r"Next operation:\s*(.*?)\."
             print(one_sent_eod_desc)

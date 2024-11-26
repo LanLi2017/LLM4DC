@@ -535,6 +535,7 @@ Explanations:
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
             cur_col = cur_df[sel_col]
+            profile_report = profiling(cur_col)
             cur_col_str = gen_table_str(cur_df, num_rows=30, tg_col=sel_col)
             ops_history, functions_list = export_ops_list(project_id, st)
             functions_list = parse_text_transform(ops_history, functions_list)

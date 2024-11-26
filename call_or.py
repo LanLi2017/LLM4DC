@@ -254,6 +254,14 @@ def get_operations(project_id):
     return refine.RefineProject(refine.RefineServer(),project_id).get_operations()
 
 
+def list_history(project_id):
+    return refine.RefineProject(refine.RefineServer(),project_id).list_history()
+
+
+def undo_redo(project_id, history_id):
+    return refine.RefineProject(refine.RefineServer(),project_id).undo_redo_project(history_id)
+
+
 def find(name,path):
     for root,dirs,files in os.walk(path,topdown=False):
         for fname in files:
@@ -312,12 +320,12 @@ def main():
     # name = get_project_name(project_id=2098024566597)
     # print(name)
     # res = list_projects()
-    res = extract_proj_names()
-    print(res)
-    
-    proj_id = get_project_id(project_name="menu_auto")
-    print(proj_id)
-    print(type(proj_id))
+
+    res = get_operations(1733674366037)
+    histories = list_history(1733674366037)['past']  # history id/ time/ desc
+    id_list = [0] + [his_id['id'] for his_id in histories]
+    # undo_redo(1733674366037, 1729795731030)
+    undo_redo(1733674366037, 1729796252209)
     # with open("datasets/menu_data.csv", "r")as f:
     #     data = f.read()
     #     print(data)

@@ -12,13 +12,13 @@ from datetime import datetime
 import pandas as pd
 import ast
 import random
+import logging 
 # from history_update_problem.call_or import export_rows
 from call_or import *
 
 import ollama
 from ollama import Client
 from ollama import generate
-import logging
 
 map_ops_func = {
 "core/column-split": split_column,
@@ -56,7 +56,7 @@ def parse_text_transform(ops_list, functions_list):
             elif exp=="value.toString()":
                 functions_list[idx] = "date"
             else:
-                raise NotImplementedError
+                return False
     return functions_list
 
 def export_intermediate_tb(project_id):
@@ -87,19 +87,22 @@ def format_sel_col(df):
         "columns": columns,
         "table_column_priority": col_priority
     }
-    format_res = json.dumps(res, indent=2)
-    print(format_res)
-    return format_res
+    # return json.dumps(res, indent=2)
+    return res
 
 
 def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     # Sample the first 'num_rows' rows
-    df = df.head(num_rows)
-    
+    num_rows = min(num_rows, len(df))
+    df = df.sample(n=num_rows)
+    dropna=True
+    max_length = 20
+
     # If no target column is specified, generate the full table
     if not tg_col:
         if flag:
             df = df[flag]
+            
         # Find the maximum length for each column for proper alignment
         col_widths = [max(len(str(col)), df[col].astype(str).map(len).max()) + 2 for col in df.columns]
 
@@ -118,6 +121,11 @@ def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     # If a target column is specified, return just that column's values
     else:
         column_values = df[tg_col]
+        if dropna:
+            column_values = column_values.replace("", float("NaN"))
+            column_values = column_values.dropna()
+        if len(column_values) >= max_length:
+            column_values = column_values.sample(n=max_length, random_state=42)
         formatted_output = [f"col: {tg_col}"]
         for i, value in enumerate(column_values, start=1):
             formatted_output.append(f"row {i}: {value}")
@@ -200,74 +208,31 @@ def extract_exp(content, refs=None):
             return False
 
 
-# def gen(prompt, context, model, options={'temperature':0.0}):
-#     """
-#     options ref: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values 
-#     {'temperature':
-#     'stop':
-#     'num_predict':
-#     'top_p'
-#     'mirostat': 0(default), 1(mirostat1),2(mirostat2)
-#     }
-#     """
-#     r = generate(model=model, 
-#                  prompt=prompt, 
-#                  context=context,
-#                  options=options,
-#                 stream=True
-#                 )
-#     res=[]
-    
-#     for part in r:
-#         response_part = part['response']
-#         res.append(response_part)
-#         if part['done'] is True:
-#             return part['context'], ''.join(res)
-#     raise ValueError
-
-
-def gen(prompt, context, model,options={'temperature':0.0}):
+def gen(prompt, context, model, options={'temperature':0.0}):
     """
-    Send a POST request to generate a response based on the provided prompt and context.
-
-    Parameters:
-        prompt (str): The input prompt for the generation.
-        context (str): The context to be used for the generation.
-        model (str): The model to be used for the generation. Defaults to 'default-model'.
-
-    Returns:
-        str: The context from the response if generation is done.
-
-    Raises:
-        Exception: If there is an error in the response.
+    options ref: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values 
+    {'temperature':
+    'stop':
+    'num_predict':
+    'top_p'
+    'mirostat': 0(default), 1(mirostat1),2(mirostat2)
+    }
     """
-    r = requests.post('http://localhost:11434/api/generate',
-                      json={
-                          'model': model,
-                          'prompt': prompt,
-                          'context': context,
-                          'options': options,
-                      },
-                      stream=True)
-    print(f'response: {r}')
-    r.raise_for_status()
+    r = generate(model=model, 
+                 prompt=prompt, 
+                 context=context,
+                 options=options,
+                stream=True
+                )
+    res=[]
     
-    res = []
-    for line in r.iter_lines():
-        body = json.loads(line)
-        response_part = body.get('response', '')
-        # the response streams one token at a time, print that as we receive it
-        # print(response_part, end='', flush=True)
+    for part in r:
+        response_part = part['response']
         res.append(response_part)
-        print(response_part, end='', flush=True)
-        # log_f.write(response_part)
+        if part['done'] is True:
+            return part['context'], ''.join(res)
+    raise ValueError
 
-        if 'error' in body:
-            raise Exception(body['error'])
-
-        if body.get('done', False):
-            return body['context'], ''.join(res)
-        
 
 # parse edits by LLMs into a list
 def parse_edits(raw_string):
@@ -282,13 +247,8 @@ def parse_edits(raw_string):
     
     # matches = re.findall(pattern, raw_string)
     # Parse the string using ast.literal_eval
-    # seperated_line = raw_string.split('\n')
-    # new_string = ''
-    # for line in seperated_line:
-    #     new_string += line.replace(r'^\#.*?', '') + '\n'
     raw_string.strip('python').strip('sql')
     parsed_edits = eval(raw_string)
-    # parsed_edits = ast.literal_eval(raw_string)
     
     return parsed_edits
 
@@ -296,6 +256,7 @@ def parse_edits(raw_string):
 def case_checking(col_content):
     """This function is to check whether the case formats in a column
     are consistent"""
+    # TODO: Capitalize percentage ...
      # Drop null values
     column_values = col_content.dropna()
     # Ensure all values are strings for case checks
@@ -313,9 +274,9 @@ def case_checking(col_content):
 
     # Calculate ratios
     return {
-        "uppercase": uppercase_count / total,
-        "lowercase": lowercase_count / total,
-        "mixed": mixed_count / total
+        "uppercase": float(uppercase_count / total),
+        "lowercase": float(lowercase_count / total),
+        "other": float(mixed_count / total)
     }
 
 
@@ -324,17 +285,21 @@ def profiling(col_content):
     Input: current intermediate table(column); Purpose
     Output: data profiling results in a string [will be used for prompting]
     """
-    format_ratio = case_checking(col_content)
-    if format_ratio == 1:
-        format_report = "Case format is consistent"
+    if col_content.dtype == "string":
+        format_ratio = case_checking(col_content)
+        if format_ratio == 1:
+            format_report = "consistent"
+        else:
+            format_report = format_ratio
     else:
-        format_report = f"Case format is inconsistent: {format_ratio}"
-    comp_ratio = (len(col_content) - len(col_content.isnull())) / len(col_content)
+        format_report = "NA"
+    comp_ratio = (len(col_content) - col_content.isnull().sum()) / len(col_content)
     uniq_ratio = len(col_content.unique()) / len(col_content)
 
-    return f""" {format_report}, Completeness ratio: {comp_ratio}, Uniqueness ratio: {uniq_ratio} """
+    return f""" case format ratio: {format_report}, completeness ratio: {comp_ratio}, uniqueness ratio: {uniq_ratio} """
 
-def wf_gen(project_id, log_data, model, purpose):
+
+def wf_gen(project_id, log_data, model, logging, purpose):
     df = export_intermediate_tb(project_id) # Return current intermediate table
     tb_str = gen_table_str(df, num_rows=10)
     av_cols = df.columns.to_list() # current column schema 
@@ -347,48 +312,68 @@ def wf_gen(project_id, log_data, model, purpose):
         sel_col_learn = f.read()
     print(f'current purpose: {purpose}')
     prompt_sel_col = sel_col_learn + f"""\
-\n\nBased on table contents and Purpose provided as following, output the Selected columns in ``` ```ONLY.
+\n\nBased on table contents and Purpose provided as following, output Selected columns. The Selected columns MUST BE a list and in ``` ```. 
 /*
 {format_sel_col(df)}
 */
 Purpose: {purpose}
 Selected columns:
                                     """
-    print(prompt_sel_col)
-
+    logging.info(f"#TASK I: select target columns: \n\n {prompt_sel_col}")
+    # print(prompt_sel_col)
     context, sel_col_desc = gen(prompt_sel_col, context, model)
+    logging.info(sel_col_desc)
     
     # print(f'description of selected column: {sel_col_desc}')
-    ext_res = extract_exp(sel_col_desc)[0]
-    print(ext_res)
-    ext_res = ext_res.strip('sql').strip('python')
-    tg_cols = ast.literal_eval(ext_res)
+    try:
+        ext_res = extract_exp(sel_col_desc)[0]
+        tg_cols = ast.literal_eval(ext_res)
+    except:
+        sel_col_str = sel_col_desc.replace("`", "")  # Remove backticks from both sides
+        tg_cols = ast.literal_eval(sel_col_str)
+        
+    # print(f'Target columns: {tg_cols}')
+    # ext_res = extract_exp(sel_col_desc)[0]
+    # print(ext_res)
+    # tg_cols = ast.literal_eval(ext_res)
+    tg_cols = [col for col in tg_cols if col in av_cols]
+
     print(f'Target columns: {tg_cols}')
 
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
     # Output: False/True
-    with open("prompts/eod.txt", 'r')as f0:
+    with open("prompts/dq_learn.txt", 'r')as f0:
         eod_learn = f0.read()
 
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
     
     while tg_cols:
+        ops_pool = ["upper", "trim", "mass_edit", "regexr_transform", "numeric", "date"]
         eod_flag = "False"
         sel_col = tg_cols[0]
         print(f'Current selected column: {sel_col} from the target column list: {tg_cols}')
         sum_eod = f"Generate proper operations to improve accuracy, completeness, conciseness of the column: {sel_col}"
         # st: start step id, [st:] is to chunk the functions_list on current sel_col ONLY
         st = 0
-        # Clean the column one by one
-        df = export_intermediate_tb(project_id) # Return current intermediate table
-        sel_cols_df = df[tg_cols]
+        count_empty = 0
+        options_sel_op = {
+                    'temperature': 0.1,
+                    # 'stop': ["\n\n\n\n"],
+                    'num_predict': -1,
+                    'top_k': 60,
+                    'top_p': 0.95,
+                    'mirostat': 1 #0(default), 1(mirostat1),2(mirostat2)
+                }
         while eod_flag == "False":
+
             # ```upper```,  ```trim```, ```add_column```, ```split_column```, ```mass_edit```,  ```regexr_transform```, , ```numeric```, and ```date```
             # ops_pool = ["upper", "trim", "add_column", "split_column", "mass_edit", "regexr_transform", "numeric", "date"]
-            ops_pool = ["upper", "trim", "mass_edit", "regexr_transform", "numeric", "date"]
             context = []
             eod_desc = False
+            # Clean the column one by one
+            df = export_intermediate_tb(project_id) # Return current intermediate table
+            sel_cols_df = df[tg_cols]
             col_values = df[sel_col]
             num_rows = len(df)
             av_cols = df.columns.to_list() # current column names list 
@@ -399,18 +384,16 @@ Selected columns:
             if functions_list:
                 functions_list = parse_text_transform(ops_history, functions_list)
                 print(f'Applied operation history: {functions_list}')
+                if 'trim' in functions_list:
+                    ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
             col_str = gen_table_str(df, num_rows=15, tg_col=sel_col) # only keep first 15 rows for operation selection
             sel_cols_str = gen_table_str(sel_cols_df, num_rows=15)
             print(f'Selected first {num_rows} rows for current table: {col_str}')
 
             # context-learn (full_chain_demo): how the previous operation are related to the current one
             # operation-learn (learn_ops.txt): when to select a proper operation 
-            with open('prompts/learn_ops.txt', 'r')as f_learn_ops:
+            with open('prompts/learn_ops_.txt', 'r')as f_learn_ops:
                 learn_ops = f_learn_ops.read()
-            # with open('prompts/learn_ops_lf.txt', 'r')as f_learn_ops:
-            #     learn_ops = f_learn_ops.read()
-            # with open('prompts/full_chain_demo.txt', 'r')as f_chain:
-            #     dynamic_plan = f_chain.read()
             
             prompt_sel_ops = learn_ops +\
                              f"""\
@@ -426,114 +409,113 @@ Selected Operation:
                               """
             print("----start-------")
             print(prompt_sel_ops)
+            logging.info(f"#TASK II: select operations: \n\n {prompt_sel_ops}")
 
-            options_sel_op = {
-                    'temperature': 0.1,
-                    'stop': ["Explanation:", "'','','',", ],
-                    'num_predict': -1,
-                    'top_k': 60,
-                    'top_p': 0.95,
-                    'mirostat': 1 #0(default), 1(mirostat1),2(mirostat2)
-                }
+            
             # TODO: Quality control
             context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
             print(sel_op_desc)
+            logging.info(f"\n\n{sel_op_desc}")
             sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
 
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]
-            if sel_op not in ['numeric', 'trim', 'upper', 'date', 'regexr_transform']:
-                args = get_function_arguments('call_or.py', sel_op)
-                args.remove('project_id')  # No need to predict project_id
-                args.remove('column')
-                print(f'Current args need to be generated: {args}')
-            elif sel_op == "regexr_transform":
-                args = get_function_arguments('call_or.py', 'text_transform')
-                args.remove('project_id')
-                args.remove('column')
-            else:
-                print(f'No arguments need to generate for {sel_op}')
-            
-            with open(f'prompts/{sel_op}.txt', 'r') as f1:
-                prompt_sel_args = f1.read()
+            if not sel_op:
+                count_empty += 1
+                print('count empty selected ops')
+                options_sel_op = {
+                    'temperature': 0.3,
+                    'stop': ["\n\n\n\n"],
+                    'num_predict': -1,
+                    'top_k': 60,
+                    'top_p': 0.95,
+                    'mirostat': 1 #0(default), 1(mirostat1),2(mirostat2)
+                }
+            if sel_op:
+                
+                if sel_op not in ['numeric', 'trim', 'upper', 'date', 'regexr_transform']:
+                    args = get_function_arguments('call_or.py', sel_op)
+                    args.remove('project_id')  # No need to predict project_id
+                    args.remove('column')
+                    print(f'Current args need to be generated: {args}')
+                elif sel_op == "regexr_transform":
+                    args = get_function_arguments('call_or.py', 'text_transform')
+                    args.remove('project_id')
+                    args.remove('column')
+                else:
+                    print(f'No arguments need to generate for {sel_op}')
+                
+                with open(f'prompts/{sel_op}.txt', 'r') as f1:
+                    prompt_sel_args = f1.read()
 
             # Prepare the operation purpose
-            prompt_eod = eod_learn + f"""
-                                        \n\nBased on table contents, Objective, and Flag provided as following, output Explanations.
-                                        /*
-                                        {col_str}
-                                        */
+            profile_report = profiling(df[sel_col])
+            prompt_eod = eod_learn + f"""\
+\n\nBased on table contents, Objective, Profiling results and Flag provided as following, output Explanations.
+/*
+{col_str}
+*/
 
-                                        Objective: {purpose}
-                                        Flag: ```False```
-                                        Explanations: 
-                                        """
+Objective: {purpose}
+Target column: {sel_col}
+Profiling results:{profile_report}
+Flag: ```False```
+Explanations: 
+                                            """
             _, eod_desc = gen(prompt_eod, [], model, {'temperature': 0.2}) #clear out context
             prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
             _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], model, {'temperature': 0.2, 'top_p': 0.95})
-            profile_report = profiling(df[sel_col])
-            print(f'Profiling report: {profile_report}')
-            raise NotImplementedError
             # Regular expression to extract the desired sentence
             # eod_pattern= r"Next operation:\s*(.*?)\."
             print(one_sent_eod_desc)
+            logging.info(f'data cleaning objectives: {one_sent_eod_desc}')
             eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
             # Search for the pattern in the text
             eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
             # Extract the matched sentence if found
             sum_eod = eod_match.group(1).strip() + '.' if eod_match else one_sent_eod_desc
             print(sum_eod)
-            
+                    
             # >>>>Start Arguments Generation>>>>
             context = []
-            if sel_op == 'split_column':
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output Separator in ``` ``` . """\
-                                + f"""
-                                    /*
-                                    {col_str}
-                                    */
-                                    Purpose: {purpose}
-                                    Current Operation Purpose: {sum_eod}
-                                    Separator: 
-                                    """
-                context, sep_desc = gen(prompt_sel_args, context, model)
-                sep = extract_exp(sep_desc)
-                print(f'Predicted separator for operation split column: {sep}')
-                sel_args= {'column':sel_col, 'separator':sep}
-                split_column(project_id, **sel_args)
-            elif sel_op == 'add_column':
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression and new_column separately in ``` ```."""\
-                                    +f"""
-                                    /*
-                                    {col_str}
-                                    */
-                                    Purpose: {purpose}
-                                    Current Operation Purpose: {sum_eod}
-                                    Expression:, New_column:
-                                    """
-                context, res_dict_desc = gen(prompt_sel_args, context, model)
-                [exp, new_col] = extract_exp(res_dict_desc)
-                print(f"Expression of add_column: {exp}, New column created: {new_col}")
-                sel_args = {'column': sel_col, 'expression': exp, 'new_column': new_col} 
-                add_column(project_id, column=sel_col, expression=exp, new_column=new_col)
-            elif sel_op == 'regexr_transform':
+            if sel_op == 'regexr_transform':
+                with open('prompts/regexr_transform_m.txt', 'r') as f1:
+                    prompt_sel_args = f1.read()
                 # tb_str = gen_table_str(df, num_rows=50, tg_col=sel_col)
                 col_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression in ``` ``` (Ensure the expression format statisifies ALL requirements in the **Check**). """ \
-                                    +f"""
-                                    /*
-                                    {col_str}
-                                    */
-                                    Purpose: {purpose}
-                                    Current Operation Purpose: {sum_eod}
-                                    Expression: 
+                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output Expression in ``` ``` (Ensure the expression format statisifies ALL requirements in the **Check**). """ \
+                                    +f"""\
+/*
+{col_str}
+*/
+Current Operation Purpose: {sum_eod}
+Expression: 
                                     """
                 # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
+
                 context, exp_desc = gen(prompt_sel_args, context, model)
-                exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
-                print(f'********predicted expression: {exp}')
-                text_transform(project_id, column=sel_col, expression=exp)
+                logging.info(f"#TASK III: generate regexr arguments: \n\n {exp_desc}")
+                exp_content = extract_exp(exp_desc)[0]
+                while not exp_content.startswith('jython'):
+                      context = []
+                      prompt_sel_args += """The generated expression does not fullfill the Check, please regenerate....
+                                              Expression MUST BE (**Check**):
+                                            (1). Starts with "jython:"
+                                            (2). "value" parameter is already refer to a single cell value. (DO NOT USE "for" loop to process the cell values.)
+                                            (3). DO NOT manually input text data or Write PROGRAM directly implement the Purpose.
+                                            (4). Function or Module used in the code is working on a single cell ("value"), instead of the whole column. And Code implemented is correct
+                                            (5). Ends with "return" statement and updated "value" transformed by the function.
+                                            """
+                      context, exp_desc = gen(prompt_sel_args, context, model)
+                     
+                if extract_exp(exp_desc):
+                    exp_content = extract_exp(exp_desc)[0]
+                    exp = exp_content.replace('jython\n', 'jython:')+ '\nreturn value'
+                    print(f'********predicted expression: {exp}')
+                    text_transform(project_id, column=sel_col, expression=exp)
+                else:
+                    pass
             elif sel_op == 'numeric':
                 text_transform(project_id, column=sel_col, expression="value.toNumber()")
             elif sel_op == 'date':
@@ -546,9 +528,9 @@ Selected Operation:
             elif sel_op == 'mass_edit':
                 # sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
                 # sum_edo = sum_eod.replace('\n', ' ')
-                col_str = gen_table_str(df, num_rows=num_rows, flag=['City', 'Zip', 'State'])
-                print(col_str)
-                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```."""\
+                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
+                # print(col_str)
+                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```. DO NOT add any comments in the list!"""\
                                 + f"""\n
 /*
 {col_str}
@@ -557,34 +539,37 @@ Purpose: {purpose}
 Current Operation Purpose: {sum_eod}
 edits: 
 """
-#                 prompt_sel_args += """\n\nBased on the following table contents, Purpose, and Current Operation Objective, generate the JSON format **edits** ONLY in ```  ````.""" \
-#                     + f"""\n
-# /*
-# {col_str}
-# */
-# Purpose: {purpose}
-# Current Operation Objective: {sel_op_desc}
-# edits: """
                 print("prompts for generating edits:")
                 print(prompt_sel_args)
                 options = {
                     'temperature': 0.2,
+                    'stop':['\n\n\n']
                 }
-                try:
-                    context, edits_desc = gen(prompt_sel_args, context, model, options)
-                    edits_v = extract_exp(edits_desc)
-                    print(f'descriptions for edits: \n\n {edits_desc}')
+                context, edits_desc = gen(prompt_sel_args, context, model, options)
+                   
+                    # print(f'descriptions for edits: \n\n {edits_desc}')
+                    # logging.info(f"#TASK III: generate mass_edit arguments: \n\n {edits_desc}")
                 
+                    # if edits_v:
+                        # edits_v = edits_v[0].replace("edits: ", "")
+                try:
+                    edits_v = ast.literal_eval(edits_desc)
+                    mass_edit(project_id, column=sel_col, edits=edits_v)
+                except:
+                    edits_v = extract_exp(edits_desc)
                     if edits_v:
                         edits_v = edits_v[0].replace("edits: ", "")
-                        print('edits_v_before parsed, ', edits_v)
                         edits_v = parse_edits(edits_v)
-                        print('parsed edits', edits_v)
                         mass_edit(project_id, column=sel_col, edits=edits_v)
                     else: 
                         print('No edits are parsed')
-                except:
+                else:
                     pass
+                
+                #     else: 
+                #         print('No edits are parsed')
+                # except:
+                #     pass
                 # raise NotImplementedError
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
@@ -601,17 +586,21 @@ edits:
             cur_col_str = gen_table_str(cur_df, num_rows=30, tg_col=sel_col)
             ops_history, functions_list = export_ops_list(project_id, st)
             functions_list = parse_text_transform(ops_history, functions_list)
+            print(functions_list)
             log_data['Operations'] = functions_list
             print(f"start id: {st}; column: {sel_col}; column schema gets modified: {diff}; \nfunctions list: {functions_list}")
 
             # TASK VI:
             # Keep passing intermediate table and data cleaning objective, until eod_flag is True. End the iteration.
+            profile_report = profiling(cur_col)
             iter_prompt = eod_learn + f"""
                                     \n\nBased on table contents and Objective provided as following, output Flag in ``` ```.
                                     /*
                                     {cur_col_str}
                                     */
                                     Objective: {purpose}
+                                    Target column: {sel_col}
+                                    Profiling results: {profile_report}
                                     Flag:
                                     """
             eod_flag_list = []
@@ -621,7 +610,8 @@ edits:
                 eod_flag = extract_exp(eod_desc, ['False', 'True'])
                 eod_flag_list.append(eod_flag)
                 eod_desc_list.append(eod_desc)
-            if any([x == "True" for x in eod_flag_list]):
+            thread_length = 8 # the longest number of steps on a single column
+            if any([x == "True" for x in eod_flag_list]) or len(functions_list)>thread_length:
                 eod_flag = "True"
                 ops_data += functions_list # appending the operations if done...
                 ops_gen[sel_col] = functions_list #TODO... the functions_list are the whole...    
@@ -630,6 +620,9 @@ edits:
                 eod_flag  = "False"
                 mask = [int(x == "False") for x in eod_flag_list]
                 eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
+                logging.info(f"#TASK IV: data quality inspection: \n\n {eod_desc}")
+            if count_empty >= 5:
+                eod_flag = "True"
                 
             print(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
         log_data['Columns'].append(sel_col)
@@ -646,21 +639,85 @@ def create_projects(project_name, ds_fp):
     _, proj_id = create_project(data_fp=ds_fp, project_name=project_name)
     return proj_id
 
+def main():
+    # model = "llama3.2"
+    model = "llama3.1:8b-instruct-fp16"
+    log_dir = "CoT.response"
+    os.makedirs(log_dir, exist_ok=True)
 
-def pull_datasets():
-    parent_folder = "CoT.response/datasets_llm"
+    pp_par_folder = "purposes"
+    # purpose_file = ["menu_about", "ppp_about", "dish_about", "chi_food_inspect_about"]
+    purpose_file = ["menu_about"]
+    pp_paths = [f"{pp_par_folder}/{file}.csv" for file in purpose_file]
+
+    ds_par_folder = "datasets"
+    # ds_file = ["menu_data", "ppp_data", "dish_data", "chi_food_data"]
+    ds_file = ["menu_data"]
+    ds_paths = [f"{ds_par_folder}/{file}.csv" for file in ds_file]
+    
+    # start from menu
+    rounds = list(range(len(pp_paths))) #[0,1,2,3]
+
+    for round in rounds:
+        # Four datasets: Four rounds
+        pp_f = pp_paths[round]
+        ds = ds_paths[round]
+        ds_name = ds_file[round]
+        pp_df = pd.read_csv(pp_f)
+        logs = []
+        for index, row in pp_df.iterrows():
+            timestamp = datetime.now()
+            timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
+            print(timestamp_str)
+            pp_id = row['ID']
+            pp_v = row['Purposes']
+            print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
+            project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
+            log_data = {
+                "ID": pp_id,
+                "Purposes": pp_v,
+                "Columns": [],
+                "Operations": [],
+                "Error_Running":[]
+            }
+            proj_names_list = extract_proj_names()
+            if project_name in proj_names_list:
+                print(f"Project {project_name} already exists!")
+                print(project_name)
+                project_id = get_project_id(project_name)
+                ops_history, funcs = export_ops_list(project_id)
+                # if ops_history:
+                #     print(f"Data cleaning task has been finished in {project_id}: {project_name}")
+                #     pass
+                # else:
+                wf_res, log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+                logs.append(log_data)
+            else:
+                project_id = create_projects(project_name, ds)
+                print(f"Project {project_name} creation finished.")
+                wf_res, log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+                logs.append(log_data)
+            # log_file = open(, "w")
+            # Initialize empty log data
+            with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
+                json.dump(log_data, log_f, indent=4)
+
+
+def pull_datasets(model_name):
+    parent_folder = f"CoT.response/{model_name}/datasets_llm"
     projects = list_projects()
     for proj_id, v in projects.items():
         dataset_name = v['name']
         project_id = int(proj_id)
+        print(dataset_name)
         df = export_intermediate_tb(project_id)
         filepath = f"{parent_folder}/{dataset_name}"
         # if not os.path.exists(filepath):
         df.to_csv(f"{parent_folder}/{dataset_name}.csv")
 
 
-def pull_recipes():
-    parent_folder = "CoT.response/recipes_llm"
+def pull_recipes(model_name):
+    parent_folder = f"CoT.response/{model_name}/recipes_llm"
     projects = list_projects()
     for proj_id, v in projects.items():
         dataset_name = v['name']
@@ -668,38 +725,48 @@ def pull_recipes():
         print(dataset_name)
         data = get_operations(project_id)
         filepath = f"{parent_folder}/{dataset_name}.json"
-        if not os.path.exists(filepath):
-           with open(filepath, "w") as workflow:
-                json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-        else:
-            print(f"{filepath} Has Been Existed!")
+        with open(filepath, "w") as workflow:
+            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        # if not os.path.exists(filepath):
+        #    with open(filepath, "w") as workflow:
+        #         json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        # else:
+        #     print(f"{filepath} Has Been Existed!")
 
-def user_main():
+def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
     # ollama.pull(model)
-    logging.basicConfig(filename='my_log.log', level=logging.DEBUG) # TODO: change filename 
-    logging.info('Hello, world!')
-
     models = [
     "llama3.1:8b-instruct-fp16" ,
     "llama3.2",
     "phi3",
     "gemma2",
     "mistral"
+    "gemma2:27b"
     ]
-    model = "llama3.1:8b-instruct-fp16"
-    log_dir = "CoT.response"
+    # model = "gemma2:27b"
+    model = "mistral:7b-instruct"
+    model_name = model.split(':')[0]
+
+    # ollama.pull(model)
+    log_dir = f"CoT.response/{model_name}/"
     os.makedirs(log_dir, exist_ok=True)
 
-    pp_f = 'purposes/q_user.csv'
+    pp_f = 'purposes/queries.csv'
     pp_df = pd.read_csv(pp_f)
+
+    ds_dir = f"CoT.response/{model_name}/datasets_llm"
+    os.makedirs(ds_dir, exist_ok=True)
+
+    recipe_dir = f"CoT.response/{model_name}/recipes_llm"
+    os.makedirs(recipe_dir, exist_ok=True)
     
-    ds_file = "datasets/menu_data.csv"
+    # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:].iterrows():
-        # timestamp = datetime.now()
-        # timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
-        # print(timestamp_str)
+    for index, row in pp_df.iloc[-1:].iterrows():
+        timestamp = datetime.now()
+        timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
+        print(timestamp_str)
         pp_id = row['ID']
         pp_v = row['Purposes']
         print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
@@ -708,15 +775,20 @@ def user_main():
             ds_file = "datasets/menu_data.csv"
         elif 31<= pp_id <=61:
             ds_name = "chi_test"
-            ds_file = "datasets/chi_food_data.csv"
+            ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}.csv"
         elif 62<=pp_id<=91:
             ds_name = "ppp_test"
-            ds_file = "datasets/ppp_data_20.csv"
+            ds_file = f"datasets/ppp_datasets/ppp_data_p{pp_id}.csv"
         elif pp_id > 91:
             ds_name = "dish_test"
-            ds_file = "datasets/dish_data.csv"
+            ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
-        project_name = f"{ds_file.split('/')[-1].split('.')[0]}_{pp_id}"
+        #TODO: logging file name 
+        logging_name = f"CoT.response/{model.split(':')[0]}/logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
+        logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
+        
+        #TODO: project name 
+        project_name = f"{model.split(':')[0]}_{ds_name}_{pp_id}"
         log_data = {
             "ID": pp_id,
             "Purposes": pp_v,
@@ -728,15 +800,42 @@ def user_main():
         project_id = None
         if project_name in proj_names_list:
             print(f"Project {project_name} already exists!")
+            logging.info(f'Project {project_name} already exists!')
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
-            log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model,logging, purpose=pp_v)
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
-            log_data = wf_gen(project_id, log_data, model, purpose=pp_v)
+            logging.info(f"Project {project_name} creation finished.")
+            log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
+        # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
+        #     json.dump(log_data, log_f, indent=4)
+
+        #TODO: annotated operation file
+        with open(f"{log_dir}/operation/{ds_name}_{pp_id}_log.txt", "w") as log_f:
+            json.dump(log_data, log_f, indent=4)
+        
+        # download dataset 
+        df = export_intermediate_tb(project_id)
+        ds_path = f"{ds_dir}/{project_name}.csv"
+        df.to_csv(ds_path)
+        
+        # download recipes 
+        data = get_operations(project_id)
+        recipe_path = f"{recipe_dir}/{project_name}.json"
+        with open(recipe_path, "w") as workflow:
+            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+    
+    # Download all the prepared datasets
+    #TODO: change the dataset and workflow folder name
+    # pull_datasets({model.split(':')[0]})
+    # pull_recipes({model.split(':')[0]})
 
 if __name__ == '__main__':
-    user_main()
+    # pull_recipes()
+    # pull_datasets()
+    test_main()
+    # main()
     

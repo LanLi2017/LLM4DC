@@ -303,7 +303,7 @@ def gen(prompt, context, model, options={'temperature':0.0}):
 
 
 # LLM: generate args
-def gen_args(user_sel_op, df, sel_col, model):
+def gen_args(user_sel_op, df, sel_col, sum_eod, project_id, purpose, model):
     context = []
     if user_sel_op == 'regexr_transform':
         with open('prompts/regexr_transform_m.txt', 'r') as f1:
@@ -526,7 +526,7 @@ Explanations:
             # >>>>Start Arguments Generation>>>>
             fm = False # feedback model results
             while not fm:
-                gen_args(user_sel_op, df, sel_col, model) # generate arguments and call OR API
+                gen_args(user_sel_op, df, sel_col, sum_eod, project_id, purpose, model) # generate arguments and call OR API
                 cur_df = export_intermediate_tb(project_id) # update dataframe
                 prof_res = profiling(cur_df[sel_col]) # update profiling results
                 fm = feedback_model(prof_res, cur_df, sel_col, project_id)

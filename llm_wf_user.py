@@ -381,6 +381,13 @@ edits:
             pass
 
 
+def choose_ops(user_choice: str, ops_pool: list):
+    user_choice = user_choice.strip().lower()
+    if user_choice not in ops_pool:
+        raise ValueError(f"Invalid choice. Available options: {ops_pool}")
+    return {"selected_choice": user_choice}
+
+
 def wf_gen(project_id, log_data, model, logging, purpose, models:list):
     df = export_intermediate_tb(project_id) # Return current intermediate table
     tb_str = gen_table_str(df, num_rows=10)
@@ -448,13 +455,10 @@ Selected columns:
             eod_desc = False
             # Clean the column one by one
             df = export_intermediate_tb(project_id) # Return current intermediate table
-            sel_cols_df = df[tg_cols]
-            col_values = df[sel_col]
             num_rows = len(df)
             av_cols = df.columns.to_list() # current column names list 
 
             # TASK II: select operations
-            sel_op = None
             ops_history, functions_list = export_ops_list(project_id, st)
             if functions_list:
                 functions_list = parse_text_transform(ops_history, functions_list)
@@ -488,7 +492,16 @@ Selected Operation:
             # [update] Operations selection is based on multiple models
             # TODO: user-based selection
             sel_ops = multi_ops_sel(models, prompt_sel_ops, options_sel_op, ops_pool, logging)
-            user_sel_op = input(f"Enter your choice from {sel_ops}: ").strip().lower()
+            # user_sel_op = input(f"Enter your choice from {sel_ops}: ").strip().lower()
+            sel_op_res = requests.post(
+                "http://127.0.0.1:8000/choose",
+                json={"ops_pool": sel_ops},
+            )
+
+            if sel_op_res.status_code != 200:
+                raise ValueError(f"Failed to retrieve choice: {sel_op_res.json()['detail']}")
+
+            user_sel_op = sel_op_res.json()["result"]["selected_choice"]
 
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]

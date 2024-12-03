@@ -230,7 +230,7 @@ def parse_edits(raw_string):
     return parsed_edits
 
 # LLM Multi-Model Ops-Selection
-def multi_ops_sel(models, prompt_sel_ops, options_sel_op, logging):
+def multi_ops_sel(models, prompt_sel_ops, options_sel_op, ops_pool, logging):
     sel_ops_pool = []
     for model in models:
         context, sel_op_desc = gen(prompt_sel_ops, [], model, options_sel_op)
@@ -487,7 +487,7 @@ Selected Operation:
             
             # [update] Operations selection is based on multiple models
             # TODO: user-based selection
-            sel_ops = multi_ops_sel(models, prompt_sel_ops, options_sel_op, logging)
+            sel_ops = multi_ops_sel(models, prompt_sel_ops, options_sel_op, ops_pool, logging)
             user_sel_op = input(f"Enter your choice from {sel_ops}: ").strip().lower()
 
             # TASK III: Learn function arguments (share the same context with sel_op)

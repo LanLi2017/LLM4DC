@@ -499,7 +499,7 @@ Selected Operation:
             )
 
             if sel_op_res.status_code != 200:
-                raise ValueError(f"Failed to retrieve choice: {sel_op_res.json()['detail']}")
+                raise ValueError(f"Failed to retrieve selected operation: {sel_op_res.json()['detail']}")
 
             user_sel_op = sel_op_res.json()["result"]["selected_choice"]
 

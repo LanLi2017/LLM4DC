@@ -13,12 +13,18 @@ import pandas as pd
 import ast
 import random
 import logging 
+import os
+import sys
 # from history_update_problem.call_or import export_rows
-from call_or import *
 
 import ollama
 from ollama import Client
 from ollama import generate
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+from call_or import *
+
 
 map_ops_func = {
 "core/column-split": split_column,
@@ -255,6 +261,37 @@ def multi_ops_sel(models, prompt_sel_ops, options_sel_op, ops_pool, logging):
     return sel_ops_pool
 
 
+def get_ops(ava_ops):
+    params = {"ops_pool": ",".join(ava_ops)}
+    response = requests.get("http://127.0.0.1:8000/operations", params=params)
+    if response.status_code == 200:
+        return response.json()['available_operations']
+    else:
+        raise ValueError("Failed to retrieve operations")
+
+
+def get_user_choice(ops_pool):
+    # Display operation choices to the user
+    print("Available operations:")
+    for i, op in enumerate(ops_pool, 1):
+        print(f"{i}. {op}")
+
+    # Prompt the user for their choice
+    user_choice = input("Enter selected operation name ").strip()
+    payload = {
+        "user_choice": user_choice,
+        "ops_pool": ops_pool
+    }
+    response = requests.post("http://127.0.0.1:8000/choose", json=payload)
+    print(response.status_code)
+    if response.status_code != 200:
+        print(f"Error: {response.json()['detail']}")
+        return None
+    print(response.json()['result'])
+    raise NotImplementedError
+    return response.json()['result']['selected_choice']
+
+
 # User-based Feedback Model
 def feedback_model(profiling_res, df, sel_col, project_id):
     """
@@ -306,7 +343,7 @@ def gen(prompt, context, model, options={'temperature':0.0}):
 def gen_args(user_sel_op, df, sel_col, sum_eod, project_id, purpose, model):
     context = []
     if user_sel_op == 'regexr_transform':
-        with open('prompts/regexr_transform_m.txt', 'r') as f1:
+        with open('../prompts/regexr_transform_m.txt', 'r') as f1:
             prompt_sel_args = f1.read()
         col_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
         prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output Expression in ``` ``` (Ensure the expression format statisifies ALL requirements in the **Check**). """ \
@@ -397,7 +434,7 @@ def wf_gen(project_id, log_data, model, logging, purpose, models:list):
     errors = []
     context =[]
     # TASK I: select target column(s)
-    with open("prompts/f_select_column.txt", 'r')as f:
+    with open("../prompts/f_select_column.txt", 'r')as f:
         sel_col_learn = f.read()
     print(f'current purpose: {purpose}')
     prompt_sel_col = sel_col_learn + f"""\
@@ -428,7 +465,7 @@ Selected columns:
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
     # Output: False/True
-    with open("prompts/dq_learn.txt", 'r')as f0:
+    with open("../prompts/dq_learn.txt", 'r')as f0:
         eod_learn = f0.read()
 
     num_votes = 3 # run gen() multiple times to generate end_of_dc decisions
@@ -470,7 +507,7 @@ Selected columns:
 
             # context-learn (full_chain_demo): how the previous operation are related to the current one
             # operation-learn (learn_ops.txt): when to select a proper operation 
-            with open('prompts/learn_ops_.txt', 'r')as f_learn_ops:
+            with open('../prompts/learn_ops_.txt', 'r')as f_learn_ops:
                 learn_ops = f_learn_ops.read()
             
             prompt_sel_ops = learn_ops +\
@@ -492,20 +529,15 @@ Selected Operation:
             # [update] Operations selection is based on multiple models
             # TODO: user-based selection
             sel_ops = multi_ops_sel(models, prompt_sel_ops, options_sel_op, ops_pool, logging)
-            # user_sel_op = input(f"Enter your choice from {sel_ops}: ").strip().lower()
-            sel_op_res = requests.post(
-                "http://127.0.0.1:8000/choose",
-                json={"ops_pool": sel_ops},
-            )
-
-            if sel_op_res.status_code != 200:
-                raise ValueError(f"Failed to retrieve selected operation: {sel_op_res.json()['detail']}")
-
-            user_sel_op = sel_op_res.json()["result"]["selected_choice"]
+            # show available operations choice in API
+            get_ops(sel_ops)
+            user_sel_op = get_user_choice(sel_ops)
+            if user_sel_op is not None:
+                print(f"You selected: {user_sel_op}")
 
             # TASK III: Learn function arguments (share the same context with sel_op)
             # return first 15 rows for generating arguments [different ops might require different number of rows]
-            with open(f'prompts/{user_sel_op}.txt', 'r') as f1:
+            with open(f'../prompts/{user_sel_op}.txt', 'r') as f1:
                 prompt_sel_args = f1.read()
 
             # Prepare the operation purpose
@@ -634,40 +666,42 @@ def pull_recipes(model_name):
         # else:
         #     print(f"{filepath} Has Been Existed!")
 
-def test_main():
-    # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
+def user_main():
+    # model = "llama3.1:8b-instruct-fp16"
+    # model = "gemma2:27b" #"llama3.1:8b-instruct-fp16"
+    # model = "gemma2:9b"
     # ollama.pull(model)
+    # raise NotImplementedError
+    # models = [
+    # "llama3.1:8b-instruct-fp16" ,
+    # "llama3.2",
+    # "phi3",
+    # "gemma2",
+    # "mistral"
+    # "gemma2:27b"
+    # ]
     models = [
     "llama3.1:8b-instruct-fp16" ,
-    "llama3.2",
-    "phi3",
-    "gemma2",
-    "mistral"
-    "gemma2:27b"
+    "gemma2:9b",
+    "mistral:7b-instruct"
     ]
-    # model = "gemma2:27b"
-    model = "mistral:7b-instruct"
+
+    model = "llama3.1:8b-instruct-fp16"
     model_name = model.split(':')[0]
 
     # ollama.pull(model)
-    log_dir = f"CoT.response/{model_name}/"
+    log_dir = f"../CoT.response/{model_name}/"
     os.makedirs(log_dir, exist_ok=True)
 
-    pp_f = 'purposes/queries.csv'
+    pp_f = '../purposes/q_user.csv'
     pp_df = pd.read_csv(pp_f)
 
-    ds_dir = f"CoT.response/{model_name}/datasets_llm"
-    os.makedirs(ds_dir, exist_ok=True)
-
-    recipe_dir = f"CoT.response/{model_name}/recipes_llm"
-    os.makedirs(recipe_dir, exist_ok=True)
-    
-    # ds_file = "datasets/menu_data.csv"
+    ds_file = "../datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[-1:].iterrows():
-        timestamp = datetime.now()
-        timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
-        print(timestamp_str)
+    for index, row in pp_df.iloc[:].iterrows():
+        # timestamp = datetime.now()
+        # timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
+        # print(timestamp_str)
         pp_id = row['ID']
         pp_v = row['Purposes']
         print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
@@ -676,20 +710,17 @@ def test_main():
             ds_file = "datasets/menu_data.csv"
         elif 31<= pp_id <=61:
             ds_name = "chi_test"
-            ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}.csv"
+            ds_file = "datasets/chi_food_data.csv"
         elif 62<=pp_id<=91:
             ds_name = "ppp_test"
-            ds_file = f"datasets/ppp_datasets/ppp_data_p{pp_id}.csv"
+            ds_file = "datasets/ppp_data_20.csv"
         elif pp_id > 91:
             ds_name = "dish_test"
-            ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
-        # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
-        #TODO: logging file name 
-        logging_name = f"CoT.response/{model.split(':')[0]}/logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
+            ds_file = "datasets/dish_data.csv"
+        logging_name = f"logging/{model.split(':')[0]}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
-        
-        #TODO: project name 
-        project_name = f"{model.split(':')[0]}_{ds_name}_{pp_id}"
+        # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
+        project_name = f"{ds_file.split('/')[-1].split('.')[0]}_{pp_id}"
         log_data = {
             "ID": pp_id,
             "Purposes": pp_v,
@@ -701,42 +732,16 @@ def test_main():
         project_id = None
         if project_name in proj_names_list:
             print(f"Project {project_name} already exists!")
-            logging.info(f'Project {project_name} already exists!')
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
-            log_data = wf_gen(project_id, log_data, model,logging, purpose=pp_v)
+            # project_id, log_data, model, logging, purpose, models:list
+            log_data = wf_gen(project_id, log_data, model, logging, pp_v, models)
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
-            logging.info(f"Project {project_name} creation finished.")
-            log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
-        # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
-        #     json.dump(log_data, log_f, indent=4)
+            log_data = wf_gen(project_id, log_data, model, logging, pp_v, models)
 
-        #TODO: annotated operation file
-        with open(f"{log_dir}/operation/{ds_name}_{pp_id}_log.txt", "w") as log_f:
-            json.dump(log_data, log_f, indent=4)
-        
-        # download dataset 
-        df = export_intermediate_tb(project_id)
-        ds_path = f"{ds_dir}/{project_name}.csv"
-        df.to_csv(ds_path)
-        
-        # download recipes 
-        data = get_operations(project_id)
-        recipe_path = f"{recipe_dir}/{project_name}.json"
-        with open(recipe_path, "w") as workflow:
-            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-    
-    # Download all the prepared datasets
-    #TODO: change the dataset and workflow folder name
-    # pull_datasets({model.split(':')[0]})
-    # pull_recipes({model.split(':')[0]})
 
 if __name__ == '__main__':
-    # pull_recipes()
-    # pull_datasets()
-    test_main()
-    # main()
-    
+    user_main()

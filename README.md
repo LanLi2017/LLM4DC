@@ -18,8 +18,10 @@ The benchmark is proposed to evalaute the capability of LLM agents to automatica
 |--------------|--------------|
 | llm_wf_*.py | Main script running LLMs (in the file name)|
 | prompts | prompt files for LLM agents in pipeline|
-| [prompts/f_select_column.txt](https://github.com/LanLi2017/LLM4DC/blob/main/prompts/f_select_column.txt) | LLM agents I: Selecte Target Columns|
-| prompts/learn_ops_*.txt | prompt files for learning operations|
+| [prompts/f_select_column.txt](https://github.com/LanLi2017/LLM4DC/blob/main/prompts/f_select_column.txt) | LLM agents I: Select Target Columns|
+| [prompts/dq_learn.txt](https://github.com/LanLi2017/LLM4DC/blob/main/prompts/dq_learn.txt) | LLM agents II: Inspect Column Quality|
+| [prompts/learn_ops_*.txt](https://github.com/LanLi2017/LLM4DC/blob/main/prompts/learn_ops_lf.txt) | LLM agents III: Generate Operation & Arguments|
+| [prompts/operation_name.txt](https://github.com/LanLi2017/LLM4DC/blob/main/prompts/mass_edit_lf.txt) | Operation arguments learning prompts,e.g., mass\_edit|
 | test.ipynb  | Main script running experiment analysis|
 | CoT.response | Automatically generated results by models: Llama3.1, Mistral, and Gemma2 |
 | CoT.response/model/datasets_llm | Cleaned tables by model |

@@ -17,6 +17,9 @@ The benchmark is proposed to evalaute the capability of LLM agents to automatica
 | Directory/File Name    | Description     |
 |--------------|--------------|
 | llm_wf_*.py | Main script running LLMs (in the file name)|
+| prompts | prompt files for LLM agents in pipeline|
+| [prompts/f_select_column.txt](https://github.com/LanLi2017/LLM4DC/blob/main/prompts/f_select_column.txt) | LLM agents I: Selecte Target Columns|
+| prompts/learn_ops_*.txt | prompt files for learning operations|
 | test.ipynb  | Main script running experiment analysis|
 | CoT.response | Automatically generated results by models: Llama3.1, Mistral, and Gemma2 |
 | CoT.response/model/datasets_llm | Cleaned tables by model |
@@ -25,7 +28,6 @@ The benchmark is proposed to evalaute the capability of LLM agents to automatica
 | CoT.response/model/*.txt | JSON file for recording purpose, selected columns, and generated operations |
 | datasets | Benchmark datasets |
 | evaluation| evaluation scripts and results|
-| prompts | prompt files for LLM agents in pipeline|
 | golden_cases| golden cases by LLMs|
 | refine | OpenRefine API folder|
 | call_or.py|  OpenRefine API invocation script|

@@ -14,7 +14,7 @@ The benchmark is proposed to evalaute the capability of LLM agents to automatica
 
 ## Repo/Directories Introduction 
 
-| Directory/File Name    | Description     | Header 3     |
+| Directory/File Name    | Description     |
 |--------------|--------------|--------------|
 | llm_wf_*.py | Main script running LLMs (in the file name)|
 | test.ipynb  | Main script running experiment analysis|

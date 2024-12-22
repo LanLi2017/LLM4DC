@@ -2,7 +2,7 @@
 
 Code for paper [AutoDCWorkflow: LLM-based Data Cleaning Workflow Auto-Generation and Benchmark](https://arxiv.org/abs/2412.06724). 
 
-<img src="pics/pp_dr_llm.pdf" align="middle" width="100%">
+<img src="pics/autodcwf.png" align="middle" width="100%">
 
 
 ## Benchmark Description

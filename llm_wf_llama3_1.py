@@ -656,13 +656,14 @@ def test_main():
     ]
     # model = "gemma2:27b"
     model = "llama3.1:8b-instruct-fp16"
-    model_name = f"{model.split(':')[0]}_1"
+    model_name = f"{model.split(':')[0]}"
 
     # ollama.pull(model)
     log_dir = f"CoT.response/{model_name}/"
     os.makedirs(log_dir, exist_ok=True)
 
-    pp_f = 'purposes/queries.csv'
+    # pp_f = 'purposes/queries.csv'
+    pp_f = 'purposes/new_purposes.csv'
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"CoT.response/{model_name}/datasets_llm"
@@ -673,25 +674,30 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[60:].iterrows():
+    for index, row in pp_df.iloc[:1].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
         pp_id = row['ID']
         pp_v = row['Purposes']
         print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
-        if 1<= pp_id <=30:
+        if 1 <= pp_id <= 30:
             ds_name = "menu_test"
-            ds_file = "datasets/menu_data.csv"
+            if pp_id == 24:
+                ds_file = "datasets/menu_update/menu_errors_p24.csv"
+            else:
+                ds_file = "datasets/menu_update/menu_errors.csv"
         elif 31<= pp_id <=61:
             ds_name = "chi_test"
-            ds_file = f"datasets/chi_food_inspection_datasets/chi_food_data_p{pp_id}.csv"
-        elif 62<=pp_id<=91:
-            ds_name = "ppp_test"
-            ds_file = f"datasets/ppp_datasets/ppp_data_p{pp_id}.csv"
-        elif pp_id > 91:
-            ds_name = "dish_test"
-            ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
+            ds_file = f"datasets/cfi_update/chi_food_data_p{pp_id}.csv"
+        elif 111<=pp_id<=126:
+            ds_name = "flights_test"
+            ds_file = f"datasets/flights/flights_data_p{pp_id}.csv"
+        elif 127<=pp_id<=154:
+            ds_name="hos_test"
+            ds_file = f"datasets/hospital/hos_data_p{pp_id}.csv"
+        else:
+            pass
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         #TODO: logging file name 
         logging_name = f"CoT.response/{model_name}/logging/{model_name}_{ds_name}_{pp_id}.log"
@@ -740,8 +746,8 @@ def test_main():
     
     # Download all the prepared datasets
     #TODO: change the dataset and workflow folder name
-    # pull_datasets({model.split(':')[0]})
-    # pull_recipes({model.split(':')[0]})
+    pull_datasets(model_name)
+    pull_recipes(model_name)
 
 if __name__ == '__main__':
     # pull_recipes()

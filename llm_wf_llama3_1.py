@@ -337,8 +337,7 @@ Selected columns:
             sel_cols_str = gen_table_str(sel_cols_df, num_rows=15)
             print(f'Selected first {num_rows} rows for current table: {col_str}')
 
-            # context-learn (full_chain_demo): how the previous operation are related to the current one
-            # operation-learn (learn_ops.txt): when to select a proper operation 
+            # operation-learn (learn_ops_.txt): when to select a proper operation 
             with open('prompts/learn_ops_.txt', 'r')as f_learn_ops:
                 learn_ops = f_learn_ops.read()
             
@@ -622,8 +621,8 @@ def pull_datasets(model_name):
         print(dataset_name)
         df = export_intermediate_tb(project_id)
         filepath = f"{parent_folder}/{dataset_name}"
-        # if not os.path.exists(filepath):
-        df.to_csv(f"{parent_folder}/{dataset_name}.csv")
+        if not os.path.exists(filepath):
+            df.to_csv(f"{parent_folder}/{dataset_name}.csv")
 
 
 def pull_recipes(model_name):
@@ -635,13 +634,13 @@ def pull_recipes(model_name):
         print(dataset_name)
         data = get_operations(project_id)
         filepath = f"{parent_folder}/{dataset_name}.json"
-        with open(filepath, "w") as workflow:
-            json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-        # if not os.path.exists(filepath):
-        #    with open(filepath, "w") as workflow:
-        #         json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
-        # else:
-        #     print(f"{filepath} Has Been Existed!")
+        # with open(filepath, "w") as workflow:
+        #     json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        if not os.path.exists(filepath):
+           with open(filepath, "w") as workflow:
+                json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
+        else:
+            print(f"{filepath} Has Been Existed!")
 
 def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
@@ -659,7 +658,7 @@ def test_main():
     model_name = f"{model.split(':')[0]}"
 
     # ollama.pull(model)
-    log_dir = f"CoT.response/{model_name}/"
+    log_dir = f"CoT.response/{model_name}"
     os.makedirs(log_dir, exist_ok=True)
 
     # pp_f = 'purposes/queries.csv'
@@ -674,7 +673,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:1].iterrows():
+    for index, row in pp_df.iloc[:10].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -746,8 +745,8 @@ def test_main():
     
     # Download all the prepared datasets
     #TODO: change the dataset and workflow folder name
-    pull_datasets(model_name)
-    pull_recipes(model_name)
+    # pull_datasets(model_name)
+    # pull_recipes(model_name)
 
 if __name__ == '__main__':
     # pull_recipes()

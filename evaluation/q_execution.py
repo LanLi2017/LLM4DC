@@ -1,5 +1,6 @@
 import pandas as pd 
 import json
+import numpy as np
 
 # Create a folder with all the query results:
 # {'purpose id': , 'purpose': , 'answer':}
@@ -51,6 +52,19 @@ class QExecute:
         # Find the highest ratio
         highest_ratio = df['ratio'].max()
         return highest_ratio
+    
+    def pp10_exe(df:pd.DataFrame):
+        avg_dish_count = df['dish_count'].mean()
+        return int(avg_dish_count)
+
+    def pp11_exe(df:pd.DataFrame):
+        # Handle empty cells by dropping rows with missing values
+        df = df.dropna(subset=['dish_count', 'page_count'])
+        # Calculate ratio of dish count to page count
+        df['ratio'] = df['dish_count'] / df['page_count']
+        # Find the highest ratio
+        highest_ratio = df['ratio'].max()
+        return highest_ratio
 
     def pp12_exe(df:pd.DataFrame):
         df['location'] = df['location'].fillna('UNKNOWN')
@@ -88,6 +102,137 @@ class QExecute:
         # Filter sponsors with two or more events
         multiple_events_sponsors = sponsor_event_counts[sponsor_event_counts >= 2].index.tolist()
         return multiple_events_sponsors
+    
+    def pp19_exe(df):
+        """
+        Determine the average number of pages for menus across different venues.
+        cols: page_count, venue
+        """
+        # Drop rows where either page_count or venue is null
+        df_clean = df.dropna(subset=['page_count', 'venue'])
+        # Group by venue and calculate mean page count
+        venue_avg_pages = df_clean.groupby('venue')['page_count'].mean()
+        # Convert to dictionary format with venue as key and average pages as value
+        result = venue_avg_pages.to_dict()
+        return result
+    
+    def pp20_exe(df):
+        """
+        Count the number of unique sponsors.
+        cols: sponsor
+        """
+        unique_sponsors_count = df['sponsor'].nunique()
+        return unique_sponsors_count
+    
+    def pp21_exe(df):
+        """
+        Count the number of rows where the event is marked as banquet.
+        cols: event
+        """
+        # Convert event column to lowercase for case-insensitive comparison
+        banquet_count = df[df['event'].str.lower() == 'banquet'].shape[0]
+        return banquet_count
+    
+    def pp22_exe(df):
+        """
+        Count the number of unique occasions.
+        cols: occasion
+        """
+        unique_occasions_count = df['occasion'].nunique()
+        return unique_occasions_count
+    
+    def pp23_exe(df):
+        """
+        Find the top three venues with the highest average dish count.
+        cols: venue, dish_count
+        """
+        # Drop any rows where venue or dish_count is null
+        df_clean = df.dropna(subset=['venue', 'dish_count'])
+        # Calculate average dish count per venue
+        venue_avg_dishes = df_clean.groupby('venue')['dish_count'].mean()
+        # Sort venues by average dish count in descending order and get top 3
+        top_three_venues = venue_avg_dishes.sort_values(ascending=False).head(3).index.tolist()
+        return top_three_venues
+    
+    def pp24_exe(df):
+        """
+        Count the number of different status values recorded in the table.
+        cols: status
+        """
+        # Count unique values in status column
+        unique_status_count = df['status'].nunique()
+        return unique_status_count
+    
+    def pp25_exe(df):
+        """
+        Count menus that accept dollars as currency.
+        cols: sponsor, currency
+        """
+        # Convert currency column to lowercase for case-insensitive comparison
+        df['currency'] = df['currency'].str.lower()
+        
+        # Count menus that accept dollars
+        dollar_count = df[df['currency'].str.contains('dollar', na=False)].shape[0]
+        
+        return dollar_count
+    
+    def pp26_exe(df):
+        """
+        Count the number of menus published per year.
+        cols: date
+        """
+        # Convert date to year and count menus per year
+        yearly_counts = df['date'].dt.year.value_counts().sort_index()
+        return yearly_counts.to_dict()
+    
+    def pp27_exe(df):
+        """
+        Evaluate whether menus created in later years (e.g., after 1950) tend to have higher dish count-to-page count ratios.
+        cols: date, dish_count, page_count
+        """
+        # Calculate ratio for each menu
+        df['ratio'] = df['dish_count'] / df['page_count']
+        
+        # Convert date to year
+        df['year'] = df['date'].dt.year
+        
+        # Split into pre and post 1950
+        pre_1950 = df[df['year'] < 1950]['ratio'].mean()
+        post_1950 = df[df['year'] >= 1950]['ratio'].mean()
+        
+        # Return True if post-1950 ratio is higher
+        return post_1950 > pre_1950
+    
+    def pp28_exe(df):
+        """
+        Identify venues where the page count exceeds 10.
+        cols: venue, page_count
+        """
+        # Filter venues where page count > 10
+        high_page_venues = df[df['page_count'] > 10]['venue'].unique().tolist()
+        return high_page_venues
+    
+    def pp29_exe(df):
+        """
+        Filter menus where the occasion column contains 'DAILY'.
+        cols: occasion
+        """
+        # Convert occasion to string and lowercase for case-insensitive comparison
+        df['occasion'] = df['occasion'].astype(str).str.lower()
+        
+        # Filter and count menus with 'daily' occasion
+        daily_count = df[df['occasion'].str.contains('daily', na=False)].shape[0]
+        
+        return daily_count
+    
+    def pp30_exe(df):
+        """
+        Count how many different types of currency appear in menus, excluding empty/null values.
+        cols: currency
+        """
+        # Remove empty/null values and get unique count
+        currency_count = df['currency'].dropna().replace('', np.nan).dropna().nunique()
+        return currency_count
 
     def pp31_exe(df):
         # dataset: chicago 
@@ -116,12 +261,20 @@ class QExecute:
         most_occurred_value = facility_counts.idxmax()
         return most_occurred_value
 
-
     def pp34_exe(df):
         facility_counts = df['Facility Type'].value_counts()
         min_count = facility_counts.min()
         least_occurred_values = facility_counts[facility_counts == min_count].index.tolist()
         return least_occurred_values
+    
+    def pp35_exe(df):
+        """
+        Count the unique types of inspections.
+        cols: inspection type
+        """
+        # Get count of unique inspection types
+        unique_inspection_count = df['Inspection Type'].nunique()
+        return unique_inspection_count
 
     def pp36_exe(df):
         failed_inspections_7eleven = df[(df['DBA Name'].str.lower() == '7-eleven'.lower()) & (df['Results'].str.lower() == 'fail')]['Inspection ID'].tolist()
@@ -167,6 +320,92 @@ class QExecute:
             high_risk_groceries_count = df[(df['Facility Type'].astype(str).str.lower() == 'grocery store') & 
                                 (df['Risk'].astype(str).str.contains('risk 1', case=False))].shape[0]
         return high_risk_groceries_count
+    
+    def pp43_exe(df):
+        """
+        Find the most common result (pass/fail) for each facility type
+        cols: Facility Type, Results
+        """
+        # Group by Facility Type and get most common Result
+        most_common_results = df.groupby('Facility Type')['Results'].agg(lambda x: x.value_counts().idxmax()).reset_index()
+        return most_common_results.to_json()
+    
+    def pp44_exe(df):
+        """
+        Calculate the proportion of inspections that result in a positive outcome (pass)
+        cols: Results
+        """
+        # Convert Results to lowercase for consistent comparison
+        df['Results'] = df['Results'].astype(str).str.lower()
+        
+        # Calculate total number of inspections
+        total_inspections = len(df)
+        
+        # Count number of passing inspections
+        passing_inspections = (df['Results'] == 'pass').sum()
+        
+        # Calculate proportion
+        pass_proportion = passing_inspections / total_inspections
+        
+        return pass_proportion
+    
+    def pp45_exe(df):
+        """
+        Calculate the average number of inspections per facility type
+        cols: Facility Type, Inspection ID
+        """
+        # Group by Facility Type and count unique Inspection IDs
+        inspections_per_type = df.groupby('Facility Type')['Inspection ID'].count().reset_index()
+        
+        # Calculate the average number of inspections across all facility types
+        average_inspections = inspections_per_type['Inspection ID'].mean()
+        
+        return average_inspections
+    
+    def pp46_exe(df):
+        """
+        Calculate correlation between risk level and risk label.
+        cols: Risk
+        """
+        # Convert Risk column to string type and standardize case
+        df['Risk'] = df['Risk'].astype(str).str.lower()
+        # Get unique risk values and count occurrences
+        risk_counts = df['Risk'].value_counts().to_dict()
+        return risk_counts
+    
+    def pp47_exe(df):
+        """
+        Find facility type with highest failure rate
+        cols: Facility Type, Results
+        """
+        # Convert Results to lowercase for consistent comparison
+        df['Results'] = df['Results'].astype(str).str.lower()
+        
+        # Group by Facility Type and calculate failure rate
+        failure_rates = df.groupby('Facility Type').agg(
+            total_inspections=('Results', 'count'),
+            failed_inspections=('Results', lambda x: (x == 'fail').sum())
+        )
+        
+        failure_rates['failure_rate'] = failure_rates['failed_inspections'] / failure_rates['total_inspections']
+        
+        # Get facility type with highest failure rate
+        highest_failure_type = failure_rates['failure_rate'].idxmax()
+        
+        return highest_failure_type
+    
+    def pp48_exe(df):
+        """
+        Find the franchise (DBA Name) with the most frequent inspections
+        cols: DBA Name, Inspection ID
+        """
+        # Group by DBA Name and count inspections
+        inspection_counts = df.groupby('DBA Name')['Inspection ID'].count()
+        
+        # Get the franchise with maximum inspections
+        most_inspected = inspection_counts.idxmax()
+        
+        return most_inspected
 
     def pp49_exe(df):
         try:
@@ -178,12 +417,143 @@ class QExecute:
                                         (df['Risk'].astype(str).str.contains('risk 3', case=False)) & 
                                         (df['Results'].astype(str).str.lower() == 'pass')].shape[0]
         return safest_school_restaurants_count
+    
+    def pp50_exe(df):
+        """
+        Count the number of inspections conducted as part of a complaint.
+        cols: Inspection Type
+        """
+        # Convert to lowercase for case-insensitive comparison and count complaint inspections
+        complaint_count = df[df['Inspection Type'].str.lower().str.contains('complaint', na=False)].shape[0]
+        return complaint_count
+    
+    def pp51_exe(df):
+        """
+        Find facilities with positive inspection results.
+        cols: Facility Type, Results
+        """
+        # Convert Results to lowercase for consistent comparison
+        df['Results'] = df['Results'].astype(str).str.lower()
+        
+        # Filter for results containing 'pass' and get unique facility types
+        passing_facilities = df[df['Results'].str.contains('pass', na=False)]['Facility Type'].unique().tolist()
+        
+        return passing_facilities
 
     def pp52_exe(df):
         safe_facilities = df[(df['Risk'].str.lower() == 'risk 3 (low)') & (df['Results'].str.lower() == 'pass')]
         safe_addresses = safe_facilities['Address'].tolist()
         return safe_addresses
-
+    
+    def pp53_exe(df):
+        """
+        List inspection results for all businesses with Risk level 1 (low).
+        cols: Risk, Results
+        """
+        # Convert Risk to lowercase for case-insensitive comparison
+        df['Risk'] = df['Risk'].astype(str).str.lower()
+        
+        # Filter for Risk 1 (low) and get their Results
+        risk1_results = df[df['Risk'] == 'risk 1 (low)']['Results'].tolist()
+        
+        return risk1_results
+    
+    def pp54_exe(df):
+        """
+        Determine the most recent year of inspection dates.
+        cols: inspection date
+        """
+        # Convert inspection date to datetime if not already
+        df['Inspection Date'] = pd.to_datetime(df['Inspection Date'])
+        
+        # Extract the most recent year
+        most_recent_year = df['Inspection Date'].dt.year.max()
+        
+        return most_recent_year
+    
+    def pp55_exe(df):
+        """
+        Identify businesses with the most frequent inspections.
+        cols: DBA Name
+        """
+        # Count inspections per business
+        inspection_counts = df['DBA Name'].value_counts()
+        
+        # Get businesses with the maximum number of inspections
+        max_inspections = inspection_counts.max()
+        most_inspected = inspection_counts[inspection_counts == max_inspections].index.tolist()
+        
+        return most_inspected
+    def pp56_exe(df):
+        """
+        List license IDs with the best inspection results (Pass).
+        cols: License #, Results
+        """
+        # Convert Results to lowercase for case-insensitive comparison
+        df['Results'] = df['Results'].astype(str).str.lower()
+        
+        # Filter for passing results and get unique license numbers
+        passing_licenses = df[df['Results'] == 'pass']['License #'].unique().tolist()
+        
+        return passing_licenses
+    
+    def pp57_exe(df):
+        """
+        Identify businesses where the inspection risk level is Risk 3.
+        cols: DBA Name, Risk, Inspection Date
+        """
+        # Convert Risk to lowercase for case-insensitive comparison
+        df['Risk'] = df['Risk'].astype(str).str.lower()
+        
+        # Filter businesses with Risk 3 (low)
+        risk3_businesses = df[df['Risk'].str.contains('risk 3')]['DBA Name'].unique().tolist()
+        
+        return risk3_businesses
+    
+    def pp58_exe(df):
+        """
+        Identify the most common risk levels for inspections conducted in restaurant.
+        cols: Facility Type, Risk
+        """
+        # Filter for restaurant facilities
+        restaurant_df = df[df['Facility Type'].str.lower() == 'restaurant']
+        
+        # Get the most common risk level(s)
+        risk_counts = restaurant_df['Risk'].value_counts()
+        max_count = risk_counts.max()
+        most_common_risks = risk_counts[risk_counts == max_count].index.tolist()
+        
+        return most_common_risks
+    
+    def pp59_exe(df):
+        """
+        Identify businesses inspected on the most recent date.
+        cols: DBA Name, Inspection Date
+        """
+        # Get the most recent inspection date
+        most_recent_date = df['Inspection Date'].max()
+        
+        # Filter businesses inspected on the most recent date
+        recent_businesses = df[df['Inspection Date'] == most_recent_date]['DBA Name'].unique().tolist()
+        
+        return recent_businesses
+    
+    def pp60_exe(df):
+        """
+        Determine the id of facility type that are inspected in the most recent date.
+        cols: Facility Type, Inspection Date
+        """
+        # Get the most recent inspection date
+        most_recent_date = df['Inspection Date'].max()
+        
+        # Filter to facilities inspected on most recent date
+        recent_facilities = df[df['Inspection Date'] == most_recent_date]
+        
+        # Get the facility type IDs from the filtered data
+        facility_type_ids = recent_facilities['Facility Type'].unique().tolist()
+        
+        return facility_type_ids
+    
     def pp62_exe(df):
         avg_res = df['LoanAmount'].mean()
         return avg_res
@@ -608,6 +978,422 @@ class QExecute:
         # Calculate the average price for each dish
         top_10_popular_dishes['average_price'] = top_10_popular_dishes[['lowest_price', 'highest_price']].mean(axis=1)
         return top_10_popular_dishes[['name', 'average_price']].to_json()
+    
+    def pp111_exe(df):
+        """
+        Calculate the average delay in departure times across all flights.
+        cols: sched_dep_time, act_dep_time
+        """
+        # Convert time columns to datetime
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        # Calculate the delay in minutes
+        df['delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+
+        # Calculate the average delay
+        average_delay = df['delay'].mean()
+        return average_delay
+
+    
+    def pp112_exe(df):
+        """
+        Calculate the average flight duration based on scheduled departure and arrival times.
+        cols: sched_dep_time, sched_arr_time
+        """
+        # Convert time columns to datetime
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'sched_arr_time'])
+        df['duration'] = (df['sched_arr_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+
+        # Calculate the average duration
+        average_duration = df['duration'].mean()
+
+        return average_duration
+    
+    def pp113_exe(df):
+        # Convert time columns to datetime
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        # Calculate departure delay (in minutes)
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+
+        # Compute the best (lowest) average departure delay among all airlines
+        best_delay = df.groupby('src')['departure_delay'].mean().min()
+
+        return round(best_delay, 2)
+
+    def pp114_exe(df):
+        """
+        Count the number of flights operated by each airline carrier.
+        cols: src
+        """
+        # Count the number of flights per airline carrier
+        airline_flight_counts = df['src'].value_counts()
+
+        return airline_flight_counts
+    
+    def pp115_exe(df):
+        flight_number_counts = df['flight'].value_counts()
+        return flight_number_counts.idxmax()
+    
+    def pp116_exe(df):
+        # Attempt to convert 'sched_arr_time' to datetime
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        # Find rows where conversion failed (NaT values)
+        df = df.dropna(subset=['sched_arr_time'])
+        cutoff_time = pd.to_datetime("6:00 pm", format="%I:%M %p")
+        # Count flights arriving after 6 pm
+        count_after_6pm = df[df['sched_arr_time'] > cutoff_time].shape[0]
+        return count_after_6pm
+    
+    def pp117_exe(df):
+        # Convert time columns to datetime
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], format="%I:%M %p", errors='coerce')
+        df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
+        # Calculate the difference between scheduled and actual arrival times
+        df['arrival_diff'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
+        # Define on-time arrival as arrival within 15 minutes of scheduled time
+        df['on_time'] = df['arrival_diff'].abs() <= 5
+        # Group by airline carrier and count the number of on-time arrivals
+        on_time_arrivals_count = df.groupby('src')['on_time'].sum()
+        return on_time_arrivals_count
+    
+    def pp118_exe(df):
+        """
+        Classify flights based on whether they are "on-time," "early," or "delayed."
+        cols: sched_dep_time, act_dep_time
+        """
+        # Calculate departure delay (in minutes)
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        # Classify flights as "on-time", "early", or "delayed"
+        df['flight_status'] = df['departure_delay'].apply(lambda x: 'on-time' if x == 0 else 'early' if x < 0 else 'delayed')
+        return df['flight_status'].value_counts()
+
+    def pp119_exe(df):
+        """
+        Categorize flights based on arrival times into "A.M." and "P.M.".
+        cols: sched_arr_time
+        """
+        # Convert scheduled arrival time to datetime
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        # Categorize flights into "A.M." and "P.M." based on scheduled arrival time
+        df['arrival_time_category'] = df['sched_arr_time'].dt.hour.apply(lambda x: 'A.M.' if x < 12 else 'P.M.')
+        return df['arrival_time_category'].value_counts()
+
+    def pp120_exe(df):
+        """
+        Identify which airline carrier handles the most "delayed" flights.
+        cols: src, departure_delay
+        """
+        # Calculate departure delay (in minutes)
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        # Filter for delayed flights
+        delayed_flights = df[df['departure_delay'] > 0]
+        # Count delayed flights per airline carrier
+        delayed_flights_count = delayed_flights['src'].value_counts()
+        # Get the airline carrier with the most delayed flights
+        most_delayed_carrier = delayed_flights_count.idxmax()
+        return most_delayed_carrier
+
+    def pp121_exe(df):
+        """
+        Detect flights where the actual departure time is earlier than scheduled.
+        cols: sched_dep_time, act_dep_time
+        """
+        # Calculate departure delay (in minutes)
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        # Filter for flights that departed earlier than scheduled
+        early_departures = df[df['departure_delay'] < 0]
+        return early_departures.shape[0]
+
+    def pp122_exe(df):
+        """
+        Identify flights with unrealistic durations (e.g., arrival time before departure time).
+        cols: sched_dep_time, sched_arr_time
+        """
+        # Convert scheduled departure and arrival times to datetime
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        # Filter for flights with unrealistic durations
+        unrealistic_durations = df[df['sched_arr_time'] < df['sched_dep_time']]
+        return unrealistic_durations.shape[0]
+
+    def pp123_exe(df):
+        """
+        Analyze the trend of delayed departures by hour of the day.
+        cols: sched_dep_time, act_dep_time
+        """
+        # Calculate departure delay (in minutes)
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        # Convert scheduled departure time to datetime
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
+        # Extract hour of the day from scheduled departure time
+        df['hour_of_day'] = df['sched_dep_time'].dt.hour
+        # Group by hour of the day and calculate the average departure delay
+        avg_delay_by_hour = df.groupby('hour_of_day')['departure_delay'].mean()
+        return avg_delay_by_hour
+
+    def pp124_exe(df):
+        """
+        Identify the hour with the highest number of on-time arrivals.
+        cols: sched_arr_time, act_arr_time
+        """
+        # Calculate arrival delay (in minutes)
+        df['arrival_delay'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
+        # Convert scheduled arrival time to datetime
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        # Extract hour of the day from scheduled arrival time
+        df['hour_of_day'] = df['sched_arr_time'].dt.hour
+        # Filter for on-time arrivals
+        on_time_arrivals = df[df['arrival_delay'] == 0]
+        # Count on-time arrivals per hour of the day
+        on_time_arrivals_count = on_time_arrivals['hour_of_day'].value_counts()
+        # Get the hour with the highest number of on-time arrivals
+        best_hour_for_arrivals = on_time_arrivals_count.idxmax()
+        return best_hour_for_arrivals
+
+    def pp125_exe(df):
+        """
+        Identify the airline carrier with the highest average departure delay time.
+        cols: src, sched_dep_time, act_dep_time
+        """
+        # Calculate departure delay (in minutes)
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        # Group by src and calculate the average departure delay
+        avg_delay_by_src = df.groupby('src')['departure_delay'].mean()
+        # Get the src with the highest average departure delay
+        highest_delaying_src = avg_delay_by_src.idxmax()
+        return highest_delaying_src
+    
+    def pp126_exe(df):
+        """
+        Calculate the scheduled duration and actual duration, return the most different one.
+        cols: sched_dep_time, act_dep_time, sched_arr_time, act_arr_time
+        """
+        # Calculate scheduled duration (in minutes)
+        df['scheduled_duration'] = (df['sched_arr_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        # Calculate actual duration (in minutes)
+        df['actual_duration'] = (df['act_arr_time'] - df['act_dep_time']).dt.total_seconds() / 60
+        # Calculate the difference between scheduled and actual duration
+        df['duration_difference'] = (df['actual_duration'] - df['scheduled_duration']).abs()
+        # Find the flight with the most difference between scheduled and actual duration
+        most_different_flight = df.loc[df['duration_difference'].idxmax()]
+        return most_different_flight
+    
+    def pp127_exe(df):
+        """
+        Count the number of hospitals per city.
+        """
+        hospital_count_per_city = df['City'].value_counts()
+        return hospital_count_per_city
+
+    def pp128_exe(df):
+        """
+        Explore whether larger cities host more hospitals.
+        """
+        city_names = df['City'].unique().tolist()
+        return city_names
+
+    def pp129_exe(df):
+        """
+        Calculate the average number of hospitals per county.
+        """
+        county_names = df['CountyName'].unique().tolist()
+        return county_names
+
+    def pp130_exe(df):
+        """
+        Determine the top 3 counties whose hospital type is "acute care hospitals" offering emergency services.
+        """
+        df['HospitalType'] = df['HospitalType'].str.lower()
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        top_3_counties = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')]['CountyName'].value_counts().head(3)
+        return top_3_counties
+
+    def pp131_exe(df):
+        """
+        Identify the hospital ownership types that are most common in cities with multiple ZIP codes.
+        """
+        common_ownership_in_cities = df.groupby('City')['HospitalOwner'].nunique().sort_values(ascending=False).head(1)
+        return common_ownership_in_cities
+
+    def pp132_exe(df):
+        """
+        Compute the average length of hospital names grouped by hospital type and ownership.
+        """
+        avg_name_length = df.groupby(['HospitalType', 'HospitalOwner'])['HospitalName'].apply(lambda x: x.str.len().mean())
+        return avg_name_length
+
+    def pp133_exe(df):
+        """
+        Count the number of hospitals offering emergency services by "acute care hospitals" hospital type.
+        """
+        df['HospitalType'] = df['HospitalType'].str.lower()
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        emergency_services_count = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')].shape[0]
+        return emergency_services_count
+
+    def pp134_exe(df):
+        """
+        Determine the most frequent combinations of hospital type and ownership.
+        """
+        frequent_combinations = df.groupby(['HospitalType', 'HospitalOwner']).size().idxmax()
+        return frequent_combinations
+
+    def pp135_exe(df):
+        """
+        Count the number of hospitals by county, grouped by the presence or absence of emergency services.
+        """
+        hospitals_by_county = df.groupby(['CountyName', 'EmergencyService']).size()
+        return hospitals_by_county
+
+    def pp136_exe(df):
+        """
+        Find the number of cities with hospitals owned by voluntary non-profits and offering emergency services.
+        """
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        df['HospitalOwner'] = df['HospitalOwner'].str.lower()
+        cities_with_voluntary_nonprofits = df[(df['HospitalOwner'] == 'voluntary non-profit - private') & (df['EmergencyService'] == 'yes')]['City'].nunique()
+        return cities_with_voluntary_nonprofits
+
+    def pp137_exe(df):
+        """
+        Find hospital types among different counties.
+        """
+        hospital_types_by_county = df.groupby('CountyName')['HospitalType'].apply(lambda x: x.unique().tolist())
+        return hospital_types_by_county
+
+    def pp138_exe(df):
+        """
+        Identify cities where critical access hospitals are primarily government-owned.
+        """
+        df['HospitalOwner'] = df['HospitalOwner'].str.lower()
+        government_owned_cah = df[(df['HospitalType'] == 'Critical Access Hospitals') & (df['HospitalOwner'].str.contains('government'))]['City'].unique()
+        return government_owned_cah
+
+    def pp139_exe(df):
+        """
+        Count ZIP codes based on the diversity of hospital types and ownerships.
+        """
+        zip_code_diversity = df.groupby('ZipCode')[['HospitalType', 'HospitalOwner']].nunique().sum(axis=1)
+        return zip_code_diversity
+
+    def pp140_exe(df):
+        """
+        Determine the top 3 cities with the highest ratio of acute care hospitals to total hospitals.
+        """
+        df['HospitalType'] = df['HospitalType'].str.lower()
+        top_3_cities = df[df['HospitalType'] == 'acute care hospitals']['City'].value_counts(normalize=True).head(3)
+        return top_3_cities
+
+    def pp141_exe(df):
+        """
+        Analyze how hospital types evolve across the ZIP code of one city.
+        """
+        hospital_type_evolution = df.groupby('City')['HospitalType'].apply(lambda x: x.unique().tolist()).to_dict()
+        return hospital_type_evolution
+
+    def pp142_exe(df):
+        """
+        Analyze trends in emergency service availability across hospital types with the highest hospital counts.
+        """
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        hospital_type_with_most_emergency_service = df[df['EmergencyService'] == 'yes'].groupby('HospitalType').size().idxmax()
+        return hospital_type_with_most_emergency_service
+
+    def pp143_exe(df):
+        """
+        Analyze whether the hospital ownership changed among counties for the same type.
+        """
+        ownership_change_analysis = df.groupby(['CountyName', 'HospitalType'])['HospitalOwner'].apply(lambda x: x.nunique() > 1)
+        return ownership_change_analysis
+
+    def pp144_exe(df):
+        """
+        Assess the relationship between hospital ownership and the likelihood of offering emergency services.
+        """
+        ownership_emergency_service = df.groupby(['HospitalOwner', 'EmergencyService']).size().unstack().fillna(0)
+        return ownership_emergency_service
+
+    def pp145_exe(df):
+        """
+        Investigate correlations between city size (estimated by the number of hospitals) and the prevalence of emergency services.
+        """
+        city_size_emergency_service = df.groupby('City')['EmergencyService'].apply(lambda x: (x == 'Yes').sum() / len(x))
+        return city_size_emergency_service
+
+    def pp146_exe(df):
+        """
+        Explore the relationship between hospital types and their geographical distribution by ZIP code.
+        """
+        hospital_type_zip_code = df.groupby('HospitalType')['ZipCode'].nunique().sort_values(ascending=False)
+        return hospital_type_zip_code
+
+    def pp147_exe(df):
+        """
+        Analyze how ownership type correlates with hospital type.
+        """
+        ownership_hospital_type = df.groupby(['HospitalOwner', 'HospitalType']).size().unstack().fillna(0)
+        return ownership_hospital_type
+
+    def pp148_exe(df):
+        """
+        Retrieve the number of counties that offer the emergency services.
+        """
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        counties_with_emergency_services = df[df['EmergencyService'] == 'yes']['CountyName'].unique().tolist()
+        return len(counties_with_emergency_services)
+
+    def pp149_exe(df):
+        """
+        Filter for hospitals owned by governments with multiple hospital types.
+        """
+        government_owned_hospitals = df[df['HospitalOwner'] == 'Government'].groupby('ZipCode')['HospitalType'].nunique().reset_index()
+        government_owned_hospitals = government_owned_hospitals[government_owned_hospitals['HospitalType'] > 1]
+        return government_owned_hospitals
+
+    def pp150_exe(df):
+        """
+        How many hospital types offer emergency services.
+        """
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        hospital_types_offering_emergency_services = df[df['EmergencyService'] == 'yes']['HospitalType'].unique().size
+        return hospital_types_offering_emergency_services
+
+    def pp151_exe(df):
+        """
+        Return the number of cities with voluntary non-profit ownership and hospital type.
+        """
+        df['HospitalOwner'] == df['HospitalOwner'].str.lower()
+        cities_with_voluntary_nonprofit_hospitals = df[(df['HospitalOwner'] == 'voluntary non-profit - private')]['City'].nunique()
+        return cities_with_voluntary_nonprofit_hospitals
+
+    def pp152_exe(df):
+        """
+        Identify number of cities where government-owned hospitals dominate the hospital landscape.
+        """
+        df['HospitalOwner'] = df['HospitalOwner'].str.lower()
+        government_dominant_cities = df[df['HospitalOwner'].str.contains('government')].groupby('City').size()
+        return government_dominant_cities
+
+    def pp153_exe(df):
+        """
+        Determine the number of hospitals offering emergency services.
+        """
+        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        emergency_service_count = (df['EmergencyService'] == 'yes').sum()
+        return emergency_service_count
+
+    def pp154_exe(df):
+        """
+        return number of hospital owner.
+        """
+        hospital_owner_count = df['HospitalOwner'].nunique()
+        return hospital_owner_count
 
 
 if __name__ == '__main__':

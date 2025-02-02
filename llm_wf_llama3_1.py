@@ -252,6 +252,46 @@ def parse_edits(raw_string):
     
     return parsed_edits
 
+import re
+
+def convert_python_to_jython(python_code):
+    """
+    Converts a given Python regex-based transformation snippet into Jython-compatible code.
+
+    Args:
+        python_code (str): The Python code snippet.
+
+    Returns:
+        str: Jython-compatible code snippet.
+    """
+    # Ensure input code is stripped of extra spaces
+    python_code = python_code.strip()
+    # Remove Python-specific imports
+    python_code = re.sub(r"^\s*import re\s*", "", python_code, flags=re.MULTILINE)
+    # Remove comments (full-line comments and inline comments)
+    python_code = re.sub(r"^\s*#.*", "", python_code, flags=re.MULTILINE)  # Full-line comments
+    python_code = re.sub(r"\s+#.*", "", python_code)  # Inline comments
+    # Ensure "value" is used correctly
+    python_code = re.sub(r"\bvalue\s*=", "value =", python_code)
+
+    # Convert f-strings to Jython-compatible string formatting
+    python_code = re.sub(r'f\"(.*?)\"', r'"%s" % (\1)', python_code)
+
+    # Ensure regex function names are correctly formatted for Jython
+    python_code = re.sub(r"re\.(search|match|sub|compile)\(", r"re.\1(", python_code)
+
+    # Remove any unintended code blocks (` ```python ... ``` `)
+    python_code = re.sub(r"```python|```", "", python_code).strip()
+
+    # Ensure return statement is present at the end
+    if not re.search(r"\breturn\b", python_code):
+        python_code += "\nreturn value"
+
+    # Format final Jython code
+    jython_code = "jython:import re\n" + python_code.strip()
+
+    return jython_code
+
 
 def wf_gen(project_id, log_data, model, logging, purpose):
     df = export_intermediate_tb(project_id) # Return current intermediate table
@@ -285,6 +325,7 @@ Selected columns:
         ext_res = extract_exp(sel_col_desc)[0]
         print(ext_res)
         tg_cols = ast.literal_eval(ext_res)
+    tg_cols = list(set(tg_cols))
     print(f'Target columns: {tg_cols}')
 
     # Define EOD: End of Data Cleaning
@@ -331,8 +372,8 @@ Selected columns:
             if functions_list:
                 functions_list = parse_text_transform(ops_history, functions_list)
                 print(f'Applied operation history: {functions_list}')
-                if 'trim' in functions_list:
-                    ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
+                # if 'trim' in functions_list:
+                #     ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
             col_str = gen_table_str(df, num_rows=15, tg_col=sel_col) # only keep first 15 rows for operation selection
             # TBD: how many rows we will show here?
             tb_str = gen_table_str(sel_cols_df, num_rows=30)
@@ -363,6 +404,15 @@ Selected Operation:
             print(sel_op_desc)
             logging.info(f"\n\n{sel_op_desc}")
             sel_op = extract_exp(sel_op_desc, ops_pool)
+            if sel_op == 'date':
+                time_pattern = re.compile(r".*\d{1,2}.*:\d{1,2}.*\s?[aApP]\.?[mM]\.?")
+                df[sel_col] = df[sel_col].astype(str).apply(lambda x: bool(time_pattern.match(x)))
+                if df[sel_col].any():
+                    ops_pool = ['numeric', 'trim', 'upper', 'regexr_transform']
+                    context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
+                    print(sel_op_desc)
+                    logging.info(f"\n\n{sel_op_desc}")
+                    sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
 
             # TASK III: Learn function arguments (share the same context with sel_op)
@@ -425,19 +475,20 @@ Explanations:
             if sel_op == 'regexr_transform':
                 # tb_str = gen_table_str(df, num_rows=50, tg_col=sel_col)
                 col_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression in ``` ``` (Ensure the expression format statisifies ALL requirements in the **Check**). """ \
+                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression in ``` ```. """ \
                                     +f"""\
 /*
 {col_str}
 */
 Purpose: {purpose}
 Current Operation Purpose: {sum_eod}
-Expression: 
+Python Expression:
                                     """
                 # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
-                context, exp_desc = gen(prompt_sel_args, context, model)
-                logging.info(f"#TASK III: generate regexr arguments: \n\n {exp_desc}")
-                exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
+                context, py_exp = gen(prompt_sel_args, context, model)
+                # exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
+                exp = convert_python_to_jython(py_exp)
+                logging.info(f"#TASK III: generate regexr arguments: \n\n {exp}")
                 print(f'********predicted expression: {exp}')
                 text_transform(project_id, column=sel_col, expression=exp)
             elif sel_op == 'numeric':
@@ -580,7 +631,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:14].iterrows():
+    for index, row in pp_df.iloc[59:60].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

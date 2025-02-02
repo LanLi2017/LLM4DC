@@ -1,41 +1,18 @@
-The regexr_transform function is a Jython function that utilizes regular expressions (regex) to extract, replace, or transform text data based on patterns.
-Given the selected column, the task is to write a Jython expression that processes each individual cell value.
-
-Jython Constraints
-- The "expression" MUST start with "jython:"
-- "value" represents a single cell (DO NOT use loops to iterate over the column)
-- The function must be generic (DO NOT manually input specific text values)
-- The expression must end with "return" and output the transformed "value"
-- The syntax must be valid Jython code
+The regexr_transform function is a python function that utilizes regular expressions (regex) to extract, replace, or transform text data based on patterns.
+Given the purpose, current operation purpose, the task is to write a Python expression ONLY that processes each individual cell value, NO COMMENTS!
 
 
-Example Template
-Each example includes:  
-1. **Python equivalent (for reference only)**
-2. **Jython expression (for actual implementation)**
-
-
-**Example 1: Extracting Year from Composite Strings**
-```
 /*
 col : Book Title             | Year           | First Name
 row 1 : Against Method.      | Feyerabend,1975 | P.
 row 2 : Changing Order       | Collins,1985   | H.M.
 row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
 */
-Target column: Year  
-Jython expression:
-```jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)```  
-Python equivalent:
-```python
-import re
-match = re.search(r'\b\d{4}\b', value)
-if match:
-   value = match.group(0)
-```
+Purpose: What's the publish year for each book?
+Current Operation Purpose: Extracting Year from Composite Strings
+Python Expression:```import re\n match = re.search(r'\b\d{4}\b', value)\nif match:\n  value = match.group(0)\n return value ```
 Output: 1975 | 1985 | 2006  
 
-**Example 2: Extracting Numeric Position from Rankings**
 
 /*
 col : Year | Competition | Venue | Position | Notes
@@ -43,20 +20,11 @@ row 1 : 1991 | European Junior Championships | Thessaloniki, Greece | 10th | 4.9
 row 2 : 1992 | World Junior Championships | Seoul, South Korea | 1st | 5.45 m
 row 3 : 1996 | European Indoor Championships | Stockholm, Sweden | 14th (q) | 5.45 m
 */
-Target column: Position  
-Jython expression:
-```jython:import re\npattern = re.compile(r'^\d+')\nmatch = pattern.match(value)\nif match:\n  return match.group(0)```  
-Python equivalent:
-```python
-import re
-match = re.match(r'^\d+', value)
-if match:
-   value = match.group(0)
-```
+Purpose: List the rankings for each event.
+Current Operation Purpose: Extracting Numeric Position from Rankings
+Python Expression:```import re\n match = re.match(r'^\d+', value)\n  if match:\n  value = match.group(0)  return value\n  else:\n return value```
 Output: 10 | 1 | 14  
 
-
-**Example 3: Removing Extra Spaces**
 
 /*
 col : Year | Competition | Venue | Position | Notes
@@ -64,56 +32,18 @@ row 1 : 1991 | European  Junior Championships | Thessaloniki, Greece | 10th | 4.
 row 2 : 1992 | World   Junior Championships   | Seoul, South Korea | 1st | 5.45 m
 row 3 : 1996 | European Indoor    Championships  | Stockholm, Sweden | 14th (q) | 5.45 m
 */
-Target column: Competition  
-Jython expression:
-```jython:import re\nreturn re.sub(r'\\s{2,}', ' ', value)```  
-Python equivalent:
-```python
-import re
-value = re.sub(r'\s{2,}', ' ', value)
-```
+Purpose: How many different competitions recorded in this table?
+Current Operation Purpose: Removing Extra Spaces
+Python Expression:```import re\nvalue = re.sub(r'\s{2,}', ' ', value)\n return value```
 Output: European Junior Championships | World Junior Championships | European Indoor Championships  
 
-
-**Example 4: Removing Underscores and Dashes**
-
 /*
-col:  | Product Code       | Cleaned Code  |
-row 1: | ABC_123           | ABC123        |
-row 2: | XYZ-456           | XYZ456        |
-row 3: | LMN_789-000       | LMN789000     |
+col:  | Schedule Time    | Actual Time  |
+row 1: | -10:25_A.M.       | 10:28 A.M.     |
+row 2: | 9:05-a.m.       | 9:05 A.M.      |
+row 3: | --8:29-P.M.--   | 8:30 P.M.      |
 */
-Target column: Product Code  
-Jython expression:
-```jython:import re\nreturn re.sub(r'[_-]', '', value)``` 
-Python equivalent:
-```python
-import re
-value = re.sub(r'[_-]', '', value)
-``` 
-Output: ABC123 | XYZ456 | LMN789000  
-
-
-**Example 5: Removing Special Characters**
-
-/*
-col : Year | Competition | Venue | Position | Notes
-row 1 : 1991 | European Junior [Championships] | Thessaloniki, Greece | 10th | 4.90 m
-row 2 : 1992 | ?World Junior Championships:   | Seoul, South Korea | 1st | 5.45 m
-row 3 : 1996 | European Indoor Championships;.  | Stockholm, Sweden | 14th (q) | 5.45 m
-*/
-Target column: Competition  
-Jython expression:
-```jython:import re\nreturn re.sub(r'[\\[\\];\\.:?]', '', value)```  
-Python equivalent:
-```python
-import re
-value = re.sub(r'[\[\];\.:?]', '', value)
-```
-Output: European Junior Championships | World Junior Championships | European Indoor Championships  
-
-
-**Final Notes**
-- The **Python equivalent is for reference only** to help LLMs learn Jython syntax.
-- The **Jython expression is the actual implementation** that must be generated.
-- You should always **follow the Jython constraints** and check correctness before outputting code.
+Purpose: How many schedule time are happening in the morning?
+Current Operation Purpose: Standardize the formats of the Schedule Time colum by removing Underscores and Dashes. 
+Python Expression:```import re\n value = re.sub(r'[_-]', '', value)\n return value``` 
+Output: 10:25 A.M. | 9:05 a.m. |  8:29 P.M.   

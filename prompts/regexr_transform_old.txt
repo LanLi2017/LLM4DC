@@ -6,7 +6,7 @@ Note that the internal mechanism of **expression** include (1). scan the overall
 Expression MUST BE (**Check**):
 (1). Starts with "jython:"
 (2). "value" parameter is already refer to a single cell value. (DO NOT USE "for" loop to process the cell values.)
-(3). DO NOT manually input text data or Write PROGRAM directly implement the Purpose.
+(3). DO NOT manually input text data or Write PROGRAM (NO def) directly implement the Purpose.
 (4). Function or Module used in the code is working on a single cell ("value"), instead of the whole column. And Code implemented is correct
 (5). Ends with "return" statement and updated "value" transformed by the function.
 
@@ -23,9 +23,7 @@ row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
 */
 Purpose: List all the published year information for all books.
 Current Operation Purpose: The cell values in Year are incorrect but composite strings including year information which prevent it from meeting all data quality criteria.
-Expression: ```jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.search(r'\\b\\d{4}\\b') is executable and capture four digits from the cell values: True (5). Ends with "return" statement and updated "value" transformed by the function: True.
-Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return" is to parse capture the pattern of cell values in target column "Year". "value" parameter represents a single cell in the target column "Year". The code in-between is to search four digits in the cell values of target column Year.
+Jython Expression: ```jython:import re\nmatch = re.search(r'\\b\\d{4}\\b', value)\nif match:\n   return match.group(0)```
 Output: 1975| 1985 | 2006
 
 
@@ -37,9 +35,7 @@ row 3 : 1996 | European Indoor Championships | Stockholm, Sweden | 14th (q) | 5.
 */
 Purpose: who places 1st in 1991 or 1992
 Current Operation Purpose: The dataset has accuracy concerns, including data type and value pattern issues in "Position" column, which prevent it from meeting all data quality criteria.
-Expression: ```jython:import re\n pattern = re.compile(r'^\d+')\nmatch = pattern.match(value)\nif match:\n  value = match.group(0)\n  return value```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.compile() is executable on a single cell.: True (5). "import re" to use regular expression to capture and match cell values: 10th | 1st | 14th (q), digital part is correctly extracted by applying the "pattern = re.compile(r'^\d+')", so that we could execute the digits to resolve the accuracy concerns: True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
-Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of cell values in target column "Position". "value" parameter represents a single cell in the target column "Position". The code in-between is to find all the matching cells in "value" (target column Position) with the regular expression r'^\d+', and then use group(0) to capture the number only.
+Jython Expression: ```jython:import re\n pattern = re.compile(r'^\d+')\nmatch = pattern.match(value)\nif match:\n  value = match.group(0)\n  return value```
 Output: 10 | 1 | 14
 
 /*
@@ -50,9 +46,7 @@ row 3 : 1996 | European Indoor    Championships  | Stockholm, Sweden | 14th (q) 
 */
 Purpose: which competition(s) were host before 1998?
 Current Operation Purpose: The dataset has accuracy concerns, including extra white spaces issues in "Competition" column, which prevent it from meeting all data quality criteria.
-Expression: ```jython:import re\n match = re.search(r'\s{2,}', value)\nif match:\n result = re.sub(r'\s{2,}', ' ',value)\n return result\n else:\n return value```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.sub() is executable on a single cell replace every instance of two or more consecutive whitespace characters with a single space: True (5). "import re" to use regular expression to capture and match any occurrence of two or more consecutive whitespace characters r'\s{2,}': True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
-Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of consecutive white spaces and then replace them with single space. 
+Jython Expression: ```jython:import re\n match = re.search(r'\s{2,}', value)\nif match:\n result = re.sub(r'\s{2,}', ' ',value)\n return result\n else:\n return value```
 Output: European Junior Championships | World Junior Championships | European Indoor Championships 
 
 
@@ -64,7 +58,16 @@ row 3 : 1996 | European Indoor Championships;.  | Stockholm, Sweden | 14th (q) |
 */
 Purpose: which competition(s) were host before 1998?
 Current Operation Purpose: The dataset has accuracy concerns, including invalid characters: brackets, semicolon, dots, colon appear in "Competition" column, which prevent it from meeting all data quality criteria.
-Expression: ```jython:import re\n if re.search(r'[\[\];\.:]', value):\n return re.sub(r'[\[\];\.:]', '', value)\n else:\n return value```
-Check: (1). Starts with "jython:": True. (2). Use "value" parameter to refer to a single cell in the target column.: True, (3).DO NOT manually input text data or Write PROGRAM directly implement the Purpose: True (4). re.search(r'[\[\];\.:]', value) search invalid characters: [,],;,.,: from the value: True (5). "import re" to use regular expression to capture and match any occurrence of two or more consecutive whitespace characters r'\s{2,}': True. (6). Ends with "return" statement and updated "value" transformed by the function: True.
-Explanation: "jython" is the signal for python code,  "return" statement is used to end the execution of the function call. code in-between "jython:" and "return value" is to parse capture the pattern of cell values in target column "Position". "value" parameter represents a single cell in the target column "Position". The code in-between is to find all the invalid characters and strip them
+Jython Expression: ```jython:import re\n if re.search(r'[\[\];\.:]', value):\n return re.sub(r'[\[\];\.:]', '', value)\n else:\n return value```
 Output: European Junior Championships | World Junior Championships | European Indoor Championships 
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | ABC_123           | ABC123        |
+row 2: | XYZ-456           | XYZ456        |
+row 3: | LMN_789-000       | LMN789000     |
+*/
+Purpose:
+Current Operation Purpose: Removing Underscores and Dashes
+Jython Expression: ```jython:import re\nreturn re.sub(r'[_-]', '', value)``` 
+Output: ABC123 | XYZ456 | LMN789000 

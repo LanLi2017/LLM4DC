@@ -4,27 +4,15 @@ The pipeline of evalauting whether a column is of good quality and the data clea
 "Whether the column name is meaningful or not?" 
 "what are the distributions of data instances?" "are they clearly represented in this column?"
 (2). Assess the profiling results from four dimensions as following: 
-- **accuracy**: Whether the target column is free from obvious errors, inconsistencies, or biases
-- **relevance**: Whether the target column exists in the dataset to address the objectives.
-- **completeness**: Whether the target column has a reasonable sample size and contains enough data instances (not too many missing values)
-- **conciseness**: Whether the spellings in the target column are standardized, no same semantics but different representations exist
-(3) Return True or False for each dimension assessment result from (2). IF ONLY All dimensions (accuracy, relavance, completeness and conciseness) are evaluated as True
+- **Accuracy**: Whether the target column is free from obvious errors, inconsistencies, or biases
+- **Relevance**: Whether the target column exists in the dataset to address the objectives.
+- **Completeness**: Whether the target column has a reasonable sample size and contains enough data instances (not too many missing values)
+- **Conciseness**: Whether the spellings in the target column are standardized, no same semantics but different representations exist
+(3) Return True or False for each dimension assessment result from (2). IF ONLY All dimensions (Accuracy, Relevance, Completeness and Conciseness) are evaluated as True
 you would return True for the Flag. Otherwise, you SHOULD return False for the Flag and continue the data cleaning pipeline.
 
 
 Example
-/*
-col : population; census 2009
-row 1 : 939.370
-row 2 : 649,931 
-row 3 : '1,109,735' 
-*/
-
-Objective: Figure out the place that has a population in 2009 higher than 500,000.
-Flag: ```False```
-Target column: population; census 2009
-Explanations: Accuracy: False (data type in column population; census 2009 should be integers)* Relevance: True (column population; census 2009 exists)* Completeness: True (all values available in column population; census 2009)* Conciseness: True (no duplicates in column population; census 2009)*. Since there are some concerns with Accuracy (False) and not all of the dimensions are True, I will return ```False```.
-
 
 /*
 col : LoanAmount | City     | State  | Zip 
@@ -37,7 +25,70 @@ row 6 : 100000   | Chicago  | IL     |
 row 7 : 1000.    | Champaign| IL     | 61820
 */
 
-Objective: Figure out how many cities are in the table.
+Purpose: Figure out how many cities are in the table.
 Flag: ```True```
 Target column: City
 Explanations: Accuracy: True (correct spellings for the same city names and same format in column City)* Relevance: True (column City is relavant to the Purpose)* Completeness: N/A (with minor number of missing values in column City but it (1/7) can be ignored)* Conciseness: True (incorrect variations does not exist in column City)*. Since there are no concerns (True or N/A) with the quality dimensions, I will return ```True```.
+
+/*
+col : population; census 2009
+row 1 : 939.370
+row 2 : 649,931 
+row 3 : '1,109,735' 
+*/
+
+Purpose: Figure out the place that has a population in 2009 higher than 500,000.
+Flag: ```False```
+Target column: population; census 2009
+Explanations: Accuracy: False (data type in column population; census 2009 should be integers)* Relevance: True (column population; census 2009 exists)* Completeness: True (all values available in column population; census 2009)* Conciseness: True (no duplicates in column population; census 2009)*. Since there are some concerns with Accuracy (False) and not all of the dimensions are True, I will return ```False```.
+
+
+/*
+col : id | room_type | last_review_time | reviews_per_month
+row 1 : 2384 | Private room | 11:12 a.m. | 2.92 
+row 2 : 15365 | Entire home/apt | 08:20 A.M. | 0.81
+row 3 : 17928 | Entire home/apt| 12:12 P.m. |  2.81
+*/
+Purpose: Figure out the earliest last review time.
+Flag: ```False```
+Target column: last_review_time
+Explanations: Accuracy: False (Extra dots in AM/PM marker cause parsing errors)* Relevance: True (column last_review_time exists)* Completeness: True (all values available)* Conciseness: False (mixed uppercase and lowercase for AM/PM marker)*. Since there are some concerns with Accuracy (False) and Conciseness (False), not all of the dimensions are True, I will return ```False```.
+
+/*
+col :    | ProductID | ProductName       | Category        | Price
+row 1 :  | 1001      | Wireless Mouse    | Electronics     | 19.99
+row 2 :  | 1002      | Bluetooth Keyboard| Electronics     | 49.99
+row 3 :  | 1003      | USB-C Hub         | Electronics     | 39.99
+row 4 :  | 1004      | Gaming Laptop     | Computers       | 999.99
+row 5 :  | 1005      | Office Chair      | Furniture       | 149.99
+row 6 :  | 1006      | Standing Desk     | Furniture       | 299.99
+row 7 :  | 1007      | Noise-Canceling Headphones | Electronics | 199.99
+*/
+
+Purpose: Count the number of unique product categories in the table.
+Flag: ```True```
+Target column: Category
+Explanation: Accuracy: True (All category names are correctly spelled and consistently formatted) Relevance: True (The Category column is relevant to identifying unique categories)Completeness: True (No missing values in Category)Conciseness: True (No variations in category naming, e.g., "Electronics" vs. "Elec.")Since all quality dimensions are True, the Flag is True, meaning the column Category is clean and ready for analysis.
+
+/*
+col :   | code    | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 109,908 | mombasa| coast           | 212.5      | 939370.0 | mombasa (city)
+row 2 : | 200,3   | kwale  | coast           | 8,270.3    | 649931.0 | kwale
+row 3 : | 200,3;  | kilifi | coast           | 12,245.9   | 1109735.0 | kilifi
+*/
+Purpose: Figure out the duplicate codes recorded in the data.
+Flag: ```False```
+Target column: code
+Explanation: Accuracy: False (Extra commas need to be removed in numeric data)* Relevance: True (column code exists)* Completeness: True (all values available)* Conciseness: False (semicolons need to remove)*. Since there are some concerns with Accuracy (False) and Conciseness (False), not all of the dimensions are True, I will return ```False```.
+
+/*
+col :    | employee_id | department       | hire_date   | job_title
+row 1 :  | 1001       | Human Resources  | 2019-06-15  | Software Engineer
+row 2 :  | 1002       | HR               | 2020-07-20  | Software Eng.
+row 3 :  | 1003       | Human Resources  | 2018-03-25  | S/W Engineer
+*/
+Purpose: Analyze the hiring trends for different departments.
+Flag: ```False```
+Target column: department
+Explanation: Accuracy: True (No incorrect values or errors in department) Relevance: True (The department column is relevant to the objective) Completeness: True (No missing values in department)Conciseness: False (Inconsistent representations: "HR" vs. "Human Resources") Since Conciseness is False, I will return ```False```.
+

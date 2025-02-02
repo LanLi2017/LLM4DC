@@ -404,15 +404,15 @@ Selected Operation:
             print(sel_op_desc)
             logging.info(f"\n\n{sel_op_desc}")
             sel_op = extract_exp(sel_op_desc, ops_pool)
-            if sel_op == 'date':
-                time_pattern = re.compile(r".*\d{1,2}.*:\d{1,2}.*\s?[aApP]\.?[mM]\.?")
-                df[sel_col] = df[sel_col].astype(str).apply(lambda x: bool(time_pattern.match(x)))
-                if df[sel_col].any():
-                    ops_pool = ['numeric', 'trim', 'upper', 'regexr_transform']
-                    context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
-                    print(sel_op_desc)
-                    logging.info(f"\n\n{sel_op_desc}")
-                    sel_op = extract_exp(sel_op_desc, ops_pool)
+            # if sel_op == 'date':
+            #     time_pattern = re.compile(r".*\d{1,2}.*:\d{1,2}.*\s?[aApP]\.?[mM]\.?")
+            #     df[sel_col] = df[sel_col].astype(str).apply(lambda x: bool(time_pattern.match(x)))
+            #     if df[sel_col].any():
+            #         ops_pool = ['numeric', 'trim', 'upper', 'regexr_transform']
+            #         context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
+            #         print(sel_op_desc)
+            #         logging.info(f"\n\n{sel_op_desc}")
+            #         sel_op = extract_exp(sel_op_desc, ops_pool)
             print(f'selected operation: {sel_op}')
 
             # TASK III: Learn function arguments (share the same context with sel_op)
@@ -452,7 +452,7 @@ Selected Operation:
 {col_str}
 */
 
-Objective: {purpose}
+Purpose: {purpose}
 Flag: ```False```
 Explanations: 
                                             """
@@ -494,8 +494,26 @@ Python Expression:
             elif sel_op == 'numeric':
                 text_transform(project_id, column=sel_col, expression="value.toNumber()")
             elif sel_op == 'date':
-                text_transform(project_id, column=sel_col, expression="value.toDate()")
-                text_transform(project_id, column=sel_col, expression="value.toString()")
+                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
+                # print(col_str)
+                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output Expression in ``` ```."""\
+                                + f"""\n
+/*
+{col_str}
+*/
+Purpose: {purpose}
+Current Operation Purpose: {sum_eod}
+Expression: 
+"""
+                context, date_desc = gen(prompt_sel_args, context, model)
+                date_exp = extract_exp(date_desc)
+                print(f'Generated arguments for date: {date_exp}')
+                raise NotImplementedError
+                if date_exp:
+                    text_transform(project_id, column=sel_col, expression=date_exp)
+                else:
+                    pass
+                # text_transform(project_id, column=sel_col, expression="value.toString()")
             elif sel_op == 'trim':
                 text_transform(project_id, column=sel_col, expression="value.trim()")
             elif sel_op == 'upper':
@@ -602,15 +620,13 @@ def create_projects(project_name, ds_fp):
 
 def test_main():
     # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
+    # model = "llama3.3:70b"
+    # model = "llama3.1:8b-instruct-fp16"
     # ollama.pull(model)
-    models = [
-    "llama3.1:8b-instruct-fp16" ,
-    "llama3.2",
-    "phi3",
-    "gemma2",
-    "mistral"
-    "gemma2:27b"
-    ]
+    # models = [
+    # "llama3.1:8b-instruct-fp16",
+    # "LLama3.3(70b)"
+    # ]
     # model = "gemma2:27b"
     model = "llama3.1:8b-instruct-fp16"
     model_name = f"{model.split(':')[0]}"
@@ -620,7 +636,7 @@ def test_main():
     os.makedirs(log_dir, exist_ok=True)
 
     # pp_f = 'purposes/queries.csv'
-    pp_f = 'purposes/new_purposes.csv'
+    pp_f = 'purposes/all_purposes.csv'
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"CoT.response/{model_name}/datasets_llm"
@@ -631,7 +647,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[59:60].iterrows():
+    for index, row in pp_df.iloc[:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -640,21 +656,22 @@ def test_main():
         print(f"Row {index}: id = {pp_id}, purposes = {pp_v}")
         if 1 <= pp_id <= 30:
             ds_name = "menu_test"
-            if pp_id == 24:
-                ds_file = "datasets/menu_update/menu_errors_p24.csv"
-            else:
-                ds_file = "datasets/menu_update/menu_errors.csv"
-        elif 31<= pp_id <=61:
+            ds_file = f"datasets/menu_datasets/menu_p{pp_id}.csv"
+        elif 31<= pp_id <=60:
             ds_name = "chi_test"
-            ds_file = f"datasets/cfi_update/chi_food_data_p{pp_id}.csv"
+            ds_file = f"datasets/CFI_datasets/chi_food_data_p{pp_id}.csv"
+        elif 62<=pp_id<=91:
+            ds_name = "ppp_test"
+            ds_file = f"datasets/ppp_datasets/ppp_data_p{pp_id}.csv"
+        elif 92<= pp_id <=110:
+            ds_name = "dish_test"
+            ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
         elif 111<=pp_id<=126:
             ds_name = "flights_test"
             ds_file = f"datasets/flights/flights_data_p{pp_id}.csv"
         elif 127<=pp_id<=154:
             ds_name="hos_test"
             ds_file = f"datasets/hospital/hos_data_p{pp_id}.csv"
-        else:
-            pass
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         #TODO: logging file name 
         logging_name = f"CoT.response/{model_name}/logging/{model_name}_{ds_name}_{pp_id}.log"

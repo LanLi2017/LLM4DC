@@ -49,12 +49,10 @@ def parse_text_transform(ops_list, functions_list):
                 functions_list[idx] = "upper"
             elif exp=="value.toNumber()":
                 functions_list[idx] = "numeric"
-            elif exp=="value.toDate()":
+            elif exp.startswith("value.toDate") or exp.startswith("value.toString"):
                 functions_list[idx] = "date"
             elif exp.startswith("jython"):
                 functions_list[idx] = "regexr_transform"
-            elif exp=="value.toString()":
-                functions_list[idx] = "date"
             else:
                 raise NotImplementedError
     return functions_list
@@ -306,7 +304,7 @@ def wf_gen(project_id, log_data, model, logging, purpose):
 
     prompt_sel_col = sel_col_learn +\
      f"""\
-\n\nBased on table contents and Purpose provided as following, output Selected columns as a list in ``` ``` ONLY. 
+\n\nBased on table contents and Purpose provided as following, output Selected columns as a list in ``` ```. 
 /*
 {format_sel_col(df)}
 */
@@ -317,15 +315,19 @@ Selected columns:
     # print(prompt_sel_col)
     context, sel_col_desc = gen(prompt_sel_col, context, model)
     logging.info(sel_col_desc)
+    print(sel_col_desc)
     
     # print(f'description of selected column: {sel_col_desc}')
     try:
         tg_cols = ast.literal_eval(sel_col_desc)
     except:
         ext_res = extract_exp(sel_col_desc)[0]
-        print(ext_res)
-        tg_cols = ast.literal_eval(ext_res)
+        # print(ext_res)
+        print('=====')
+        clean_ext_res = ext_res.replace("python\n", "", 1).strip()
+        tg_cols = ast.literal_eval(clean_ext_res)
     tg_cols = list(set(tg_cols))
+    tg_cols = [col for col in tg_cols if col in av_cols]
     print(f'Target columns: {tg_cols}')
 
     # Define EOD: End of Data Cleaning
@@ -428,22 +430,21 @@ Selected Operation:
                     'top_p': 0.95,
                     'mirostat': 1 #0(default), 1(mirostat1),2(mirostat2)
                 }
-            if sel_op:
+            # if sel_op:
+            #     if sel_op not in ['numeric', 'trim', 'upper', 'date', 'regexr_transform']:
+            #         args = get_function_arguments('call_or.py', sel_op)
+            #         args.remove('project_id')  # No need to predict project_id
+            #         args.remove('column')
+            #         print(f'Current args need to be generated: {args}')
+            #     elif sel_op == "regexr_transform":
+            #         args = get_function_arguments('call_or.py', 'text_transform')
+            #         args.remove('project_id')
+            #         args.remove('column')
+            #     else:
+            #         print(f'No arguments need to generate for {sel_op}')
                 
-                if sel_op not in ['numeric', 'trim', 'upper', 'date', 'regexr_transform']:
-                    args = get_function_arguments('call_or.py', sel_op)
-                    args.remove('project_id')  # No need to predict project_id
-                    args.remove('column')
-                    print(f'Current args need to be generated: {args}')
-                elif sel_op == "regexr_transform":
-                    args = get_function_arguments('call_or.py', 'text_transform')
-                    args.remove('project_id')
-                    args.remove('column')
-                else:
-                    print(f'No arguments need to generate for {sel_op}')
-                
-                with open(f'prompts/{sel_op}.txt', 'r') as f1:
-                    prompt_sel_args = f1.read()
+            with open(f'prompts/{sel_op}.txt', 'r') as f1:
+                prompt_sel_args = f1.read()
 
             # Prepare the operation purpose
             prompt_eod = eod_learn + f"""\
@@ -506,13 +507,23 @@ Current Operation Purpose: {sum_eod}
 Expression: 
 """
                 context, date_desc = gen(prompt_sel_args, context, model)
-                date_exp = extract_exp(date_desc)
-                print(f'Generated arguments for date: {date_exp}')
-                if date_exp:
+                print(f'Generated description for date: {date_desc}')
+                match = re.search(r'```(?:sql|.*?)\s*(value\.toDate\(.*?\))\s*```', date_desc, re.DOTALL)
+                if match:
+                    date_exp = match.group(1)
+                    print(f'Generated arguments for date: {date_exp}')
                     text_transform(project_id, column=sel_col, expression=date_exp)
                 else:
-                    pass
-                # text_transform(project_id, column=sel_col, expression="value.toString()")
+                    # Try to capture expressions that start with `value.toString(...)`
+                    alt_match = re.search(r'```(?:sql|.*?)\s*(value\.toString\(.*?\))\s*```', date_desc, re.DOTALL)
+                    
+                    if alt_match:
+                        # Modify expression to use `value.toDate().toString("yyyy-MM-dd")`
+                        date_exp = 'value.toDate().toString("yyyy-MM-dd")'
+                        print(f'Converted value.toString(...) to: {date_exp}')
+                        text_transform(project_id, column=sel_col, expression=date_exp)
+                    else:
+                        raise NotImplementedError("No valid date expression found.")
             elif sel_op == 'trim':
                 text_transform(project_id, column=sel_col, expression="value.trim()")
             elif sel_op == 'upper':
@@ -638,15 +649,18 @@ def test_main():
     pp_f = 'purposes/all_purposes.csv'
     pp_df = pd.read_csv(pp_f)
 
-    ds_dir = f"CoT.response/{model_name}/datasets_llm"
+    ds_dir = f"{log_dir}/datasets_llm"
     os.makedirs(ds_dir, exist_ok=True)
 
-    recipe_dir = f"CoT.response/{model_name}/recipes_llm"
+    recipe_dir = f"{log_dir}/recipes_llm"
     os.makedirs(recipe_dir, exist_ok=True)
+
+    ops_dir = f"{log_dir}/operation"
+    os.makedirs(ops_dir, exist_ok=True)
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:29].iterrows():
+    for index, row in pp_df.iloc[41:59].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -676,8 +690,8 @@ def test_main():
         logging_name = f"CoT.response/{model_name}/logging/{model_name}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
         
-        #TODO: project name 
         project_name = f"{model_name}_{ds_name}_p{pp_id}"
+        print(project_name)
         log_data = {
             "ID": pp_id,
             "Purposes": pp_v,

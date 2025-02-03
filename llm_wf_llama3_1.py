@@ -508,7 +508,6 @@ Expression:
                 context, date_desc = gen(prompt_sel_args, context, model)
                 date_exp = extract_exp(date_desc)
                 print(f'Generated arguments for date: {date_exp}')
-                raise NotImplementedError
                 if date_exp:
                     text_transform(project_id, column=sel_col, expression=date_exp)
                 else:
@@ -647,7 +646,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[:].iterrows():
+    for index, row in pp_df.iloc[:29].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -678,7 +677,7 @@ def test_main():
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
         
         #TODO: project name 
-        project_name = f"{model_name}_{ds_name}_{pp_id}"
+        project_name = f"{model_name}_{ds_name}_p{pp_id}"
         log_data = {
             "ID": pp_id,
             "Purposes": pp_v,

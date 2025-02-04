@@ -231,6 +231,7 @@ def gen(prompt, context, model, options={'temperature':0.0}):
             return part['context'], ''.join(res)
     raise ValueError
 
+
 def parse_column_list(column_str):
     """
     Safely parse a string representation of a list into an actual list.
@@ -321,7 +322,6 @@ Selected columns:
             logging.warning(f"Retry {retries}: Could not extract valid target columns. Regenerating...")
     return tg_cols
 
-
 # parse edits by LLMs into a list
 def parse_edits(raw_string):
     # Remove newlines and spaces
@@ -388,59 +388,7 @@ def wf_gen(project_id, log_data, model, logging, purpose):
     errors = []
     context =[]
     # TASK I: select target column(s)
-    with open("prompts/f_select_column.txt", 'r')as f:
-        sel_col_learn = f.read()
-
-    prompt_sel_col = sel_col_learn +\
-     f"""\
-\n\nBased on table contents and Purpose provided as following, output Selected columns as a list in ``` ```. 
-/*
-{format_sel_col(df)}
-*/
-Purpose: {purpose}
-Selected columns:
-                                    """
-    logging.info(f"#TASK I: select target columns: \n\n {prompt_sel_col}")
-    # print(prompt_sel_col)
-    context, sel_col_desc = gen(prompt_sel_col, context, model)
-    logging.info(sel_col_desc)
-    print(sel_col_desc)
-
-    try:
-        tg_cols = ast.literal_eval(sel_col_desc)
-    except:
-        # Extract content inside triple backticks
-        matches = re.findall(r'```(?:\w+)?\n?(.*?)\n?```', sel_col_desc, re.DOTALL)
-    matches = [m.strip() for m in matches if m.strip()]
-
-    if matches:
-        freq_counter = Counter(matches)
-        ext_res = freq_counter.most_common(1)[0][0]  # Get most frequent match
-    else:
-        extracted_list = extract_exp(sel_col_desc)  # Ensure extract_exp works
-
-        if extracted_list:
-            ext_res = extracted_list[0]  # Safely extract first item
-        else:
-            print("extract_exp returned empty!")
-            ext_res = ""  # Ensure ext_res is never None
-    clean_ext_res = ext_res.replace("python\n", "", 1).strip()  # Remove extra "python\n"
-    
-    # Ensure we properly extract a valid list
-    if clean_ext_res.startswith("[") and clean_ext_res.endswith("]"):
-        tg_cols = parse_column_list(clean_ext_res)  # Parse safely
-    elif clean_ext_res.startswith('"[') and clean_ext_res.endswith(']"'):  # Fix double-quoted lists
-        fixed_ext_res = clean_ext_res.strip('"')  # Remove extra quotes
-        tg_cols = parse_column_list(fixed_ext_res)
-    else:
-        print(f"Invalid extracted result: {clean_ext_res}")
-        tg_cols = []
-
-    # Ensure `tg_cols` is a valid list before using `set()`
-    if not isinstance(tg_cols, list):
-        tg_cols = []
-
-    tg_cols = list(set(tg_cols))  # Remove duplicates
+    tg_cols = generate_target_columns(df, purpose, av_cols, model)
     print(f"Final target columns: {tg_cols}")
 
     # Define EOD: End of Data Cleaning
@@ -715,8 +663,6 @@ edits:
     # log_data["Operations"] = list(set(ops_data))
     print(f'The full operation chain: {ops_gen}')
     print(f'The whole process: {log_data}')
-    if len(log_data['Operations'])==0:
-        raise NotImplementedError
     return log_data
 
 
@@ -726,16 +672,15 @@ def create_projects(project_name, ds_fp):
 
 
 def test_main():
-    # model = "gemma2:9b" #"llama3.1:8b-instruct-fp16"
-    # model = "llama3.3:70b"
     # ollama.pull(model)
     # models = [
     # "llama3.1:8b-instruct-fp16",
     # "LLama3.3(70b)"
     # ]
+    # ollama run deepseek-r1:8b
     # model = "gemma2:27b"
     model = "mistral:7b-instruct"
-    model_name = f"{model.split(':')[0]}"
+    model_name = model.split(':')[0]
 
     # ollama.pull(model)
     log_dir = f"CoT.response/{model_name}"
@@ -753,10 +698,13 @@ def test_main():
 
     ops_dir = f"{log_dir}/operation"
     os.makedirs(ops_dir, exist_ok=True)
+
+    logging_dir = f"{log_dir}/logging"
+    os.makedirs(logging_dir, exist_ok=True)
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[113:114].iterrows():
+    for index, row in pp_df.iloc[40:41].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -783,7 +731,7 @@ def test_main():
             ds_file = f"datasets/hospital/hos_data_p{pp_id}.csv"
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
         #TODO: logging file name 
-        logging_name = f"CoT.response/{model_name}/logging/{model_name}_{ds_name}_{pp_id}.log"
+        logging_name = f"{logging_dir}/{model_name}_{ds_name}_{pp_id}.log"
         logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
         
         project_name = f"{model_name}_{ds_name}_p{pp_id}"

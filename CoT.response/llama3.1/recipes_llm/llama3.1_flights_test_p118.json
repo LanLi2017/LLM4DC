@@ -1,0 +1,248 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\nvalue = re.sub(r'[_-]', '', value)\nmatch = re.search(r'\\b(\\d{1,2}):(\\d{2})\\s([A|P]M)', value)\nif match:\n  hour, minute, am_pm = match.groups()\n  if am_pm == 'PM' and int(hour) != 12:\n    hour = str(int(hour) + 12)\n  elif am_pm == 'AM' and int(hour) == 12:\n    hour = '00'\n  value = f'{hour}:{minute}'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\nvalue = re.sub(r'[_-]', '', value)\nmatch = re.search(r'\\b(\\d{1,2}):(\\d{2})\\s([A|P]M)', value)\nif match:\n  hour, minute, am_pm = match.groups()\n  if am_pm == 'PM' and int(hour) != 12:\n    hour = str(int(hour) + 12)\n  elif am_pm == 'AM' and int(hour) == 12:\n    hour = '00'\n  value = f'{hour}:{minute}'\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.toDate(\"hh:mm a\").toString(\"hh:mm a\")",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate(\"hh:mm a\").toString(\"hh:mm a\")"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.trim()"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "2:55-p.m.",
+                    "2:55_p.m."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "2:55 PM"
+            },
+            {
+                "from": [
+                    "__9:05_A.M.__",
+                    "__4:00_P.M.__",
+                    "__1:00_p.m.__",
+                    "__7:15_P.M__",
+                    "__6:00_a.m__",
+                    "__11:25_a.m__",
+                    "__10:25_a.m__",
+                    "__2:30_P.M__",
+                    "__6:00_a.m__",
+                    "__11:25_a.m__"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "9:05 AM"
+            },
+            {
+                "from": [
+                    "11:25_a.m.",
+                    "__11:25_a.m.__"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "11:25 AM"
+            },
+            {
+                "from": [
+                    "9:00-p.m."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "9:00 PM"
+            },
+            {
+                "from": [
+                    "__4:55-p.m.--",
+                    "--4:55-p.m.--"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "4:55 PM"
+            },
+            {
+                "from": [
+                    "6:00-a.m.",
+                    "6:00_a.m."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "6:00 AM"
+            },
+            {
+                "from": [
+                    "7:15_p.m."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "7:15 PM"
+            },
+            {
+                "from": [
+                    "7:15-a.m."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "7:15 AM"
+            },
+            {
+                "from": [
+                    "7:10-A.M."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "7:10 AM"
+            },
+            {
+                "from": [
+                    "--8:40-a.m.--",
+                    "--7:25-a.m.--"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "8:40 AM"
+            }
+        ],
+        "description": "Mass edit cells in column sched_dep_time"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "__8:25_p.m.__",
+                    "--2:55-p.m.---",
+                    "__1:05_p.m.__",
+                    "__3:35_p.m.__"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "8:25 PM"
+            },
+            {
+                "from": [
+                    "7:00_a.m.",
+                    "__6:00_a.m.__",
+                    "6:00 AM",
+                    "9:05 AM",
+                    "7:10 AM"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "7:00 AM"
+            },
+            {
+                "from": [
+                    "3:35-P.M."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "3:35 PM"
+            },
+            {
+                "from": [
+                    "__12:15_p.m.__",
+                    "--9:45-a.m.--"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "12:15 PM"
+            },
+            {
+                "from": [
+                    "4:55 PM",
+                    "6:30_p.m.",
+                    "10:25-a.m."
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "4:55 PM"
+            }
+        ],
+        "description": "Mass edit cells in column sched_dep_time"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_dep_time using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.trim()"
+    }
+]

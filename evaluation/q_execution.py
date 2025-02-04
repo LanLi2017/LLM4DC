@@ -1398,71 +1398,73 @@ class QExecute:
 
 if __name__ == '__main__':
     # Load ground truth dataset 
-    gd_parent_folder = "../datasets/ground_truth"
-    menu_gd = f"{gd_parent_folder}/menu_all.csv"
-    chi_gd = f"{gd_parent_folder}/chi_all.csv"
-    ppp_gd = f"{gd_parent_folder}/ppp_all.csv"
-    dish_gd = f"{gd_parent_folder}/dish_all.csv"
-    menu_df = pd.read_csv(menu_gd)
-    chi_df = pd.read_csv(chi_gd)
-    ppp_df = pd.read_csv(ppp_gd)
-    dish_df = pd.read_csv(dish_gd)
+    # gd_parent_folder = "../datasets/ground_truth"
+    # menu_gd = f"{gd_parent_folder}/menu_all.csv"
+    # chi_gd = f"{gd_parent_folder}/chi_all.csv"
+    # ppp_gd = f"{gd_parent_folder}/ppp_all.csv"
+    # dish_gd = f"{gd_parent_folder}/dish_all.csv"
+    # menu_df = pd.read_csv(menu_gd)
+    # chi_df = pd.read_csv(chi_gd)
+    # ppp_df = pd.read_csv(ppp_gd)
+    # dish_df = pd.read_csv(dish_gd)
     
     # groundtruth_tag = False
-    dirty_tag = False
+    dirty_tag = True
     groundtruth_tag = False
     qexecute = QExecute
     # Load queries contents
-    query_contents = pd.read_csv('../purposes/queries.csv')
-    # model = 'dirty'
+    query_contents = pd.read_csv('../purposes/all_purposes.csv')
+    model = 'dirty'
     # load results by LLMs
-    # model = "llama3.1"
+    model = "llama3.1"
     # model = "gemma2"
-    model = "mistral"
-    model = "llama3.1_1"
+    # model = "mistral"
+    # model = "llama3.1_1"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
-    for query_id in range(0,111):
+    for query_id in range(0,155):
         row = query_contents[query_contents['ID'] == query_id]
-
         if len(row) == 0:
             continue
         func = f'pp{query_id}_exe'
         print(func)
         if groundtruth_tag: 
-            if query_id >= 62 and query_id <= 91:
-                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/cleaned_tables/ppp_sample_p{query_id}.csv'
-            elif query_id >= 92:
+            if query_id >126:
+               target_path = f'/projects/bces/lanl2/LLM4DC/datasets/hospital/clean_tables/hos_pp{query_id}.csv'
+            elif query_id >= 111 and query_id <=126:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/flights/clean_tables/flights_sample_p{query_id}.csv'
+            elif query_id >= 92 and query_id <=110:
                 target_path = f'/projects/bces/lanl2/LLM4DC/datasets/dish_datasets/cleaned_tables/dish_sample_p{query_id}.csv'
+            elif query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/cleaned_tables/ppp_sample_p{query_id}.csv'
             elif query_id >= 31 and query_id <= 61:
-                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/chi_food_inspection_datasets/cleaned_tables/chi_sample_p{query_id}.csv'
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/CFI_datasets/cleaned_tables/chi_sample_p{query_id}.csv'
             elif query_id <31:
-                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/menu/menu_p{query_id}.csv'
-        elif model == "llama3.1": 
-            if query_id >= 62 and query_id <= 91:
-                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/ppp_test_{query_id}.csv'
-            elif query_id >= 92:
-                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/dish_test_{query_id}.csv'
-            elif query_id >= 31 and query_id <= 61:
-                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/chi_test_{query_id}.csv'
-            elif query_id <31:
-                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/menu_test_{query_id}.csv'
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/menu_datasets/clean_tables/menu_sample_p{query_id}.csv'
         elif dirty_tag:
             print('dirty data loading...')
-            if query_id >= 62 and query_id <= 91:
-                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/ppp_data_p{query_id}.csv'
-            elif query_id >= 92:
+            if query_id >126:
+               target_path = f'/projects/bces/lanl2/LLM4DC/datasets/hospital/hos_data_p{query_id}.csv'
+            elif query_id >= 111 and query_id <=126:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/flights/flights_data_p{query_id}.csv'
+            elif query_id >= 92 and query_id <=110:
                 target_path = f'/projects/bces/lanl2/LLM4DC/datasets/dish_datasets/dish_data_p{query_id}.csv'
+            elif query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/ppp_data_p{query_id}.csv'
             elif query_id >= 31 and query_id <= 61:
-                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/chi_food_inspection_datasets/chi_food_data_p{query_id}.csv'
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/CFI_datasets/chi_food_data_p{query_id}.csv'
             elif query_id <31:
-                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/purpose-prepared-datasets/menu/menu_data.csv'
+                target_path = f'/projects/bces/lanl2/LLM4DC/datasets/menu_datasets/menu_p{query_id}.csv'
         else:
-            if query_id >= 62 and query_id <= 91:
-                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_ppp_test_{query_id}.csv'
-            elif query_id >= 92:
+            if query_id >126:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_hos_test_{query_id}.csv'
+            elif query_id >= 111 and query_id <=126:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_flights_test_{query_id}.csv'
+            elif query_id >= 92 and query_id <=110:
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_dish_test_{query_id}.csv'
+            elif query_id >= 62 and query_id <= 91:
+                target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_ppp_test_{query_id}.csv'
             elif query_id >= 31 and query_id <= 61:
                 target_path = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_chi_test_{query_id}.csv'
             elif query_id <31:
@@ -1477,10 +1479,10 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        # with open('answer_1-110_dirty.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
-        with open(f'answer_1-110_{model}.json', 'a') as f:
+        with open('answer_1-110_dirty.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
+        # with open(f'answer_1-110_{model}.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
         

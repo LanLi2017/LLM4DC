@@ -232,6 +232,26 @@ def gen(prompt, context, model, options={'temperature':0.0}):
     raise ValueError
 
 
+def parse_column_list(column_str):
+    """Attempts to parse a column list and fix incorrect formats if necessary."""
+    try:
+        # First, try to parse directly
+        parsed = ast.literal_eval(column_str)
+        if isinstance(parsed, list):
+            return [col.strip() for col in parsed if col.strip()]  # Remove empty values
+    except (SyntaxError, ValueError):
+        # Remove surrounding spaces and fix missing quotes
+        fixed_str = re.sub(r'(\w+)', r'"\1"', column_str)  # Add missing quotes
+        try:
+            parsed = ast.literal_eval(fixed_str)
+            if isinstance(parsed, list):
+                return [col.strip() for col in parsed if col.strip()]  # Remove empty values
+        except Exception as e:
+            print(f"Error parsing column list: {e}")
+    
+    return []  # Return empty list if parsing fails
+
+
 # parse edits by LLMs into a list
 def parse_edits(raw_string):
     # Remove newlines and spaces
@@ -250,7 +270,6 @@ def parse_edits(raw_string):
     
     return parsed_edits
 
-import re
 
 def convert_python_to_jython(python_code):
     """
@@ -316,19 +335,43 @@ Selected columns:
     context, sel_col_desc = gen(prompt_sel_col, context, model)
     logging.info(sel_col_desc)
     print(sel_col_desc)
-    
-    # print(f'description of selected column: {sel_col_desc}')
+
     try:
         tg_cols = ast.literal_eval(sel_col_desc)
     except:
-        ext_res = extract_exp(sel_col_desc)[0]
-        # print(ext_res)
-        print('=====')
-        clean_ext_res = ext_res.replace("python\n", "", 1).strip()
-        tg_cols = ast.literal_eval(clean_ext_res)
-    tg_cols = list(set(tg_cols))
-    tg_cols = [col for col in tg_cols if col in av_cols]
-    print(f'Target columns: {tg_cols}')
+        # Extract content inside triple backticks
+        matches = re.findall(r'```(?:\w+)?\n?(.*?)\n?```', sel_col_desc, re.DOTALL)
+    matches = [m.strip() for m in matches if m.strip()]
+
+    if matches:
+        freq_counter = Counter(matches)
+        ext_res = freq_counter.most_common(1)[0][0]  # Get most frequent match
+    else:
+        extracted_list = extract_exp(sel_col_desc)  # Ensure extract_exp works
+
+        if extracted_list:
+            ext_res = extracted_list[0]  # Safely extract first item
+        else:
+            print("extract_exp returned empty!")
+            ext_res = ""  # Ensure ext_res is never None
+    clean_ext_res = ext_res.replace("python\n", "", 1).strip()  # Remove extra "python\n"
+    
+    # Ensure we properly extract a valid list
+    if clean_ext_res.startswith("[") and clean_ext_res.endswith("]"):
+        tg_cols = parse_column_list(clean_ext_res)  # Parse safely
+    elif clean_ext_res.startswith('"[') and clean_ext_res.endswith(']"'):  # Fix double-quoted lists
+        fixed_ext_res = clean_ext_res.strip('"')  # Remove extra quotes
+        tg_cols = parse_column_list(fixed_ext_res)
+    else:
+        print(f"Invalid extracted result: {clean_ext_res}")
+        tg_cols = []
+
+    # Ensure `tg_cols` is a valid list before using `set()`
+    if not isinstance(tg_cols, list):
+        tg_cols = []
+
+    tg_cols = list(set(tg_cols))  # Remove duplicates
+    print(f"Final target columns: {tg_cols}")
 
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
@@ -398,51 +441,33 @@ Selected Operation:
                               """
             print("----start-------")
             print(prompt_sel_ops)
-            logging.info(f"#TASK II: select operations: \n\n {prompt_sel_ops}")
+            logging.info(f"#TASK II: select operations: \n\n {prompt_sel_ops}")  
+            options_sel_op = {
+                'temperature': 0.3,
+                'stop': ["\n\n\n\n"],
+                'num_predict': -1,
+                'top_k': 60,
+                'top_p': 0.95,
+                'mirostat': 1  # 0 (default), 1 (mirostat1), 2 (mirostat2)
+            }
 
-            
-            # TODO: Quality control
-            context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
-            print(sel_op_desc)
-            logging.info(f"\n\n{sel_op_desc}")
-            sel_op = extract_exp(sel_op_desc, ops_pool)
-            # if sel_op == 'date':
-            #     time_pattern = re.compile(r".*\d{1,2}.*:\d{1,2}.*\s?[aApP]\.?[mM]\.?")
-            #     df[sel_col] = df[sel_col].astype(str).apply(lambda x: bool(time_pattern.match(x)))
-            #     if df[sel_col].any():
-            #         ops_pool = ['numeric', 'trim', 'upper', 'regexr_transform']
-            #         context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
-            #         print(sel_op_desc)
-            #         logging.info(f"\n\n{sel_op_desc}")
-            #         sel_op = extract_exp(sel_op_desc, ops_pool)
-            print(f'selected operation: {sel_op}')
+            count_empty = 0
+            sel_op = None
 
-            # TASK III: Learn function arguments (share the same context with sel_op)
-            # return first 15 rows for generating arguments [different ops might require different number of rows]
-            if not sel_op:
-                count_empty += 1
-                print('count empty selected ops')
-                options_sel_op = {
-                    'temperature': 0.3,
-                    'stop': ["\n\n\n\n"],
-                    'num_predict': -1,
-                    'top_k': 60,
-                    'top_p': 0.95,
-                    'mirostat': 1 #0(default), 1(mirostat1),2(mirostat2)
-                }
-            # if sel_op:
-            #     if sel_op not in ['numeric', 'trim', 'upper', 'date', 'regexr_transform']:
-            #         args = get_function_arguments('call_or.py', sel_op)
-            #         args.remove('project_id')  # No need to predict project_id
-            #         args.remove('column')
-            #         print(f'Current args need to be generated: {args}')
-            #     elif sel_op == "regexr_transform":
-            #         args = get_function_arguments('call_or.py', 'text_transform')
-            #         args.remove('project_id')
-            #         args.remove('column')
-            #     else:
-            #         print(f'No arguments need to generate for {sel_op}')
+            while not sel_op or sel_op not in ops_pool:
+                context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
+                logging.info(f"\nGenerated operation description:\n{sel_op_desc}")
                 
+                sel_op = extract_exp(sel_op_desc, ops_pool)
+                
+                if sel_op in ops_pool:
+                    break
+                
+                count_empty += 1
+                logging.warning(f"Invalid operation selected. Retrying... (Attempt {count_empty})")
+
+            print(f"Selected operation: {sel_op}")
+
             with open(f'prompts/{sel_op}.txt', 'r') as f1:
                 prompt_sel_args = f1.read()
 
@@ -598,7 +623,7 @@ edits:
                 eod_flag = extract_exp(eod_desc, ['False', 'True'])
                 eod_flag_list.append(eod_flag)
                 eod_desc_list.append(eod_desc)
-            thread_length = 12 # the longest number of steps on a single column
+            thread_length = 5 # the longest number of steps on a single column 12/8
             if any([x == "True" for x in eod_flag_list]) or len(functions_list)>thread_length:
                 eod_flag = "True"
                 ops_data += functions_list # appending the operations if done...
@@ -660,7 +685,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[41:59].iterrows():
+    for index, row in pp_df.iloc[105:106].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

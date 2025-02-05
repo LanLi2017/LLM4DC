@@ -257,18 +257,19 @@ def generate_target_columns(df, purpose, av_cols, model):
     """
     
     # Read prompt template
-    with open("prompts/f_select_column.txt", 'r') as f:
+    with open("prompts/sel_cols_deep.txt", 'r') as f:
         sel_col_learn = f.read()
 
     prompt_sel_col = sel_col_learn + f"""
     
-    \n\nBased on table contents and Purpose provided below, output Selected columns as a list inside ``` ```. 
+    \n\nBased on table contents and Purpose provided below, the first step is to **List** of target columns from {av_cols} for Selected columns inside ``` ```. 
 /*
 {format_sel_col(df)}
 */
 Purpose: {purpose}
 Selected columns:
     """
+    print(prompt_sel_col)
     logging.info(f"#TASK I: Select target columns:\n\n{prompt_sel_col}")
     retries = 0
 
@@ -704,7 +705,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[40:41].iterrows():
+    for index, row in pp_df.iloc[3:41].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

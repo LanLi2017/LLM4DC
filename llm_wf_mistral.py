@@ -262,7 +262,7 @@ def generate_target_columns(df, purpose, av_cols, model):
 
     prompt_sel_col = sel_col_learn + f"""
     
-    \n\nBased on table contents and Purpose provided below, output Selected columns as a list inside ``` ```. 
+    \n\nBased on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
 /*
 {format_sel_col(df)}
 */
@@ -663,6 +663,8 @@ edits:
     # log_data["Operations"] = list(set(ops_data))
     print(f'The full operation chain: {ops_gen}')
     print(f'The whole process: {log_data}')
+    if len(log_data['Operations'])==0:
+        raise NotImplementedError
     return log_data
 
 
@@ -704,7 +706,7 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[40:41].iterrows():
+    for index, row in pp_df.iloc[50:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

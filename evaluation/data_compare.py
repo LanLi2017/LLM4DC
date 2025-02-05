@@ -50,21 +50,3 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
     # Calculate and return the average of match ratios across all target columns
     average_ratio = sum(match_ratios) / len(target_columns)
     return average_ratio
-
-result_dict = retrieve_tg_cols()
-query_id=70
-tg_cols = result_dict[query_id]
-print(f'target columns for purpose id {query_id}: {tg_cols}')
-# gd_fp = f'/projects/bces/lanl2/LLM4DC/datasets/chi_food_inspection_datasets/cleaned_tables/chi_sample_p{query_id}.csv'
-gd_fp = f'/projects/bces/lanl2/LLM4DC/datasets/ppp_datasets/cleaned_tables/ppp_sample_p{query_id}.csv'
-print(f'ground truth file: {gd_fp}')
-gd_df = pd.read_csv(gd_fp)
-
-model = "gemma2"
-llm_folder = f"CoT.response/{model}/datasets_llm"
-# pred_fp = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_chi_test_{query_id}.csv'
-pred_fp = f'/projects/bces/lanl2/LLM4DC/{llm_folder}/{model}_ppp_test_{query_id}.csv'
-print(f'Model: {model} predicted file: \n\n{pred_fp}')
-pred_df = pd.read_csv(pred_fp)
-res = average_match_ratio(gd_df, pred_df, tg_columns='BusinessType')
-print(res)

@@ -1608,7 +1608,7 @@ if __name__ == '__main__':
     # dish_df = pd.read_csv(dish_gd)
     
     # groundtruth_tag = False
-    dirty_tag = True
+    dirty_tag = False
     groundtruth_tag = False
     qexecute = QExecute
     # Load queries contents
@@ -1659,17 +1659,17 @@ if __name__ == '__main__':
                 target_path = f'{par_fp}/datasets/menu_datasets/menu_p{query_id}.csv'
         else:
             if query_id >126:
-                target_path = f'{par_fp}/{llm_folder}/{model}_hos_test_{query_id}.csv'
+                target_path = f'{par_fp}/{llm_folder}/{model}_hos_test_p{query_id}.csv'
             elif query_id >= 111 and query_id <=126:
-                target_path = f'{par_fp}/{llm_folder}/{model}_flights_test_{query_id}.csv'
+                target_path = f'{par_fp}/{llm_folder}/{model}_flights_test_p{query_id}.csv'
             elif query_id >= 92 and query_id <=110:
-                target_path = f'{par_fp}/{llm_folder}/{model}_dish_test_{query_id}.csv'
+                target_path = f'{par_fp}/{llm_folder}/{model}_dish_test_p{query_id}.csv'
             elif query_id >= 62 and query_id <= 91:
-                target_path = f'{par_fp}/{llm_folder}/{model}_ppp_test_{query_id}.csv'
+                target_path = f'{par_fp}/{llm_folder}/{model}_ppp_test_p{query_id}.csv'
             elif query_id >= 31 and query_id <= 61:
-                target_path = f'{par_fp}/{llm_folder}/{model}_chi_test_{query_id}.csv'
+                target_path = f'{par_fp}/{llm_folder}/{model}_chi_test_p{query_id}.csv'
             elif query_id <31:
-                target_path = f'{par_fp}/{llm_folder}/{model}_menu_test_{query_id}.csv'
+                target_path = f'{par_fp}/{llm_folder}/{model}_menu_test_p{query_id}.csv'
         print(target_path)
         target_df = pd.read_csv(target_path)
         
@@ -1680,10 +1680,13 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        with open('answer_1-110_dirty.json', 'a') as f:
+        # with open('answer_1-154_dirty.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
+        with open(f'answer_1-154_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
-        # with open(f'answer_1-110_{model}.json', 'a') as f:
+        # with open(f'answer_1-154_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
         

@@ -538,35 +538,7 @@ Python Expression:
             elif sel_op == 'numeric':
                 text_transform(project_id, column=sel_col, expression="value.toNumber()")
             elif sel_op == 'date':
-                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
-                # print(col_str)
-                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output Expression in ``` ```."""\
-                                + f"""\n
-/*
-{col_str}
-*/
-Purpose: {purpose}
-Current Operation Purpose: {sum_eod}
-Expression: 
-"""
-                context, date_desc = gen(prompt_sel_args, context, model)
-                print(f'Generated description for date: {date_desc}')
-                match = re.search(r'```(?:sql|.*?)\s*(value\.toDate\(.*?\))\s*```', date_desc, re.DOTALL)
-                if match:
-                    date_exp = match.group(1)
-                    print(f'Generated arguments for date: {date_exp}')
-                    text_transform(project_id, column=sel_col, expression=date_exp)
-                else:
-                    # Try to capture expressions that start with `value.toString(...)`
-                    alt_match = re.search(r'```(?:sql|.*?)\s*(value\.toString\(.*?\))\s*```', date_desc, re.DOTALL)
-                    
-                    if alt_match:
-                        # Modify expression to use `value.toDate().toString("yyyy-MM-dd")`
-                        date_exp = 'value.toDate().toString("yyyy-MM-dd")'
-                        print(f'Converted value.toString(...) to: {date_exp}')
-                        text_transform(project_id, column=sel_col, expression=date_exp)
-                    else:
-                        raise NotImplementedError("No valid date expression found.")
+                text_transform(project_id, column=sel_col, expression="value.toDate()")
             elif sel_op == 'trim':
                 text_transform(project_id, column=sel_col, expression="value.trim()")
             elif sel_op == 'upper':
@@ -704,7 +676,8 @@ def test_main():
     
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
-    for index, row in pp_df.iloc[40:41].iterrows():
+    # 【26,27,54,57,59,60】25-27 53,54 56-57 58-60
+    for index, row in pp_df.iloc[58:60].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

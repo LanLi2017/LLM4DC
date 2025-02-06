@@ -380,9 +380,10 @@ class QExecute:
         return most_frequent_risk_by_type
 
     def pp41_exe(df):
+        df['Risk'] = df['Risk'].astype(str)
         high_risk_facilities = df[df['Risk'].str.contains('risk 1', case=False, na=False)]
-        unique_facility_types = high_risk_facilities['Facility Type'].unique().tolist()
-        return [ftype for ftype in unique_facility_types if ftype.upper() != "UNKNOWN"]
+        unique_facility_types = high_risk_facilities['Facility Type'].dropna().unique().tolist()
+        return [ftype for ftype in unique_facility_types if ftype.strip().upper() != "UNKNOWN"]
 
     def pp42_exe(df):
         try:
@@ -1614,8 +1615,8 @@ if __name__ == '__main__':
     # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
-    # model = "gemma2"
-    model = "mistral"
+    model = "gemma2"
+    # model = "mistral"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"

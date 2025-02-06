@@ -382,7 +382,7 @@ class QExecute:
     def pp41_exe(df):
         high_risk_facilities = df[df['Risk'].str.contains('risk 1', case=False, na=False)]
         unique_facility_types = high_risk_facilities['Facility Type'].unique().tolist()
-        return unique_facility_types
+        return [ftype for ftype in unique_facility_types if ftype.upper() != "UNKNOWN"]
 
     def pp42_exe(df):
         try:
@@ -482,11 +482,11 @@ class QExecute:
     def pp49_exe(df):
         try:
             safest_school_restaurants_count = df[(df['Facility Type'].str.lower() == 'school') & 
-                                        (df['Risk'].str.contains('risk 3', case=False)) & 
+                                        (df['Risk'].str.contains('risk 1', case=False)) & 
                                         (df['Results'].str.lower() == 'pass')].shape[0]
         except:
             safest_school_restaurants_count = df[(df['Facility Type'].astype(str).str.lower() == 'school') & 
-                                        (df['Risk'].astype(str).str.contains('risk 3', case=False)) & 
+                                        (df['Risk'].astype(str).str.contains('risk 1', case=False)) & 
                                         (df['Results'].astype(str).str.lower() == 'pass')].shape[0]
         return safest_school_restaurants_count
     
@@ -526,7 +526,7 @@ class QExecute:
         df['Risk'] = df['Risk'].astype(str).str.lower()
         
         # Filter for Risk 1 (low) and get their Results
-        risk1_results = df[df['Risk'] == 'risk 1 (low)']['Results'].tolist()
+        risk1_results = df[df['Risk'] == 'risk 1 (low)']['Results'].dropna().unique().tolist()
         
         return risk1_results
     
@@ -1560,13 +1560,12 @@ class QExecute:
         return hospital_types_offering_emergency_services
 
     def pp151_exe(df):
-        """
-        Return the number of cities with voluntary non-profit ownership and hospital type.
-        """
-        df['HospitalOwner'] == df['HospitalOwner'].str.lower()
-        cities_with_voluntary_nonprofit_hospitals = df[(df['HospitalOwner'] == 'voluntary non-profit - private')]['City'].nunique()
+        """Return the unique city names where the hospital owner is 'VOLUNTARY NON-PROFIT - PRIVATE'."""
+        cities_with_voluntary_nonprofit_hospitals = df[
+            df['HospitalOwner'].str.contains('voluntary non-profit - private', case=False, na=False)
+        ]['City'].unique().tolist()
         return cities_with_voluntary_nonprofit_hospitals
-
+    
     def pp152_exe(df):
         """
         Identify number of cities where government-owned hospitals dominate the hospital landscape.
@@ -1603,8 +1602,8 @@ if __name__ == '__main__':
     # ppp_df = pd.read_csv(ppp_gd)
     # dish_df = pd.read_csv(dish_gd)
     
-    # groundtruth_tag = False
-    groundtruth_tag = True
+    groundtruth_tag = False
+    # groundtruth_tag = True
     dirty_tag = False
     # dirty_tag = True
     qexecute = QExecute
@@ -1612,9 +1611,9 @@ if __name__ == '__main__':
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
     # model = 'dirty'
     # load results by LLMs
-    # model = "llama3.1"
+    model = "llama3.1"
     # model = "gemma2"
-    model = "mistral"
+    # model = "mistral"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
@@ -1681,10 +1680,10 @@ if __name__ == '__main__':
         # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        # with open(f'answer_1-154_{model}.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
-        with open(f'answer_1-154_gt.json', 'a') as f:
+        with open(f'answer_1-154_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
+        # with open(f'answer_1-154_gt.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
         

@@ -624,19 +624,26 @@ class QExecute:
     
     def pp60_exe(df):
         """
-        Determine the id of facility type that are inspected in the most recent date.
+        Determine the facility types that are inspected on the most recent date.
         cols: Facility Type, Inspection Date
         """
         try:
-            # Get the most recent inspection date
+            # Convert Inspection Date to datetime
             df['Inspection Date'] = pd.to_datetime(df['Inspection Date'], errors='coerce')
+
+            # Get the most recent inspection date
             most_recent_date = df['Inspection Date'].max()
+
             if pd.isna(most_recent_date):
-                return None
-            recent_type = df[df['Facility Type'] == most_recent_date]['Facility Type'].unique().tolist()
-            
-            return recent_type
-        except:
+                return None  # No valid date found
+
+            # Find facility types inspected on the most recent date
+            recent_types = df[df['Inspection Date'] == most_recent_date]['Facility Type'].dropna().unique().tolist()
+
+            return recent_types if recent_types else None  # Return None if the list is empty
+
+        except Exception as e:
+            print(f"Error: {e}")
             return None
     
     def pp62_exe(df):
@@ -1597,8 +1604,9 @@ if __name__ == '__main__':
     # dish_df = pd.read_csv(dish_gd)
     
     # groundtruth_tag = False
-    dirty_tag = False
     groundtruth_tag = True
+    dirty_tag = False
+    # dirty_tag = True
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')

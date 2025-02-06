@@ -6,10 +6,10 @@
             "mode": "row-based"
         },
         "columnName": "flight",
-        "expression": "jython:import re\nimport re\\nflight_numbers = set()\\nfor row in data:\\n  flight = re.sub(r'[^-a-zA-Z0-9]', '', row['flight'])\\n  if flight:\\n    flight_numbers.add(flight)\\n\\nmost_frequent = max(flight_numbers, key=flight_numbers.count)\\nreturn most_frequent\n   This expression will remove any non-alphanumeric characters from the flight numbers and store them in a set for unique identification. Then it finds the most frequent flight number by counting each unique flight number using the `count()` method of the set object.\nreturn value",
+        "expression": "jython:import collections\\nflight_numbers = set()\\nfor row in df['flight']:\\n flight_numbers.add(row.replace('-', '').replace('aa', ''))\\nfreq_dist = collections.Counter(flight_numbers)\\nmax_frequency = max(freq_dist, key=freq_dist.get)\\nmost_frequent_flight = max_frequency if freq_dist[max_frequency] > 1 else freq_dist[max_frequency]\\nreturn most_frequent_flight\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression jython:import re\nimport re\\nflight_numbers = set()\\nfor row in data:\\n  flight = re.sub(r'[^-a-zA-Z0-9]', '', row['flight'])\\n  if flight:\\n    flight_numbers.add(flight)\\n\\nmost_frequent = max(flight_numbers, key=flight_numbers.count)\\nreturn most_frequent\n   This expression will remove any non-alphanumeric characters from the flight numbers and store them in a set for unique identification. Then it finds the most frequent flight number by counting each unique flight number using the `count()` method of the set object.\nreturn value"
+        "description": "Text transform on cells in column flight using expression jython:import collections\\nflight_numbers = set()\\nfor row in df['flight']:\\n flight_numbers.add(row.replace('-', '').replace('aa', ''))\\nfreq_dist = collections.Counter(flight_numbers)\\nmax_frequency = max(freq_dist, key=freq_dist.get)\\nmost_frequent_flight = max_frequency if freq_dist[max_frequency] > 1 else freq_dist[max_frequency]\\nreturn most_frequent_flight\nreturn value"
     }
 ]

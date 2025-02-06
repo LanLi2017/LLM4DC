@@ -6,75 +6,10 @@
             "mode": "row-based"
         },
         "columnName": "sched_dep_time",
-        "expression": "jython:import re\ndef standardize_time(value):\n    value = re.sub(r'[_-]', '', value).replace('a.m.', ' AM').replace('A.M.', ' AM').replace('p.m.', ' PM').replace('P.M.', ' PM')\n    return value[0:5] + \":\" + value[6:8]\n\ndata = [\"9:05-a.m.\", \"__10:40_a.m.__\", \"4:00_p.m.\", \"6:59_A.M.\", \"--8:35-a.m.--\", \"7:30-a.m.\", \"7:00-a.m.\", \"10:15-a.m.\", \"--2:55-p.m.--\", \"7:30-A.M.\", \"6:00-a.m.\", \"--7:10-p.m.--\", \"12:10-p.m.\", \"11:05_a.m.\", \"__4:16_p.m.__\", \"2:30_P.M.\", \"--7:10-A.M.--\", \"--1:00-p.m.--\", \"--7:55-a.m.--\", \"--1:29-p.m.--\"]\n\nstandardized_data = [standardize_time(value) for value in data]\n\navg_delay = sum([abs(int(x[0:2])*60 + int(x[3:5])) - int(y[0:2])*60 - int(y[3:5]) for x, y in zip(standardized_data, standardized_data[1:])]) / len(standardized_data)\nprint(\"Average delay:\", avg_delay)\n\nOutput: Average delay: 0.0",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\ndef standardize_time(value):\n    value = re.sub(r'[_-]', '', value).replace('a.m.', ' AM').replace('A.M.', ' AM').replace('p.m.', ' PM').replace('P.M.', ' PM')\n    return value[0:5] + \":\" + value[6:8]\n\ndata = [\"9:05-a.m.\", \"__10:40_a.m.__\", \"4:00_p.m.\", \"6:59_A.M.\", \"--8:35-a.m.--\", \"7:30-a.m.\", \"7:00-a.m.\", \"10:15-a.m.\", \"--2:55-p.m.--\", \"7:30-A.M.\", \"6:00-a.m.\", \"--7:10-p.m.--\", \"12:10-p.m.\", \"11:05_a.m.\", \"__4:16_p.m.__\", \"2:30_P.M.\", \"--7:10-A.M.--\", \"--1:00-p.m.--\", \"--7:55-a.m.--\", \"--1:29-p.m.--\"]\n\nstandardized_data = [standardize_time(value) for value in data]\n\navg_delay = sum([abs(int(x[0:2])*60 + int(x[3:5])) - int(y[0:2])*60 - int(y[3:5]) for x, y in zip(standardized_data, standardized_data[1:])]) / len(standardized_data)\nprint(\"Average delay:\", avg_delay)\n\nOutput: Average delay: 0.0"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "sched_dep_time",
-        "expression": "jython:import re\ndata = [\"7:10-A.M.\", \"__6:00_a.m__\", \"7:15-a.m.\", \"--8:29-a.m.--\", \"__12:00_A.M.__\", \"--12:30-a.m.--\", \"6:00-a.m.\", \"7:15_a.m.\", \"--7:55-a.m.--\", \"7:30-A.M.\", \"--10:45-a.m.--\", \"9:15-a.m.\", \"__4:00_p.m__\", \"--11:08-p.m.--\", \"9:05-a.m.\", \"--7:10-p.m.--\", \"1:00_p.m.\", \"7:00-a.m.\", \"__7:53_A.M__\", \"--7:55-a.m.--\", \"9:05-a.m.\", \"--7:10-p.m.--\", \"1:00_p.m.\"]\nresult = []\nfor time in data:\n    match = re.match(r'(\\d{2}:\\d{2}[AP]M|__\\d{2}:\\d{2}[AP]__|\\d{2}:\\d{2}_[AP]M)', time)\n    if match:\n        result.append(match.group(1))\n    else:\n        result.append(time)\naverage_delay = sum([datetime.strptime(t, \"%I:%M %p\") - datetime.strptime(\"09:00\", \"%I:%M %p\") for t in result] if result else 0) / len(result)\nprint(average_delay)\n\nOutput: 1 hour, 36 minutes and 48 seconds (assuming the average delay is calculated as the difference between the actual departure time and a reference time of 9:00 AM)\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\ndata = [\"7:10-A.M.\", \"__6:00_a.m__\", \"7:15-a.m.\", \"--8:29-a.m.--\", \"__12:00_A.M.__\", \"--12:30-a.m.--\", \"6:00-a.m.\", \"7:15_a.m.\", \"--7:55-a.m.--\", \"7:30-A.M.\", \"--10:45-a.m.--\", \"9:15-a.m.\", \"__4:00_p.m__\", \"--11:08-p.m.--\", \"9:05-a.m.\", \"--7:10-p.m.--\", \"1:00_p.m.\", \"7:00-a.m.\", \"__7:53_A.M__\", \"--7:55-a.m.--\", \"9:05-a.m.\", \"--7:10-p.m.--\", \"1:00_p.m.\"]\nresult = []\nfor time in data:\n    match = re.match(r'(\\d{2}:\\d{2}[AP]M|__\\d{2}:\\d{2}[AP]__|\\d{2}:\\d{2}_[AP]M)', time)\n    if match:\n        result.append(match.group(1))\n    else:\n        result.append(time)\naverage_delay = sum([datetime.strptime(t, \"%I:%M %p\") - datetime.strptime(\"09:00\", \"%I:%M %p\") for t in result] if result else 0) / len(result)\nprint(average_delay)\n\nOutput: 1 hour, 36 minutes and 48 seconds (assuming the average delay is calculated as the difference between the actual departure time and a reference time of 9:00 AM)\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "sched_dep_time",
-        "expression": "jython:import re\nimport re\n\ndata = [\"2:30_P.M.\", \"7:53_a.m.\", \"--8:29-A.M.--\", \"--12:30-a.m.--\", \"11:05_a.m.\", \"--1:29-p.m.--\", \"7:30-a.m.\", \"__11:08_p.m.__\", \"--7:55-a.m.--\", \"__7:53_A.M.__\", \"8:05-a.m.\", \"6:59_A.M.\", \"10:15-a.m.\", \"10:40_A.M.\", \"__4:16_p.m.__\", \"--11:25-a.m.--\", \"6:00_a.m.\", \"9:15-a.m.\", \"--10:45-a.m.--\", \"__12:00_A.M.__\", \"8:05-a.m.\"]\n\nfor i in range(len(data)):\n    data[i] = re.sub(r'[_-]', ':', data[i])\n    if \":\" in data[i]:\n        time = data[i].split(\":\")\n        hours = int(time[0])\n        minutes = int(time[1])\n        if len(time) > 2:\n            am_pm = time[2]\n            if am_pm.lower() == \"a.m.\" or am_pm.lower() == \"am\":\n                data[i] = \"%s\" % ({hours}:{minutes})\n            elif am_pm.lower() == \"p.m.\" or am_pm.lower() == \"pm\":\n                data[i] = \"%s\" % ({(hours + 12)}:{minutes})\n    else:\n        data[i] = data[i].replace(\" \", \"\")\n\ntotal_delay = 0\nfor i in range(len(data)):\n    if \":\" in data[i]:\n        time = data[i].split(\":\")\n        hours = int(time[0])\n        minutes = int(time[1])\n        if len(time) > 2:\n            am_pm = time[2]\n            if am_pm.lower() == \"a.m.\" or am_pm.lower() == \"am\":\n                actual_time = \"%s\" % ({hours}:{minutes})\n            elif am_pm.lower() == \"p.m.\" or am_pm.lower() == \"pm\":\n                actual_time = \"%s\" % ({(hours + 12)}:{minutes})\n        else:\n            actual_time = data[i]\n        delay = int(actual_time) - int(data[i])\n        total_delay += delay\n\naverage_delay = total_delay / len(data)\nprint(\"Average delay in departure times:\", average_delay)\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\nimport re\n\ndata = [\"2:30_P.M.\", \"7:53_a.m.\", \"--8:29-A.M.--\", \"--12:30-a.m.--\", \"11:05_a.m.\", \"--1:29-p.m.--\", \"7:30-a.m.\", \"__11:08_p.m.__\", \"--7:55-a.m.--\", \"__7:53_A.M.__\", \"8:05-a.m.\", \"6:59_A.M.\", \"10:15-a.m.\", \"10:40_A.M.\", \"__4:16_p.m.__\", \"--11:25-a.m.--\", \"6:00_a.m.\", \"9:15-a.m.\", \"--10:45-a.m.--\", \"__12:00_A.M.__\", \"8:05-a.m.\"]\n\nfor i in range(len(data)):\n    data[i] = re.sub(r'[_-]', ':', data[i])\n    if \":\" in data[i]:\n        time = data[i].split(\":\")\n        hours = int(time[0])\n        minutes = int(time[1])\n        if len(time) > 2:\n            am_pm = time[2]\n            if am_pm.lower() == \"a.m.\" or am_pm.lower() == \"am\":\n                data[i] = \"%s\" % ({hours}:{minutes})\n            elif am_pm.lower() == \"p.m.\" or am_pm.lower() == \"pm\":\n                data[i] = \"%s\" % ({(hours + 12)}:{minutes})\n    else:\n        data[i] = data[i].replace(\" \", \"\")\n\ntotal_delay = 0\nfor i in range(len(data)):\n    if \":\" in data[i]:\n        time = data[i].split(\":\")\n        hours = int(time[0])\n        minutes = int(time[1])\n        if len(time) > 2:\n            am_pm = time[2]\n            if am_pm.lower() == \"a.m.\" or am_pm.lower() == \"am\":\n                actual_time = \"%s\" % ({hours}:{minutes})\n            elif am_pm.lower() == \"p.m.\" or am_pm.lower() == \"pm\":\n                actual_time = \"%s\" % ({(hours + 12)}:{minutes})\n        else:\n            actual_time = data[i]\n        delay = int(actual_time) - int(data[i])\n        total_delay += delay\n\naverage_delay = total_delay / len(data)\nprint(\"Average delay in departure times:\", average_delay)\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "sched_dep_time",
-        "expression": "jython:import re\ndef standardize_time(time):\n    time = re.sub(r'[_-]', '', time)\n    time = re.sub(r'\\s+', ':', time)\n    hours, minutes = time.split(':')\n    return \"%s\" % ({hours}:{minutes})\n\ndef calculate_average_delay(data):\n    sched_dep_time = [standardize_time(row['sched_dep_time']) for row in data]\n    actual_time = [row['actual_time'] for row in data]\n    delays = [int(act - std) for act, std in zip(actual_time, sched_dep_time)]\n    return sum(delays) / len(delays)\n\ndata = [{\"sched_dep_time\": \"__7:53_A.M.__\", \"actual_time\": \"10:28 A.M.\"}, ...]\nprint(calculate_average_delay(data))",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\ndef standardize_time(time):\n    time = re.sub(r'[_-]', '', time)\n    time = re.sub(r'\\s+', ':', time)\n    hours, minutes = time.split(':')\n    return \"%s\" % ({hours}:{minutes})\n\ndef calculate_average_delay(data):\n    sched_dep_time = [standardize_time(row['sched_dep_time']) for row in data]\n    actual_time = [row['actual_time'] for row in data]\n    delays = [int(act - std) for act, std in zip(actual_time, sched_dep_time)]\n    return sum(delays) / len(delays)\n\ndata = [{\"sched_dep_time\": \"__7:53_A.M.__\", \"actual_time\": \"10:28 A.M.\"}, ...]\nprint(calculate_average_delay(data))"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "sched_dep_time",
-        "expression": "jython:import re\nimport re\\nvalues = [re.sub(r'[_-]', '', value) for value in values]\\nformatted_times = []\\nfor time in values:\\n  if 'A.M.' in time or 'a.m.' in time:\\n    hour, minute = map(int, time.split(':')[0].split())\\nfraction = minute / 60\\nif len(time.split()) > 2:\\n  hour_str, minute_str = time.split()[1], time.split()[2]\\n  if ':' in hour_str or '-' in hour_str:\\n    hour = int(hour_str.replace(':', '').replace('-', ''))\\nfraction += (hour - hour % 1) / 60\\n  formatted_times.append(\"%s\" % ({time[:3]}.{int(fraction * 60):02d}))\\nelse:\\n  formatted_times.append(time)\\navg_delay = sum([float(t.split('.')[1]) for t in formatted_times] if formatted_times else 0) / len(formatted_times)\\nreturn avg_delay\n\nThis expression standardizes the representation of time intervals by removing underscores and dashes, then calculates the average delay in departure times across all flights. It considers both A.M./a.m. and P.M./p.m. formats and handles inconsistent representations with multiple parts (e.g., 9:05-a.m.).\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\nimport re\\nvalues = [re.sub(r'[_-]', '', value) for value in values]\\nformatted_times = []\\nfor time in values:\\n  if 'A.M.' in time or 'a.m.' in time:\\n    hour, minute = map(int, time.split(':')[0].split())\\nfraction = minute / 60\\nif len(time.split()) > 2:\\n  hour_str, minute_str = time.split()[1], time.split()[2]\\n  if ':' in hour_str or '-' in hour_str:\\n    hour = int(hour_str.replace(':', '').replace('-', ''))\\nfraction += (hour - hour % 1) / 60\\n  formatted_times.append(\"%s\" % ({time[:3]}.{int(fraction * 60):02d}))\\nelse:\\n  formatted_times.append(time)\\navg_delay = sum([float(t.split('.')[1]) for t in formatted_times] if formatted_times else 0) / len(formatted_times)\\nreturn avg_delay\n\nThis expression standardizes the representation of time intervals by removing underscores and dashes, then calculates the average delay in departure times across all flights. It considers both A.M./a.m. and P.M./p.m. formats and handles inconsistent representations with multiple parts (e.g., 9:05-a.m.).\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "sched_dep_time",
-        "expression": "jython:import re\ndef standardize_time(value):\n    value = re.sub(r'[_-]', '', value).replace('a.m.', ' AM').replace('A.M.', ' AM').replace('p.m.', ' PM').replace('P.M.', ' PM')\n    return value\n\ndef calculate_avg_delay(data):\n    times = [standardize_time(row[0]) for row in data]\n    actuals = [standardize_time(row[1]) for row in data]\n    delays = [actuals[i] - times[i] for i in range(len(times)) if ':' in times[i] and ':' in actuals[i]]\n    return sum(delays) / len(delays) if delays else None\n\ndata = [['6:00-a.m.', '10:28 A.M.'], ['9:05-a.m.', '9:05 A.M.'], ['--8:29-P.M.--', '8:30 P.M.'], ...]\nprint(calculate_avg_delay(data))",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\ndef standardize_time(value):\n    value = re.sub(r'[_-]', '', value).replace('a.m.', ' AM').replace('A.M.', ' AM').replace('p.m.', ' PM').replace('P.M.', ' PM')\n    return value\n\ndef calculate_avg_delay(data):\n    times = [standardize_time(row[0]) for row in data]\n    actuals = [standardize_time(row[1]) for row in data]\n    delays = [actuals[i] - times[i] for i in range(len(times)) if ':' in times[i] and ':' in actuals[i]]\n    return sum(delays) / len(delays) if delays else None\n\ndata = [['6:00-a.m.', '10:28 A.M.'], ['9:05-a.m.', '9:05 A.M.'], ['--8:29-P.M.--', '8:30 P.M.'], ...]\nprint(calculate_avg_delay(data))"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     }
 ]

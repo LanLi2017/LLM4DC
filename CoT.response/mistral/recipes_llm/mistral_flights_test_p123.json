@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "act_dep_time",
-        "expression": "jython:import re\njython:import re\n\ndef standardize_time(value):\n\n    value = re.sub(r'[^a-zA-Z0-9:\\s]', '', value)\n\n    value = re.sub(r'_', ':', value).strip().upper()\n\n    if ':' not in value:\n        return f'{value}:00 AM'\n    else:\n        hours, minutes = value.split(':')\n        if minutes[-2:] == 'AM':\n            return f'{hours}:{minutes} AM'\n        elif minutes[-2:] == 'PM':\n            hour = int(hours) + 12\n            return f'{hour}:{minutes[2:]} PM'\n\n\nThis expression standardizes the time representation by removing non-alphanumeric characters except for colons and spaces, replacing underscores with colons, removing spaces before AM/PM, converting to uppercase, and adding AM or PM based on the presence of a colon in the minutes position. This will make it easier to analyze delayed departures by hour of the day.",
+        "columnName": "sched_dep_time",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression jython:import re\njython:import re\n\ndef standardize_time(value):\n\n    value = re.sub(r'[^a-zA-Z0-9:\\s]', '', value)\n\n    value = re.sub(r'_', ':', value).strip().upper()\n\n    if ':' not in value:\n        return f'{value}:00 AM'\n    else:\n        hours, minutes = value.split(':')\n        if minutes[-2:] == 'AM':\n            return f'{hours}:{minutes} AM'\n        elif minutes[-2:] == 'PM':\n            hour = int(hours) + 12\n            return f'{hour}:{minutes[2:]} PM'\n\n\nThis expression standardizes the time representation by removing non-alphanumeric characters except for colons and spaces, replacing underscores with colons, removing spaces before AM/PM, converting to uppercase, and adding AM or PM based on the presence of a colon in the minutes position. This will make it easier to analyze delayed departures by hour of the day."
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -19,23 +19,10 @@
             "mode": "row-based"
         },
         "columnName": "act_dep_time",
-        "expression": "jython:import re\njython:import re\n\ndef regexr_transform(column):\n    if column == 'act_dep_time':\n        expression = \"\"\"\\nimport re\\n\\ndef standardize_time(value):\\n    hour = re.search(r'([0-9]{1,2}):[0-9]{2}(?:(?:AM|am)|(?:PM|pm))', value)\\n    if hour:\\n        return hour.group(1) + ':' + hour.group(2).lower() + (('AM' == hour.group(3) or 'am' == hour.group(3)) and '0' if int(hour.group(1)) < 12 else '12') + ':00'\\n    return value\\n\\nreturn column_map(standardize_time, column)\"\"\"\"\n        return expression\n\n\nThis Python expression defines a function `regexr_transform` that takes a column name as an argument and returns the appropriate regular expression for standardizing the format of the act_dep_time column. The function `standardize_time` is defined within this expression, which uses regular expressions to extract the hour and AM/PM from each value in the act_dep_time column and converts it into a consistent 12-hour or 24-hour time format. The resulting expression can be used with the `column_map` function to apply the standardization to the entire act_dep_time column.",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression jython:import re\njython:import re\n\ndef regexr_transform(column):\n    if column == 'act_dep_time':\n        expression = \"\"\"\\nimport re\\n\\ndef standardize_time(value):\\n    hour = re.search(r'([0-9]{1,2}):[0-9]{2}(?:(?:AM|am)|(?:PM|pm))', value)\\n    if hour:\\n        return hour.group(1) + ':' + hour.group(2).lower() + (('AM' == hour.group(3) or 'am' == hour.group(3)) and '0' if int(hour.group(1)) < 12 else '12') + ':00'\\n    return value\\n\\nreturn column_map(standardize_time, column)\"\"\"\"\n        return expression\n\n\nThis Python expression defines a function `regexr_transform` that takes a column name as an argument and returns the appropriate regular expression for standardizing the format of the act_dep_time column. The function `standardize_time` is defined within this expression, which uses regular expressions to extract the hour and AM/PM from each value in the act_dep_time column and converts it into a consistent 12-hour or 24-hour time format. The resulting expression can be used with the `column_map` function to apply the standardization to the entire act_dep_time column."
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_dep_time",
-        "expression": "jython:import re\njython:import re\n\n   expression = r'[^a-zA-Z0-9:-_ ]+'\n   value = re.sub(expression, '', value)\n\n   expression = r'_'\n   value = value.replace(expression, ' ')\n   value = value.strip()\n\n   parts = re.split('[-:]', value)\n\n   if len(parts) == 3:\n       hour = int(parts[0])\n       minute = parts[1]\n       period = parts[2].lower()\n       if period in ['am', 'pm']:\n           if period == 'pm' and hour < 12:\n               hour += 12\n       else:\n           hour = int(hour)\n\n   elif len(parts) == 2:\n       hour = int(parts[0])\n       minute = parts[1]\n\n   return \"%s\" % ({hour}:{minute})\n\nThis expression will clean the time values in the `act_dep_time` column by removing underscores, spaces, and any non-alphanumeric characters except for hyphens and colons. It then standardizes the time format to a 24-hour format (HH:MM). If the original time value was in 12-hour format with AM/PM, it converts it to 24-hour format.",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression jython:import re\njython:import re\n\n   expression = r'[^a-zA-Z0-9:-_ ]+'\n   value = re.sub(expression, '', value)\n\n   expression = r'_'\n   value = value.replace(expression, ' ')\n   value = value.strip()\n\n   parts = re.split('[-:]', value)\n\n   if len(parts) == 3:\n       hour = int(parts[0])\n       minute = parts[1]\n       period = parts[2].lower()\n       if period in ['am', 'pm']:\n           if period == 'pm' and hour < 12:\n               hour += 12\n       else:\n           hour = int(hour)\n\n   elif len(parts) == 2:\n       hour = int(parts[0])\n       minute = parts[1]\n\n   return \"%s\" % ({hour}:{minute})\n\nThis expression will clean the time values in the `act_dep_time` column by removing underscores, spaces, and any non-alphanumeric characters except for hyphens and colons. It then standardizes the time format to a 24-hour format (HH:MM). If the original time value was in 12-hour format with AM/PM, it converts it to 24-hour format."
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
     }
 ]

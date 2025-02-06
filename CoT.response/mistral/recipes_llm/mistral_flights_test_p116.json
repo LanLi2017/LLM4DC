@@ -5,12 +5,25 @@
             "facets": [],
             "mode": "row-based"
         },
+        "columnName": "act_dep_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
         "columnName": "flight",
-        "expression": "value.toDate(\"hh:mm a\").toString(\"hh\")",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression value.toDate(\"hh:mm a\").toString(\"hh\")"
+        "description": "Text transform on cells in column flight using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -19,62 +32,10 @@
             "mode": "row-based"
         },
         "columnName": "act_arr_time",
-        "expression": "jython:import re\nimport re\nvalue = re.sub(r'(\\d{1,2}):(\\d{2}) (A|P)M', r'\\g<1>:\\g<2> \\g<3> Hours', value)\ntime_hours = int(re.search(r'\\d{1,2}', value).group(0))\nif time_hours >= 18 or (time_hours == 12 and value[-2] == 'P'):\n    return 'Evening'\nelse:\n    return 'Morning'",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nimport re\nvalue = re.sub(r'(\\d{1,2}):(\\d{2}) (A|P)M', r'\\g<1>:\\g<2> \\g<3> Hours', value)\ntime_hours = int(re.search(r'\\d{1,2}', value).group(0))\nif time_hours >= 18 or (time_hours == 12 and value[-2] == 'P'):\n    return 'Evening'\nelse:\n    return 'Morning'"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_arr_time",
-        "expression": "jython:import re\nfrom datetime import datetime\n\ndef format_time(time_str):\n    return datetime.strptime(time_str, \"%I:%M %p\").hour >= 18\n\ndata = [\"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\"]\n\nevening_flights = sum(format_time(time) for time in data if format_time(time))\nprint(evening_flights)\n\n\nThis expression will create a function `format_time()` that takes a string representing the time of day and returns True if it's 6 PM or later. Then, it iterates through the list of times (assuming they are all in the 'act_arr_time' column), applies the `format_time()` function to each one, and counts the number of True values. The result is the number of flights arriving in the evening.",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nfrom datetime import datetime\n\ndef format_time(time_str):\n    return datetime.strptime(time_str, \"%I:%M %p\").hour >= 18\n\ndata = [\"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\", \"Morning\"]\n\nevening_flights = sum(format_time(time) for time in data if format_time(time))\nprint(evening_flights)\n\n\nThis expression will create a function `format_time()` that takes a string representing the time of day and returns True if it's 6 PM or later. Then, it iterates through the list of times (assuming they are all in the 'act_arr_time' column), applies the `format_time()` function to each one, and counts the number of True values. The result is the number of flights arriving in the evening."
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_arr_time",
-        "expression": "jython:import re\nTo make the data relevant for our purpose, we can add a new column indicating the time of day based on the existing 'act_arr_time' column. Here is a Python expression that adds a new column 'Time of Day' to the table:\n\n\nimport datetime\n\ndf['Time of Day'] = df['act_arr_time'].apply(lambda x: 'Evening' if datetime.datetime.strptime(x, '%I:%M %p') > datetime.datetime.strftime(datetime.datetime.now(), '%H:%M %p') else 'Morning')\n\n\nThis expression creates a new column 'Time of Day' in the DataFrame and assigns 'Evening' to any row where the act_arr_time is later than the current time, and 'Morning' otherwise.\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nTo make the data relevant for our purpose, we can add a new column indicating the time of day based on the existing 'act_arr_time' column. Here is a Python expression that adds a new column 'Time of Day' to the table:\n\n\nimport datetime\n\ndf['Time of Day'] = df['act_arr_time'].apply(lambda x: 'Evening' if datetime.datetime.strptime(x, '%I:%M %p') > datetime.datetime.strftime(datetime.datetime.now(), '%H:%M %p') else 'Morning')\n\n\nThis expression creates a new column 'Time of Day' in the DataFrame and assigns 'Evening' to any row where the act_arr_time is later than the current time, and 'Morning' otherwise.\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_arr_time",
-        "expression": "jython:import re\ndf = df.drop('act_arr_time', axis=1)\n\nSince the 'act_arr_time' column does not provide relevant information regarding flight times, it should be removed or renamed for further analysis. The provided Python expression removes the column from the DataFrame.\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression jython:import re\ndf = df.drop('act_arr_time', axis=1)\n\nSince the 'act_arr_time' column does not provide relevant information regarding flight times, it should be removed or renamed for further analysis. The provided Python expression removes the column from the DataFrame.\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_arr_time",
-        "expression": "jython:import re\ndata = [row for row in data if 'Morning' not in row['act_arr_time']]\n\nAssuming `data` is a list of dictionaries, where each dictionary represents a row from the table. The above expression filters out rows with 'Morning' in the 'act_arr_time' column to create a new list containing only evening flights.\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression jython:import re\ndata = [row for row in data if 'Morning' not in row['act_arr_time']]\n\nAssuming `data` is a list of dictionaries, where each dictionary represents a row from the table. The above expression filters out rows with 'Morning' in the 'act_arr_time' column to create a new list containing only evening flights.\nreturn value"
+        "description": "Text transform on cells in column act_arr_time using expression value.toDate()"
     }
 ]

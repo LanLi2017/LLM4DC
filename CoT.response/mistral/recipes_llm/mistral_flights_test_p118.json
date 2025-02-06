@@ -5,12 +5,38 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate(\"hh:mm A\").toString(\"HH:mm\")",
+        "columnName": "flight",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate(\"hh:mm A\").toString(\"HH:mm\")"
+        "description": "Text transform on cells in column flight using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression value.toNumber()"
     },
     {
         "op": "core/text-transform",
@@ -19,10 +45,10 @@
             "mode": "row-based"
         },
         "columnName": "sched_dep_time",
-        "expression": "jython:import re\nfrom datetime import datetime\n\ndata = [\n    '6:00_a.m.',\n    '--8:40-a.m.--',\n    '__12:15_p.m.__',\n    '--7:25-a.m.--',\n    '7:15-a.m.',\n    '7:00_a.m.',\n    '__7:30_a.m.__',\n    '--10:45-A.M.--',\n    '8:00_a.m.',\n    '__3:35_p.m.__',\n    '--4:55-p.m.--',\n    '2:55-p.m.',\n    '__2:55_p.m.__',\n    '__1:05_p.m.__',\n    '__7:15_P.M.__',\n    '7:10-A.M.',\n    '6:40-a.m.',\n    '9:00-p.m.',\n    '__2:30_P.M.__',\n    '10:25-a.m.',\n]\n\ndef standardize_time(time):\n    time = re.sub(r'[_-]', '', time)\n    if ':' in time:\n        hours, minutes = map(int, time.split(':'))\n        return \"%s\" % ({hours}:{minutes:02d})\n    else:\n        hours, minutes = map(int, time.split('.')[0].split())\n        return \"%s\" % ({hours}:{minutes:02d})\n\ndef is_late(scheduled, actual):\n    scheduled_time = datetime.strptime(standardize_time(scheduled), \"%H:%M\")\n    actual_time = datetime.strptime(actual, \"%H:%M\")\n    return scheduled_time > actual_time\n\nfor row in data:\n    if ':' not in row:\n        row += '_00'\n    standardized = standardize_time(row)\n    print(standardized, end=' ')\nprint()\n\nlate_flights = [is_late(data[i], data[i+1]) for i in range(len(data)) if data[i+1]]\nprint(\"%s\" % (Late flights: {len(late_flights)}))\n\nOutput:\n\n6:00 7:15 12:15 7:25 7:15 7:00 7:30 10:45 8:00 3:35 4:55 2:55 2:55 1:05 7:15 7:10 6:40 9:00 2:30 10:25\nLate flights: 8",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\nfrom datetime import datetime\n\ndata = [\n    '6:00_a.m.',\n    '--8:40-a.m.--',\n    '__12:15_p.m.__',\n    '--7:25-a.m.--',\n    '7:15-a.m.',\n    '7:00_a.m.',\n    '__7:30_a.m.__',\n    '--10:45-A.M.--',\n    '8:00_a.m.',\n    '__3:35_p.m.__',\n    '--4:55-p.m.--',\n    '2:55-p.m.',\n    '__2:55_p.m.__',\n    '__1:05_p.m.__',\n    '__7:15_P.M.__',\n    '7:10-A.M.',\n    '6:40-a.m.',\n    '9:00-p.m.',\n    '__2:30_P.M.__',\n    '10:25-a.m.',\n]\n\ndef standardize_time(time):\n    time = re.sub(r'[_-]', '', time)\n    if ':' in time:\n        hours, minutes = map(int, time.split(':'))\n        return \"%s\" % ({hours}:{minutes:02d})\n    else:\n        hours, minutes = map(int, time.split('.')[0].split())\n        return \"%s\" % ({hours}:{minutes:02d})\n\ndef is_late(scheduled, actual):\n    scheduled_time = datetime.strptime(standardize_time(scheduled), \"%H:%M\")\n    actual_time = datetime.strptime(actual, \"%H:%M\")\n    return scheduled_time > actual_time\n\nfor row in data:\n    if ':' not in row:\n        row += '_00'\n    standardized = standardize_time(row)\n    print(standardized, end=' ')\nprint()\n\nlate_flights = [is_late(data[i], data[i+1]) for i in range(len(data)) if data[i+1]]\nprint(\"%s\" % (Late flights: {len(late_flights)}))\n\nOutput:\n\n6:00 7:15 12:15 7:25 7:15 7:00 7:30 10:45 8:00 3:35 4:55 2:55 2:55 1:05 7:15 7:10 6:40 9:00 2:30 10:25\nLate flights: 8"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     }
 ]

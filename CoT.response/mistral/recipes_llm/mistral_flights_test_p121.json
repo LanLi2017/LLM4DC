@@ -5,11 +5,24 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "sched_dep_time",
-        "expression": "jython:import re\ndef standardize(value):\n  value = re.sub(r'_', '', value).lower()\n  return value\n\ndata = [\"12:30-a.m.\", \"--11:08-p.m.--\", \"__11:25_p.m.__\", \"6:00_a.m.\", \"8:00_p.m.\", \"__8:25_p.m.__\", \"__8:29_a.m.__\", \"__6:00_a.m.__\", \"--1:05-p.m.--\", \"--7:10-a.m.--\", \"__7:10_A.M__\", \"6:00-A.M.\", \"6:45-a.m.\", \"__7:30_A.M__\", \"__12:00_A.M.__\", \"--7:25-a.m.--\", \"6:45_p.m.\", \"7:10_P.M.\", \"7:35_a.m.\", \"--7:35-a.m.--\", \"__7:35_A.M__\"]\n\nfor time in data:\n  standardized = standardize(time)\n  if \":\" in standardized:\n    scheduled, ampm = standardized.split(ampm_delimiter)\n    actual = datetime.strptime(actual_time, \"%H:%M %p\")\n    scheduled_datetime = datetime.strptime(scheduled + ampm, \"%I:%M %p\")\n    if actual > scheduled_datetime:\n      print(\"%s\" % (Flight with scheduled time {standardized} has an early departure.))\n  else:\n    print(\"Invalid format for this entry.\")",
+        "columnName": "flight",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression jython:import re\ndef standardize(value):\n  value = re.sub(r'_', '', value).lower()\n  return value\n\ndata = [\"12:30-a.m.\", \"--11:08-p.m.--\", \"__11:25_p.m.__\", \"6:00_a.m.\", \"8:00_p.m.\", \"__8:25_p.m.__\", \"__8:29_a.m.__\", \"__6:00_a.m.__\", \"--1:05-p.m.--\", \"--7:10-a.m.--\", \"__7:10_A.M__\", \"6:00-A.M.\", \"6:45-a.m.\", \"__7:30_A.M__\", \"__12:00_A.M.__\", \"--7:25-a.m.--\", \"6:45_p.m.\", \"7:10_P.M.\", \"7:35_a.m.\", \"--7:35-a.m.--\", \"__7:35_A.M__\"]\n\nfor time in data:\n  standardized = standardize(time)\n  if \":\" in standardized:\n    scheduled, ampm = standardized.split(ampm_delimiter)\n    actual = datetime.strptime(actual_time, \"%H:%M %p\")\n    scheduled_datetime = datetime.strptime(scheduled + ampm, \"%I:%M %p\")\n    if actual > scheduled_datetime:\n      print(\"%s\" % (Flight with scheduled time {standardized} has an early departure.))\n  else:\n    print(\"Invalid format for this entry.\")"
+        "description": "Text transform on cells in column flight using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
     }
 ]

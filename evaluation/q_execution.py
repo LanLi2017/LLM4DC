@@ -344,7 +344,7 @@ class QExecute:
         cols: inspection type
         """
         # Get count of unique inspection types
-        unique_inspection_count = df['Inspection Type'].astype(str).str.strip().lower().nunique()
+        unique_inspection_count = df['Inspection Type'].astype(str).str.strip().str.lower().nunique()
         return unique_inspection_count
 
     def pp36_exe(df):
@@ -519,7 +519,7 @@ class QExecute:
         # Ensure 'Risk' and 'Results' are strings and perform case-insensitive filtering
         safe_facilities = df[
             df['Risk'].str.contains('risk 3', case=False, na=False) & 
-            ~df['Results'].str.lower().eq('pass')
+            df['Results'].str.lower().eq('pass')
         ]
 
         # Extract addresses
@@ -1604,8 +1604,8 @@ if __name__ == '__main__':
     # Load ground truth dataset 
     
     # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
-    # groundtruth_tag = False
-    groundtruth_tag = True
+    groundtruth_tag = False
+    # groundtruth_tag = True
     dirty_tag = False
     # dirty_tag = True
     qexecute = QExecute
@@ -1613,9 +1613,9 @@ if __name__ == '__main__':
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
     # model = 'dirty'
     # load results by LLMs
-    model = "llama3.1"
+    # model = "llama3.1"
     # model = "gemma2"
-    # model = "mistral"
+    model = "mistral"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
@@ -1682,10 +1682,10 @@ if __name__ == '__main__':
         # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        # with open(f'answer_1-154_{model}.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
-        with open(f'answer_1-154_gt.json', 'a') as f:
+        with open(f'answer_1-154_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
+        # with open(f'answer_1-154_gt.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
         

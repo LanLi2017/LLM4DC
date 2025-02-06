@@ -344,7 +344,7 @@ class QExecute:
         cols: inspection type
         """
         # Get count of unique inspection types
-        unique_inspection_count = df['Inspection Type'].nunique()
+        unique_inspection_count = df['Inspection Type'].astype(str).str.strip().lower().nunique()
         return unique_inspection_count
 
     def pp36_exe(df):
@@ -519,7 +519,7 @@ class QExecute:
         # Ensure 'Risk' and 'Results' are strings and perform case-insensitive filtering
         safe_facilities = df[
             df['Risk'].str.contains('risk 3', case=False, na=False) & 
-            df['Results'].str.lower().eq('pass')
+            ~df['Results'].str.lower().eq('pass')
         ]
 
         # Extract addresses
@@ -1602,18 +1602,10 @@ class QExecute:
 
 if __name__ == '__main__':
     # Load ground truth dataset 
-    # gd_parent_folder = "../datasets/ground_truth"
-    # menu_gd = f"{gd_parent_folder}/menu_all.csv"
-    # chi_gd = f"{gd_parent_folder}/chi_all.csv"
-    # ppp_gd = f"{gd_parent_folder}/ppp_all.csv"
-    # dish_gd = f"{gd_parent_folder}/dish_all.csv"
-    # menu_df = pd.read_csv(menu_gd)
-    # chi_df = pd.read_csv(chi_gd)
-    # ppp_df = pd.read_csv(ppp_gd)
-    # dish_df = pd.read_csv(dish_gd)
     
-    groundtruth_tag = False
-    # groundtruth_tag = True
+    # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
+    # groundtruth_tag = False
+    groundtruth_tag = True
     dirty_tag = False
     # dirty_tag = True
     qexecute = QExecute
@@ -1690,10 +1682,10 @@ if __name__ == '__main__':
         # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        with open(f'answer_1-154_{model}.json', 'a') as f:
-            f.write(json.dumps(result_single))
-            f.write('\n')
-        # with open(f'answer_1-154_gt.json', 'a') as f:
+        # with open(f'answer_1-154_{model}.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
+        with open(f'answer_1-154_gt.json', 'a') as f:
+            f.write(json.dumps(result_single))
+            f.write('\n')
         

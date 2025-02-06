@@ -682,7 +682,9 @@ def test_main():
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
     # 【26,27,54,57,59,60】25-27 53,54 56-57 58-60
-    for index, row in pp_df.iloc[99:100].iterrows():
+    # 34-36, 37-39, 52-53, 54-55, 57-59 [35, 36, 38,39,53,55,58,59]
+
+    for index, row in pp_df.iloc[57:59].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

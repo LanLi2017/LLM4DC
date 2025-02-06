@@ -1,6 +1,7 @@
 import pandas as pd 
 import json
 import numpy as np
+import re
 
 # Create a folder with all the query results:
 # {'purpose id': , 'purpose': , 'answer':}
@@ -10,6 +11,12 @@ def return_pp_info(row_id):
     pp_id = int(query_contents.at[row_id, pp_id_col])
     pp_content = query_contents.at[row_id, pp_v_col]
     return pp_id, pp_content
+
+ISO_8601_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+
+def safe_parse_datetime(value):
+    """Only parse values that match the ISO 8601 format; return original if not."""
+    return pd.to_datetime(value, errors='coerce') if ISO_8601_REGEX.match(str(value)) else value
 
 class QExecute:
     def pp1_exe(df:pd.DataFrame):
@@ -1072,25 +1079,28 @@ class QExecute:
         Calculate the average delay in departure times across all flights.
         cols: sched_dep_time, act_dep_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-        df['delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-        return df['delay'].mean()
-
+            df['delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            return df['delay'].mean(skipna=True)  # Only calculate mean for valid parsed values
+        except:
+            return None
 
     def pp112_exe(df):
         """
         Calculate the average flight duration based on scheduled departure and arrival times.
         cols: sched_dep_time, sched_arr_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'sched_arr_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_sched_arr_time'] = df['sched_arr_time'].apply(safe_parse_datetime)
 
-        df['duration'] = (df['sched_arr_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-        return df['duration'].mean()
+            df['duration'] = (df['parsed_sched_arr_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            return df['duration'].mean(skipna=True)
+        except:
+            return None
 
 
     def pp113_exe(df):
@@ -1098,14 +1108,16 @@ class QExecute:
         Determine the airline carrier with the best on-time departure performance.
         cols: src, sched_dep_time, act_dep_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-        avg_delay_per_airline = df.groupby('src')['departure_delay'].mean()
+            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            avg_delay_per_airline = df.groupby('src')['departure_delay'].mean()
 
-        return avg_delay_per_airline.idxmin() if not avg_delay_per_airline.empty else None
+            return avg_delay_per_airline.idxmin() if not avg_delay_per_airline.empty else None
+        except:
+            return None
 
 
     def pp114_exe(df):
@@ -1129,11 +1141,11 @@ class QExecute:
         Count flights scheduled to arrive after 6:00 PM.
         cols: sched_arr_time
         """
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-        df = df.dropna(subset=['sched_arr_time'])
-        
-        count_after_6pm = (df['sched_arr_time'].dt.hour >= 18).sum()
-        return int(count_after_6pm)
+        try:
+            count_after_6pm = df[df['sched_arr_time'].str.contains("T18:|T19:|T20:|T21:|T22:|T23:")].shape[0]
+            return int(count_after_6pm)
+        except:
+            return None
 
 
     def pp117_exe(df):
@@ -1141,27 +1153,27 @@ class QExecute:
         Count on-time arrivals per airline carrier.
         cols: src, sched_arr_time, act_arr_time
         """
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-        df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], errors='coerce')
-        df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
-
-        df['arrival_diff'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
-        df['on_time'] = df['arrival_diff'].abs() <= 5  # On-time if within 5 minutes
-
-        return df.groupby('src')['on_time'].sum().to_dict()
-
+        try:
+            df['on_time'] = df['sched_arr_time'] == df['act_arr_time']
+            return df.groupby('src')['on_time'].sum().to_dict()
+        except:
+            return {}
 
     def pp118_exe(df):
         """
         Count how many flights are "delayed."
         cols: sched_dep_time, act_dep_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-        return int((df['departure_delay'] > 0).sum())
+            # Calculate delay only for valid timestamps
+            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+
+            return int((df['departure_delay'] > 0).sum(skipna=True))
+        except:
+            return None
 
 
     def pp119_exe(df):
@@ -1169,8 +1181,11 @@ class QExecute:
         Count flights that arrived in the AM.
         cols: sched_arr_time
         """
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-        return int((df['sched_arr_time'].dt.hour < 12).sum())
+        try:
+            am_count = df[df['sched_arr_time'].str.contains("T0[0-9]:|T10:|T11:")].shape[0]
+            return int(am_count)
+        except:
+            return None
 
 
     def pp120_exe(df):
@@ -1178,14 +1193,16 @@ class QExecute:
         Identify the airline carrier with the most delayed flights.
         cols: src, sched_dep_time, act_dep_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-        delayed_flights = df[df['departure_delay'] > 0]
+            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            delayed_flights = df[df['departure_delay'] > 0]
 
-        return delayed_flights['src'].value_counts().idxmax() if not delayed_flights.empty else None
+            return delayed_flights['src'].value_counts().idxmax() if not delayed_flights.empty else None
+        except:
+            return None
 
 
     def pp121_exe(df):
@@ -1193,11 +1210,14 @@ class QExecute:
         Count flights where the actual departure time is earlier than scheduled.
         cols: sched_dep_time, act_dep_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-        return int((df['act_dep_time'] < df['sched_dep_time']).sum())
+            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            return int((df['departure_delay'] < 0).sum(skipna=True))
+        except:
+            return None
 
 
     def pp122_exe(df):
@@ -1205,11 +1225,13 @@ class QExecute:
         Count flights where scheduled arrival time is before departure time.
         cols: sched_dep_time, sched_arr_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'sched_arr_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_sched_arr_time'] = df['sched_arr_time'].apply(safe_parse_datetime)
 
-        return int((df['sched_arr_time'] < df['sched_dep_time']).sum())
+            return int((df['parsed_sched_arr_time'] < df['parsed_sched_dep_time']).sum(skipna=True))
+        except:
+            return None
 
 
     def pp123_exe(df):
@@ -1217,13 +1239,21 @@ class QExecute:
         Analyze the trend of delayed departures by hour of the day.
         cols: sched_dep_time, act_dep_time
         """
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+        try:
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-        return df.groupby(df['sched_dep_time'].dt.hour)['departure_delay'].mean().to_dict()
+            # df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            # df['hour_of_day'] = df['parsed_sched_dep_time'].dt.hour  # Extract hour from scheduled departure time
 
+            df = df.dropna(subset=['parsed_sched_dep_time', 'parsed_act_dep_time'])
+
+            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+            return df.groupby(df['parsed_sched_dep_time'].dt.hour)['departure_delay'].mean().to_dict()
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return "Error in calculation"
 
     def pp124_exe(df):
         """
@@ -1231,21 +1261,10 @@ class QExecute:
         cols: sched_arr_time, act_arr_time
         """
         try:
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], errors='coerce')
-            df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
-
-            df['arrival_delay'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
-            on_time_arrivals = df[df['arrival_delay'] == 0]
-
-            if on_time_arrivals.empty:
-                return None
-
-            # Convert result to a standard Python int to ensure JSON serialization compatibility
-            return int(on_time_arrivals['sched_arr_time'].dt.hour.value_counts().idxmax())
-
-        except Exception as e:
-            print(f"Error: {e}")
+            df['on_time'] = df['sched_arr_time'] == df['act_arr_time']
+            best_hour_for_arrivals = df[df['on_time']]['sched_arr_time'].str[11:13].value_counts().idxmax()
+            return int(best_hour_for_arrivals)
+        except:
             return None
 
 
@@ -1255,22 +1274,19 @@ class QExecute:
         cols: src, sched_dep_time, act_dep_time
         """
         try:
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
-            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
-            df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-            df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-
+            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
             avg_delay_by_src = df.groupby('src')['departure_delay'].mean()
 
             if avg_delay_by_src.empty:
                 return None  # No valid data available
 
             return str(avg_delay_by_src.idxmax())  # Ensure string output for JSON serialization
-
-        except Exception as e:
-            print(f"Error: {e}")
+        except:
             return None
+
 
     def pp126_exe(df):
         """
@@ -1278,21 +1294,9 @@ class QExecute:
         cols: sched_arr_time, act_arr_time
         """
         try:
-            # Convert time columns to datetime
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
-            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], errors='coerce')
-
-            # Drop rows with missing values in relevant columns
-            df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
-
-            # Count flights where scheduled arrival time ≠ actual arrival time
             count_diff = (df['sched_arr_time'] != df['act_arr_time']).sum()
-
-            # Convert result to a standard Python int for JSON compatibility
             return int(count_diff)
-
-        except Exception as e:
-            print(f"Error: {e}")
+        except:
             return None
 
     def pp127_exe(df):

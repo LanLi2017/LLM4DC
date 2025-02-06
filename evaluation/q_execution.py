@@ -513,20 +513,30 @@ class QExecute:
         return passing_facilities
 
     def pp52_exe(df):
-        safe_facilities = df[(df['Risk'].str.lower() == 'risk 3 (low)') & (df['Results'].str.lower() == 'pass')]
-        safe_addresses = safe_facilities['Address'].tolist()
+        """
+        Return a list of addresses for facilities that have 'Risk 3' and passed inspection.
+        """
+        # Ensure 'Risk' and 'Results' are strings and perform case-insensitive filtering
+        safe_facilities = df[
+            df['Risk'].str.contains('risk 3', case=False, na=False) & 
+            df['Results'].str.lower().eq('pass')
+        ]
+
+        # Extract addresses
+        safe_addresses = safe_facilities['Address'].dropna().tolist()
+        
         return safe_addresses
     
     def pp53_exe(df):
         """
-        List inspection results for all businesses with Risk level 1 (low).
-        cols: Risk, Results
+        List unique inspection results for all businesses with Risk level 1.
+        Columns: Risk, Results
         """
         # Convert Risk to lowercase for case-insensitive comparison
         df['Risk'] = df['Risk'].astype(str).str.lower()
         
-        # Filter for Risk 1 (low) and get their Results
-        risk1_results = df[df['Risk'] == 'risk 1 (low)']['Results'].dropna().unique().tolist()
+        # Filter rows where 'Risk' contains 'risk 1'
+        risk1_results = df[df['Risk'].str.contains('risk 1', case=False, na=False)]['Results'].dropna().unique().tolist()
         
         return risk1_results
     

@@ -1142,7 +1142,7 @@ class QExecute:
         cols: sched_arr_time
         """
         try:
-            count_after_6pm = df[df['sched_arr_time'].str.contains("T18:|T19:|T20:|T21:|T22:|T23:")].shape[0]
+            count_after_6pm = df[df['sched_arr_time'].str.contains("T18:|T19:|T20:|T21:|T22:|T23:", regex=True, na=False)].shape[0]
             return int(count_after_6pm)
         except:
             return None
@@ -1182,7 +1182,7 @@ class QExecute:
         cols: sched_arr_time
         """
         try:
-            am_count = df[df['sched_arr_time'].str.contains("T0[0-9]:|T10:|T11:")].shape[0]
+            am_count = df[df['sched_arr_time'].str.contains("T0[0-9]:|T10:|T11:", regex=True, na=False)].shape[0]
             return int(am_count)
         except:
             return None
@@ -1623,8 +1623,7 @@ if __name__ == '__main__':
             if query_id >126:
                target_path = f'{par_fp}/datasets/hospital/clean_tables/hos_pp{query_id}.csv'
             elif query_id >= 111 and query_id <=126:
-                # TODO: cleaned_tables...
-                target_path = f'{par_fp}/datasets/flights/sys_clean_tables/flights_sample_p{query_id}.csv'
+                target_path = f'{par_fp}/datasets/flights/cleaned_tables/flights_data_p{query_id}.csv'
             elif query_id >= 92 and query_id <=110:
                 target_path = f'{par_fp}/datasets/dish_datasets/cleaned_tables/dish_sample_p{query_id}.csv'
             elif query_id >= 62 and query_id <= 91:

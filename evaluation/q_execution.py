@@ -357,7 +357,8 @@ class QExecute:
 
 
     def pp38_exe(df):
-        unique_low_risk_facility_types = df[df['Risk'].str.lower() == 'risk 3 (low)']['Facility Type'].unique()
+        df['Risk'] = df['Risk'].astype(str).str.lower()
+        unique_low_risk_facility_types = df[df['Risk'] == 'risk 3 (low)']['Facility Type'].unique()
         res = unique_low_risk_facility_types.tolist()
         return res 
 
@@ -997,12 +998,19 @@ class QExecute:
         Identify which dishes have experienced a lowest price difference.
         cols: name, hightest_price, lowest_price
         """
+        df['highest_price'] = pd.to_numeric(df['highest_price'], errors='coerce')
+        df['lowest_price'] = pd.to_numeric(df['lowest_price'], errors='coerce')
         df['price_difference'] = df['highest_price'] - df['lowest_price']
 
-        # Identify the dish with the highest price difference
-        lowest_price_difference_dish = df.loc[df['price_difference'].idxmin()]
-        return lowest_price_difference_dish['name']
+        df_valid = df.dropna(subset=['price_difference'])
 
+        if df_valid.empty:
+            return None  # If all rows were NaN, return None
+
+        # Identify the dish with the lowest price difference
+        lowest_price_difference_dish = df_valid.loc[df_valid['price_difference'].idxmin()]
+
+        return lowest_price_difference_dish['name']
     
     def pp107_exe(df):
         """
@@ -1615,15 +1623,15 @@ if __name__ == '__main__':
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
     model = 'dirty'
     # load results by LLMs
-    model = "llama3.1"
+    # model = "llama3.1"
     # model = "gemma2"
-    # model = "mistral"
+    model = "mistral"
     # model = "llama3.1_1"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
-    # par_fp = "/projects/bces/lanl2/LLM4DC"
-    par_fp = ".."
+    par_fp = "/projects/bces/lanl2/LLM4DC"
+    # par_fp = ".."
     for query_id in range(0,155):
         row = query_contents[query_contents['ID'] == query_id]
         if len(row) == 0:

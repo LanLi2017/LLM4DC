@@ -93,7 +93,7 @@ class QExecute:
 
     def pp13_exe(df:pd.DataFrame):
         filtered_df = df[df['currency'].str.lower() == 'dollars']
-        res = filtered_df['sponsor'].unique().tolist()
+        res = filtered_df['sponsor'].dropna().unique().tolist()
         return res
 
     def pp14_exe(df:pd.DataFrame):
@@ -501,7 +501,7 @@ class QExecute:
         df['Results'] = df['Results'].astype(str).str.lower()
         
         # Filter for results containing 'pass' and get unique facility types
-        passing_facilities = df[df['Results'].str.contains('pass', na=False)]['Facility Type'].unique().tolist()
+        passing_facilities = df[df['Results'].str.contains('pass', na=False)]['Facility Type'].dropna().unique().tolist()
         
         return passing_facilities
 
@@ -725,6 +725,7 @@ class QExecute:
         Which gender type received the most amount of PPP loans and dollar amount? 
         cols: Gende, LoanAmount
         """
+        df = df[df['Gender'].str.lower() != 'unanswered']
         # Calculate total loan count and loan amount by gender
         gender_summary = df.groupby('Gender').agg(
             TotalLoanCount=('LoanAmount', 'size'),
@@ -807,6 +808,7 @@ class QExecute:
         Determine which races received the highest amount of PPP loans and the corresponding dollar amounts.
         cols: RaceEthinicity, LoanAmount
         """
+        df = df[df['RaceEthnicity'].str.lower() != "unanswered"]
         race_loan_totals = df.groupby('RaceEthnicity').agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
 
         # Sort by Total Loan Amount in descending order
@@ -1064,100 +1066,89 @@ class QExecute:
         top_10_popular_dishes['average_price'] = top_10_popular_dishes[['lowest_price', 'highest_price']].mean(axis=1)
         return top_10_popular_dishes[['name', 'average_price']].to_json()
     
+    
     def pp111_exe(df):
         """
         Calculate the average delay in departure times across all flights.
         cols: sched_dep_time, act_dep_time
         """
-        # Convert time columns to datetime
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
         df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
-        # Calculate the delay in minutes
+
         df['delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        return df['delay'].mean()
 
-        # Calculate the average delay
-        average_delay = df['delay'].mean()
-        return average_delay
 
-    
     def pp112_exe(df):
         """
         Calculate the average flight duration based on scheduled departure and arrival times.
         cols: sched_dep_time, sched_arr_time
         """
-        # Convert time columns to datetime
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
         df = df.dropna(subset=['sched_dep_time', 'sched_arr_time'])
+
         df['duration'] = (df['sched_arr_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        return df['duration'].mean()
 
-        # Calculate the average duration
-        average_duration = df['duration'].mean()
 
-        return average_duration
-    
     def pp113_exe(df):
-        # Convert time columns to datetime
-        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        """
+        Determine the airline carrier with the best on-time departure performance.
+        cols: src, sched_dep_time, act_dep_time
+        """
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
         df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
-        # Calculate departure delay (in minutes)
+
         df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        avg_delay_per_airline = df.groupby('src')['departure_delay'].mean()
 
-        # Compute the best (lowest) average departure delay among all airlines
-        best_delay = df.groupby('src')['departure_delay'].mean().min()
+        return avg_delay_per_airline.idxmin() if not avg_delay_per_airline.empty else None
 
-        return round(best_delay, 2)
 
     def pp114_exe(df):
         """
-        Count the number of flights operated by each airline carrier.
+        Count the number of unique airline carriers.
         cols: src
         """
-        # Count the number of flights per airline carrier
-        num_flights = df['src'].nunique()
+        return df['src'].nunique()
 
-        return num_flights
-    
+
     def pp115_exe(df):
-        flight_number_counts = df['flight'].value_counts()
-        return flight_number_counts.idxmax()
-    
+        """
+        Identify the most common flight number.
+        cols: flight
+        """
+        return df['flight'].value_counts().idxmax()
+
+
     def pp116_exe(df):
-        # Attempt to convert 'sched_arr_time' to datetime
-        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
-        # Find rows where conversion failed (NaT values)
+        """
+        Count flights scheduled to arrive after 6:00 PM.
+        cols: sched_arr_time
+        """
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
         df = df.dropna(subset=['sched_arr_time'])
-        cutoff_time = pd.to_datetime("6:00 pm", format="%I:%M %p")
-        # Count flights arriving after 6 pm
-        count_after_6pm = df[df['sched_arr_time'] > cutoff_time].shape[0]
-        return count_after_6pm
-    
+        
+        count_after_6pm = (df['sched_arr_time'].dt.hour >= 18).sum()
+        return int(count_after_6pm)
+
+
     def pp117_exe(df):
-        try:
-            # Convert time columns to datetime
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
-            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], format="%I:%M %p", errors='coerce')
+        """
+        Count on-time arrivals per airline carrier.
+        cols: src, sched_arr_time, act_arr_time
+        """
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
+        df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], errors='coerce')
+        df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
 
-            # Drop rows where conversion failed
-            df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
+        df['arrival_diff'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
+        df['on_time'] = df['arrival_diff'].abs() <= 5  # On-time if within 5 minutes
 
-            # Calculate the difference in minutes between scheduled and actual arrival times
-            df['arrival_diff'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
-
-            # Define on-time arrival as within 5 minutes of scheduled time
-            df['on_time'] = df['arrival_diff'].abs() <= 5
-
-            # Count the number of on-time arrivals per airline carrier
-            on_time_arrivals_count = df.groupby('src')['on_time'].sum()
-
-            # Convert result to dictionary for JSON serialization
-            return on_time_arrivals_count.to_dict()
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return {}
+        return df.groupby('src')['on_time'].sum().to_dict()
 
 
     def pp118_exe(df):
@@ -1165,91 +1156,60 @@ class QExecute:
         Count how many flights are "delayed."
         cols: sched_dep_time, act_dep_time
         """
-        try:
-            # Convert time columns to datetime
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
 
-            # Drop rows where conversion failed
-            df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        return int((df['departure_delay'] > 0).sum())
 
-            # Calculate departure delay (in minutes)
-            df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-            # Classify flights as "on-time", "early", or "delayed"
-            df['flight_status'] = df['departure_delay'].apply(lambda x: 'on-time' if x <= 0 else 'delayed')
-            return int(df['flight_status'] == 'delayed').sum()
-        except:
-            return None
 
     def pp119_exe(df):
         """
-        Count how many flights are in "A.M.".
+        Count flights that arrived in the AM.
         cols: sched_arr_time
         """
-        try:
-            # Convert time columns to datetime
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
-            # Categorize flights into "A.M." and "P.M." based on scheduled arrival time
-            df['arrival_time_category'] = df['sched_arr_time'].dt.hour.apply(lambda x: 'A.M.' if x < 12 else 'P.M.')
-            return int(df['arrival_time_category'] == 'A.M.').sum()
-        except: 
-             return None
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
+        return int((df['sched_arr_time'].dt.hour < 12).sum())
 
 
     def pp120_exe(df):
         """
-        Identify which airline carrier handles the most "delayed" flights.
+        Identify the airline carrier with the most delayed flights.
         cols: src, sched_dep_time, act_dep_time
         """
-        try:
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
 
-            df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-            delayed_flights = df[df['departure_delay'] > 0]
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        delayed_flights = df[df['departure_delay'] > 0]
 
-            if delayed_flights.empty:
-                return None
-
-            most_delayed_carrier = delayed_flights['src'].value_counts().idxmax()
-            return most_delayed_carrier
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+        return delayed_flights['src'].value_counts().idxmax() if not delayed_flights.empty else None
 
 
     def pp121_exe(df):
         """
-        Detect flights where the actual departure time is earlier than scheduled.
+        Count flights where the actual departure time is earlier than scheduled.
         cols: sched_dep_time, act_dep_time
         """
-        try:
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
 
-            df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-            return int((df['departure_delay'] < 0).sum())
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+        return int((df['act_dep_time'] < df['sched_dep_time']).sum())
 
 
     def pp122_exe(df):
         """
-        Identify flights with unrealistic durations (e.g., arrival time before departure time).
+        Count flights where scheduled arrival time is before departure time.
         cols: sched_dep_time, sched_arr_time
         """
-        try:
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'sched_arr_time'])
 
-            return int((df['sched_arr_time'] < df['sched_dep_time']).sum())
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+        return int((df['sched_arr_time'] < df['sched_dep_time']).sum())
 
 
     def pp123_exe(df):
@@ -1257,19 +1217,12 @@ class QExecute:
         Analyze the trend of delayed departures by hour of the day.
         cols: sched_dep_time, act_dep_time
         """
-        try:
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+        df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+        df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
+        df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
 
-            df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
-            df['hour_of_day'] = df['sched_dep_time'].dt.hour
-
-            avg_delay_by_hour = df.groupby('hour_of_day')['departure_delay'].mean()
-            return avg_delay_by_hour.to_dict()  # JSON serializable
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return {}
+        df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
+        return df.groupby(df['sched_dep_time'].dt.hour)['departure_delay'].mean().to_dict()
 
 
     def pp124_exe(df):
@@ -1278,18 +1231,18 @@ class QExecute:
         cols: sched_arr_time, act_arr_time
         """
         try:
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
-            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], format="%I:%M %p", errors='coerce')
+            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
+            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], errors='coerce')
+            df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
 
             df['arrival_delay'] = (df['act_arr_time'] - df['sched_arr_time']).dt.total_seconds() / 60
-            df['hour_of_day'] = df['sched_arr_time'].dt.hour
-
             on_time_arrivals = df[df['arrival_delay'] == 0]
+
             if on_time_arrivals.empty:
                 return None
 
-            best_hour_for_arrivals = on_time_arrivals['hour_of_day'].value_counts().idxmax()
-            return int(best_hour_for_arrivals)
+            # Convert result to a standard Python int to ensure JSON serialization compatibility
+            return int(on_time_arrivals['sched_arr_time'].dt.hour.value_counts().idxmax())
 
         except Exception as e:
             print(f"Error: {e}")
@@ -1302,49 +1255,53 @@ class QExecute:
         cols: src, sched_dep_time, act_dep_time
         """
         try:
-            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], format="%I:%M %p", errors='coerce')
-            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], format="%I:%M %p", errors='coerce')
+            df['sched_dep_time'] = pd.to_datetime(df['sched_dep_time'], errors='coerce')
+            df['act_dep_time'] = pd.to_datetime(df['act_dep_time'], errors='coerce')
+            df = df.dropna(subset=['sched_dep_time', 'act_dep_time'])
 
             df['departure_delay'] = (df['act_dep_time'] - df['sched_dep_time']).dt.total_seconds() / 60
 
             avg_delay_by_src = df.groupby('src')['departure_delay'].mean()
-            if avg_delay_by_src.empty:
-                return None
 
-            highest_delaying_src = avg_delay_by_src.idxmax()
-            return highest_delaying_src
+            if avg_delay_by_src.empty:
+                return None  # No valid data available
+
+            return str(avg_delay_by_src.idxmax())  # Ensure string output for JSON serialization
 
         except Exception as e:
             print(f"Error: {e}")
             return None
 
-    
     def pp126_exe(df):
         """
-        Count how many flights with the scheduled and actual arrival time difference.
+        Count how many flights have a difference between scheduled and actual arrival time.
         cols: sched_arr_time, act_arr_time
         """
         try:
-            # Convert arrival time columns to datetime
-            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], format="%I:%M %p", errors='coerce')
-            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], format="%I:%M %p", errors='coerce')
+            # Convert time columns to datetime
+            df['sched_arr_time'] = pd.to_datetime(df['sched_arr_time'], errors='coerce')
+            df['act_arr_time'] = pd.to_datetime(df['act_arr_time'], errors='coerce')
+
+            # Drop rows with missing values in relevant columns
+            df = df.dropna(subset=['sched_arr_time', 'act_arr_time'])
 
             # Count flights where scheduled arrival time ≠ actual arrival time
             count_diff = (df['sched_arr_time'] != df['act_arr_time']).sum()
 
-            # Ensure result is an integer for JSON compatibility
+            # Convert result to a standard Python int for JSON compatibility
             return int(count_diff)
 
         except Exception as e:
             print(f"Error: {e}")
             return None
-    
+
     def pp127_exe(df):
         """
         Count the number of hospitals per city.
         """
         hospital_count_per_city = df['City'].value_counts()
         return len(hospital_count_per_city)
+
 
     def pp128_exe(df):
         """
@@ -1353,12 +1310,14 @@ class QExecute:
         city_names = df['City'].unique().tolist()
         return city_names
 
+
     def pp129_exe(df):
         """
         Calculate the average number of hospitals per county.
         """
         county_names = df['CountyName'].unique().tolist()
         return county_names
+
 
     def pp130_exe(df):
         """
@@ -1369,6 +1328,7 @@ class QExecute:
         top_3_counties = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')]['CountyName'].value_counts().head(3)
         return top_3_counties.to_dict()
 
+
     def pp131_exe(df):
         """
         Identify the hospital ownership types that are most common in cities with multiple ZIP codes.
@@ -1378,6 +1338,7 @@ class QExecute:
             return None
         else:
             return common_ownership_in_cities.to_dict()
+
 
     def pp132_exe(df):
         """
@@ -1397,6 +1358,7 @@ class QExecute:
             print(f"Error: {e}")
             return None
 
+
     def pp133_exe(df):
         """
         Count the number of hospitals offering emergency services by "acute care hospitals" hospital type.
@@ -1406,6 +1368,7 @@ class QExecute:
         emergency_services_count = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')].shape[0]
         return emergency_services_count
 
+
     def pp134_exe(df):
         """
         Determine the most frequent combinations of hospital type and ownership.
@@ -1413,12 +1376,14 @@ class QExecute:
         frequent_combinations = df.groupby(['HospitalType', 'HospitalOwner']).size().idxmax()
         return frequent_combinations
 
+
     def pp135_exe(df):
         """
         Count the number of hospitals by county, grouped by the presence or absence of emergency services.
         """
         hospitals_by_county = df.groupby(['CountyName', 'EmergencyService']).size()
         return len(hospitals_by_county.to_dict())
+
 
     def pp136_exe(df):
         """
@@ -1429,6 +1394,7 @@ class QExecute:
         cities_with_voluntary_nonprofits = df[(df['HospitalOwner'] == 'voluntary non-profit - private') & (df['EmergencyService'] == 'yes')]['City'].nunique()
         return cities_with_voluntary_nonprofits
 
+
     def pp137_exe(df):
         """
         Find hospital types among different counties.
@@ -1436,13 +1402,24 @@ class QExecute:
         hospital_types_by_county = df.groupby('CountyName')['HospitalType'].apply(lambda x: x.unique().tolist())
         return len(hospital_types_by_county.to_dict())
 
+
     def pp138_exe(df):
         """
         Identify cities where critical access hospitals are primarily government-owned.
         """
         df['HospitalOwner'] = df['HospitalOwner'].str.lower()
-        government_owned_cah = df[(df['HospitalType'] == 'Critical Access Hospitals') & (df['HospitalOwner'].str.contains('government'))]['City'].unique()
-        return government_owned_cah.tolist()
+        # Filter hospitals that are 'Critical Access Hospitals' and government-owned
+        # Normalize HospitalType to avoid any leading/trailing space issues
+        df['HospitalType'] = df['HospitalType'].str.strip().str.upper()  # Convert to uppercase for case-insensitive match
+
+        # Filter hospitals that are 'ACUTE CARE HOSPITALS' and government-owned
+        government_owned_acute_care = df[
+            (df['HospitalType'] == 'ACUTE CARE HOSPITALS') &  # Ensure correct hospital type
+            (df['HospitalOwner'].str.contains(r'\bgovernment\b', regex=True))  # Match 'government' as a whole word
+        ]['City'].unique()
+
+        return government_owned_acute_care.tolist()
+
 
     def pp139_exe(df):
         """
@@ -1617,16 +1594,15 @@ if __name__ == '__main__':
     
     # groundtruth_tag = False
     dirty_tag = False
-    groundtruth_tag = False
+    groundtruth_tag = True
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
-    model = 'dirty'
+    # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
     # model = "gemma2"
     model = "mistral"
-    # model = "llama3.1_1"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
@@ -1639,10 +1615,12 @@ if __name__ == '__main__':
         func = f'pp{query_id}_exe'
         print(func)
         if groundtruth_tag: 
+            print('here running ground truth ...')
             if query_id >126:
                target_path = f'{par_fp}/datasets/hospital/clean_tables/hos_pp{query_id}.csv'
             elif query_id >= 111 and query_id <=126:
-                target_path = f'{par_fp}/datasets/flights/clean_tables/flights_sample_p{query_id}.csv'
+                # TODO: cleaned_tables...
+                target_path = f'{par_fp}/datasets/flights/sys_clean_tables/flights_sample_p{query_id}.csv'
             elif query_id >= 92 and query_id <=110:
                 target_path = f'{par_fp}/datasets/dish_datasets/cleaned_tables/dish_sample_p{query_id}.csv'
             elif query_id >= 62 and query_id <= 91:
@@ -1666,6 +1644,7 @@ if __name__ == '__main__':
             elif query_id <31:
                 target_path = f'{par_fp}/datasets/menu_datasets/menu_p{query_id}.csv'
         else:
+            print(f"current model: {model}")
             if query_id >126:
                 target_path = f'{par_fp}/{llm_folder}/{model}_hos_test_p{query_id}.csv'
             elif query_id >= 111 and query_id <=126:
@@ -1691,10 +1670,10 @@ if __name__ == '__main__':
         # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
-        with open(f'answer_1-154_{model}.json', 'a') as f:
-            f.write(json.dumps(result_single))
-            f.write('\n')
-        # with open(f'answer_1-154_gt.json', 'a') as f:
+        # with open(f'answer_1-154_{model}.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
+        with open(f'answer_1-154_gt.json', 'a') as f:
+            f.write(json.dumps(result_single))
+            f.write('\n')
         

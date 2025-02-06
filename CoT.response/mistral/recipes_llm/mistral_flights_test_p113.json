@@ -1,0 +1,93 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\nfrom datetime import datetime\n\ndef fill_missing_times(data):\n    filled_data = data.copy()\n    for index, row in filled_data.iterrows():\n        if pd.isna(row['act_dep_time']):\n\n            scheduled_time = row['scheduled_time']\n            try:\n                act_dep_time = datetime.strptime(scheduled_time, '%H:%M %p')\n                filled_data.at[index, 'act_dep_time'] = act_dep_time.strftime('%H:%M %p')\n            except ValueError:\n                print(\"%s\" % (Warning: Invalid scheduled time format for row {index}: {scheduled_time}))\n    return filled_data",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\nfrom datetime import datetime\n\ndef fill_missing_times(data):\n    filled_data = data.copy()\n    for index, row in filled_data.iterrows():\n        if pd.isna(row['act_dep_time']):\n\n            scheduled_time = row['scheduled_time']\n            try:\n                act_dep_time = datetime.strptime(scheduled_time, '%H:%M %p')\n                filled_data.at[index, 'act_dep_time'] = act_dep_time.strftime('%H:%M %p')\n            except ValueError:\n                print(\"%s\" % (Warning: Invalid scheduled time format for row {index}: {scheduled_time}))\n    return filled_data"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\nDue to the nature of your question, it involves data imputation which is not typically handled by regular expressions. However, I can suggest a way to handle missing values using the pandas library in Python. Here's an example of how you might fill missing values with the mean of the existing values:\n\n\nimport pandas as pd\n\ndf['act_dep_time'].fillna(df['act_dep_time'].mean(), inplace=True)\n\n\nThis will fill any missing values (NaNs) in the 'act_dep_time' column with the mean of the existing values. After that, you can proceed with your analysis to determine the airline carrier with the best on-time departure performance.\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\nDue to the nature of your question, it involves data imputation which is not typically handled by regular expressions. However, I can suggest a way to handle missing values using the pandas library in Python. Here's an example of how you might fill missing values with the mean of the existing values:\n\n\nimport pandas as pd\n\ndf['act_dep_time'].fillna(df['act_dep_time'].mean(), inplace=True)\n\n\nThis will fill any missing values (NaNs) in the 'act_dep_time' column with the mean of the existing values. After that, you can proceed with your analysis to determine the airline carrier with the best on-time departure performance.\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\nimport re\n   value = re.sub(r'(\\d{2}:\\d{2}) (AM|PM)', r'\\1 \\2', value)\n   return value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\nimport re\n   value = re.sub(r'(\\d{2}:\\d{2}) (AM|PM)', r'\\1 \\2', value)\n   return value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\nimport re\n   value = re.sub(r'(\\d{2}:\\d{2}(?:\\s*(AM|am|PM|pm))?|\\s*\\d{1,2}\\/\\d{1,2}\\/\\d{4})', '\\\\1', value)\n   return value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\nimport re\n   value = re.sub(r'(\\d{2}:\\d{2}(?:\\s*(AM|am|PM|pm))?|\\s*\\d{1,2}\\/\\d{1,2}\\/\\d{4})', '\\\\1', value)\n   return value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.toDate(\"hh:mm:ss\").toString(\"yyyy-MM-dd'T'HH:mm:ss\")",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate(\"hh:mm:ss\").toString(\"yyyy-MM-dd'T'HH:mm:ss\")"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "jython:import re\nfrom collections import defaultdict\ndata = [row.split('|') for row in open(\"flights.txt\").readlines()]\n\nairline_performance = defaultdict(lambda: {'total': 0, 'on_time': 0})\n\nfor flight in data:\n\n    match = re.match(r'(\\w{2}-\\d+-[A-Z]{3}-[A-Z]{3})', flight[1])\n    if not match: continue\n\n    airline, flight_number = match.group(1), flight[0]\n\n    departure_time = re.sub(r'[_-]', '', flight[2])\n    if 'A.M.' in departure_time:\n        departure_hour = int(departure_time.split(' ')[0].split(':')[0]) + 12\n    else:\n        departure_hour = int(departure_time.split(' ')[0].split(':')[0])\n\n    if len(data) > 1 and int(re.sub(r'[_-]', '', data[1][1]).split(' ')[0].split(':')[0]) - departure_hour <= 30:\n        airline_performance[airline]['on_time'] += 1\n    airline_performance[airline]['total'] += 1\n\nbest_airline = max(airline_performance, key=lambda airline: airline_performance[airline]['on_time'] / airline_performance[airline]['total'])\nprint(best_airline)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import re\nfrom collections import defaultdict\ndata = [row.split('|') for row in open(\"flights.txt\").readlines()]\n\nairline_performance = defaultdict(lambda: {'total': 0, 'on_time': 0})\n\nfor flight in data:\n\n    match = re.match(r'(\\w{2}-\\d+-[A-Z]{3}-[A-Z]{3})', flight[1])\n    if not match: continue\n\n    airline, flight_number = match.group(1), flight[0]\n\n    departure_time = re.sub(r'[_-]', '', flight[2])\n    if 'A.M.' in departure_time:\n        departure_hour = int(departure_time.split(' ')[0].split(':')[0]) + 12\n    else:\n        departure_hour = int(departure_time.split(' ')[0].split(':')[0])\n\n    if len(data) > 1 and int(re.sub(r'[_-]', '', data[1][1]).split(' ')[0].split(':')[0]) - departure_hour <= 30:\n        airline_performance[airline]['on_time'] += 1\n    airline_performance[airline]['total'] += 1\n\nbest_airline = max(airline_performance, key=lambda airline: airline_performance[airline]['on_time'] / airline_performance[airline]['total'])\nprint(best_airline)\nreturn value"
+    }
+]

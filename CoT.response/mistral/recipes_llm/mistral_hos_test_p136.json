@@ -1,0 +1,106 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "jython:import re\njython:import re\n   import string\n\n   value = value.lower().translate(str.maketrans(\"\", \"\", string.punctuation)).strip()\n\n   if 'hospital' in value or 'emergency services' in value:\n       return True\n   else:\n       return False\n   \n\nThis expression standardizes the spelling and formatting of city names, checks if the standardized name contains 'hospital' or 'emergency services', and returns True or False accordingly. This will help in filtering cities with hospitals owned by voluntary non-profits and offering emergency services.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression jython:import re\njython:import re\n   import string\n\n   value = value.lower().translate(str.maketrans(\"\", \"\", string.punctuation)).strip()\n\n   if 'hospital' in value or 'emergency services' in value:\n       return True\n   else:\n       return False\n   \n\nThis expression standardizes the spelling and formatting of city names, checks if the standardized name contains 'hospital' or 'emergency services', and returns True or False accordingly. This will help in filtering cities with hospitals owned by voluntary non-profits and offering emergency services."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "jython:import re\njython:# This expression is a placeholder as the provided dataset does not contain the necessary information to perform the required operation.\n\n\nimport requests\n\n      url = \"https://api.examplehospitaldata.com/v1/cities\"\n\n      response = requests.get(url)\n      data = response.json()\n\n      for city in data:\n          if city['name'].lower() in ['birmingham', 'boaz', ...]:\n              hospital_data = next((hospital for hospital in city['hospitals'] if hospital['ownership'] == 'voluntary non-profit' and hospital['emergency_services']), None)\n              if hospital_data:\n                  print(city['name'])\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression jython:import re\njython:# This expression is a placeholder as the provided dataset does not contain the necessary information to perform the required operation.\n\n\nimport requests\n\n      url = \"https://api.examplehospitaldata.com/v1/cities\"\n\n      response = requests.get(url)\n      data = response.json()\n\n      for city in data:\n          if city['name'].lower() in ['birmingham', 'boaz', ...]:\n              hospital_data = next((hospital for hospital in city['hospitals'] if hospital['ownership'] == 'voluntary non-profit' and hospital['emergency_services']), None)\n              if hospital_data:\n                  print(city['name'])\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "jython:import re\nIn this case, since the provided dataset does not contain the necessary information to achieve the specified purpose, it's impossible to write a Python expression using regexr_transform() that would return the desired output. However, I can suggest how you might approach this problem if you had access to a more comprehensive dataset:\n\njython\n\n\n\npattern = re.compile(r'(Voluntary Non-Profit)|(Emergency Services)')\ncities = []\nfor row in dataset:\n    if pattern.search(row['Hospital Ownership']) and pattern.search(row['Emergency Services']):\n        cities.append(row['City'])\n\n\nThis code would filter the 'City' column for rows where the hospital ownership is 'Voluntary Non-Profit' and emergency services are available, assuming you have a dataset with those columns. However, as mentioned earlier, the provided dataset does not contain this information, so it cannot be used to achieve the specified purpose.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression jython:import re\nIn this case, since the provided dataset does not contain the necessary information to achieve the specified purpose, it's impossible to write a Python expression using regexr_transform() that would return the desired output. However, I can suggest how you might approach this problem if you had access to a more comprehensive dataset:\n\njython\n\n\n\npattern = re.compile(r'(Voluntary Non-Profit)|(Emergency Services)')\ncities = []\nfor row in dataset:\n    if pattern.search(row['Hospital Ownership']) and pattern.search(row['Emergency Services']):\n        cities.append(row['City'])\n\n\nThis code would filter the 'City' column for rows where the hospital ownership is 'Voluntary Non-Profit' and emergency services are available, assuming you have a dataset with those columns. However, as mentioned earlier, the provided dataset does not contain this information, so it cannot be used to achieve the specified purpose."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "jython:import re\njython:import re\n\ncity_corrections = {\n    \"BOAj\": \"Boaz\",\n    \"BIRMINGHAM\": \"Birmingham\",\n    \"birmingham\": \"Birmingham\",\n    \"hartselle\": \"Hartsell\",\n    \"SHEFFIELF\": \"Sheffield\",\n    \"TALLASSJE\": \"Talladega\",\n    \"elba\": \"Elba\",\n    \"opps\": \"Opp\"\n}\ncity_value = value.lower()\nif city_value in city_corrections:\n    return city_corrections[city_value]\n\ncity_format = re.sub(r'\\W+', '', city_value)\nif len(city_format) > 3:\n    return city_format\n\nhospital_pattern = r'hospital|medical center|health system|clinic'\nemergency_services_pattern = r'emergency|trauma|critical care'\nif re.search(hospital_pattern, city_value) and re.search(emergency_services_pattern, city_value):\n    return city_format + ' Voluntary Non-Profit Hospital'\n\nreturn None",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression jython:import re\njython:import re\n\ncity_corrections = {\n    \"BOAj\": \"Boaz\",\n    \"BIRMINGHAM\": \"Birmingham\",\n    \"birmingham\": \"Birmingham\",\n    \"hartselle\": \"Hartsell\",\n    \"SHEFFIELF\": \"Sheffield\",\n    \"TALLASSJE\": \"Talladega\",\n    \"elba\": \"Elba\",\n    \"opps\": \"Opp\"\n}\ncity_value = value.lower()\nif city_value in city_corrections:\n    return city_corrections[city_value]\n\ncity_format = re.sub(r'\\W+', '', city_value)\nif len(city_format) > 3:\n    return city_format\n\nhospital_pattern = r'hospital|medical center|health system|clinic'\nemergency_services_pattern = r'emergency|trauma|critical care'\nif re.search(hospital_pattern, city_value) and re.search(emergency_services_pattern, city_value):\n    return city_format + ' Voluntary Non-Profit Hospital'\n\nreturn None"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "jython:import re\njython:import re\n\n\nexpression = \"\"\"\\njython:\\n\\nimport re\\n\\npattern_hospitals = re.compile(r'^[A-Za-z ]+$')\n\nfor index, row in df.iterrows():\n    city = row['City']\n    ownership = row['Hospital Ownership']\n    services = row['Services']\n\n    if pattern_hospitals.match(city):\n\n        if pattern_non_profit.search(ownership):\n\n            if pattern_emergency.search(services):\n\n                num_cities += 1\n\nprint('Number of cities:', num_cities)\"\"\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression jython:import re\njython:import re\n\n\nexpression = \"\"\"\\njython:\\n\\nimport re\\n\\npattern_hospitals = re.compile(r'^[A-Za-z ]+$')\n\nfor index, row in df.iterrows():\n    city = row['City']\n    ownership = row['Hospital Ownership']\n    services = row['Services']\n\n    if pattern_hospitals.match(city):\n\n        if pattern_non_profit.search(ownership):\n\n            if pattern_emergency.search(services):\n\n                num_cities += 1\n\nprint('Number of cities:', num_cities)\"\"\"\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\nvalue = value.strip().upper().replace(\"-\", \"\")\n\nif \"VOLUNTARY NON-PROFIT\" in value:\n\n    if \"Emergency Services\" in value or \"emergency services\" in value:\n\n        return True\n    else:\n\n        return False\nelse:\n\n    return False",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\nvalue = value.strip().upper().replace(\"-\", \"\")\n\nif \"VOLUNTARY NON-PROFIT\" in value:\n\n    if \"Emergency Services\" in value or \"emergency services\" in value:\n\n        return True\n    else:\n\n        return False\nelse:\n\n    return False"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression value.toUppercase()"
+    }
+]

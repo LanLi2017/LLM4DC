@@ -1,0 +1,116 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "jython:import re\nfrom collections import Counter\ndata = \"\"\"Gender\nUnanswered,Unanswered,Female Owned,Unanswered,Unanswered,Unanswered,Male Owned,Unanswered,Unanswered,Male Owned;\nUnanswered,Unanswered,Female Owned,Unanswered,Unanswered,Unanswered,Male Owned,Unanswered,Unanswered,Male Owned;\nFemale,Male Owned,Female,Male Owned,Male Owned,Male Owned,Female Owned,Male Owned,Female,Male Owned;\"\"\"\n\nrows = data.strip().split('\\n')[1:]\n\nloan_amounts = {}\n\nfor row in rows:\n\n    gender = row.split(',')[0].strip()\n\n    if not gender or 'Unanswered' in gender:\n        continue\n\n    loan_amount = re.search(r'\\d+(\\.\\d{2})?', ', '.join(gender[1:]))\n\n    if loan_amount:\n\n        loan_amounts[gender] = loan_amount.group(0) if loan_amount else 0\n\nloan_counts = Counter(loan_amounts)\nsorted_loan_counts = sorted(loan_counts.items(), key=lambda x: -x[1])\n\nprint(\"%s\" % (The gender type that received the most amount of PPP loans is {sorted_loan_counts[0][0]}, with a total of ${sorted_loan_counts[0][1]}.))\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Gender using expression jython:import re\nfrom collections import Counter\ndata = \"\"\"Gender\nUnanswered,Unanswered,Female Owned,Unanswered,Unanswered,Unanswered,Male Owned,Unanswered,Unanswered,Male Owned;\nUnanswered,Unanswered,Female Owned,Unanswered,Unanswered,Unanswered,Male Owned,Unanswered,Unanswered,Male Owned;\nFemale,Male Owned,Female,Male Owned,Male Owned,Male Owned,Female Owned,Male Owned,Female,Male Owned;\"\"\"\n\nrows = data.strip().split('\\n')[1:]\n\nloan_amounts = {}\n\nfor row in rows:\n\n    gender = row.split(',')[0].strip()\n\n    if not gender or 'Unanswered' in gender:\n        continue\n\n    loan_amount = re.search(r'\\d+(\\.\\d{2})?', ', '.join(gender[1:]))\n\n    if loan_amount:\n\n        loan_amounts[gender] = loan_amount.group(0) if loan_amount else 0\n\nloan_counts = Counter(loan_amounts)\nsorted_loan_counts = sorted(loan_counts.items(), key=lambda x: -x[1])\n\nprint(\"%s\" % (The gender type that received the most amount of PPP loans is {sorted_loan_counts[0][0]}, with a total of ${sorted_loan_counts[0][1]}.))\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "Female"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "female"
+            },
+            {
+                "from": [
+                    "Female Owned"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "female_owned"
+            },
+            {
+                "from": [
+                    "Male Owned"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "male_owned"
+            }
+        ],
+        "description": "Mass edit cells in column Gender"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "jython:import re\nfrom re import sub\n\ndef standardize_gender(value):\n  value = sub('[^mf\\s]+', '', value).lower()\n  if 'male' in value or 'owned' in value:\n    return 'Male'\n  elif 'female' in value:\n    return 'Female'\n  else:\n    return 'Unanswered'\n\ndata = [\n  \"female\",\n  \"male_owned\",\n  \"female\",\n  \"female_owned\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Male Owned\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"male_owned\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"male_owned\",\n  \"Unanswered\",\n  \"female_owned\"\n]\n\nfor value in data:\n  print(standardize_gender(value))\n\nOutput: Male | Female | Female | Female | Unanswered | Unanswered | Unanswered | Unanswered | Unanswered | Male | Unanswered | Unanswered | Male | Unanswered | Unanswered | Unanswered | Male | Unanswered | Female",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Gender using expression jython:import re\nfrom re import sub\n\ndef standardize_gender(value):\n  value = sub('[^mf\\s]+', '', value).lower()\n  if 'male' in value or 'owned' in value:\n    return 'Male'\n  elif 'female' in value:\n    return 'Female'\n  else:\n    return 'Unanswered'\n\ndata = [\n  \"female\",\n  \"male_owned\",\n  \"female\",\n  \"female_owned\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Male Owned\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"male_owned\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"Unanswered\",\n  \"male_owned\",\n  \"Unanswered\",\n  \"female_owned\"\n]\n\nfor value in data:\n  print(standardize_gender(value))\n\nOutput: Male | Female | Female | Female | Unanswered | Unanswered | Unanswered | Unanswered | Unanswered | Male | Unanswered | Unanswered | Male | Unanswered | Unanswered | Unanswered | Male | Unanswered | Female"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Gender using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "jython:import re\ndef clean_gender(value):\n    value = value.lower()\n    if 'male owned' in value:\n        return 'MALE'\n    elif 'female owned' in value:\n        return 'FEMALE'\n    elif 'unanswered' in value:\n        return 'UNANSWERED'\n    else:\n        return re.sub(r'\\s+', ' ', value).strip()\n\ngender_data = [clean_gender(value) for value in gender_values]\n\n\nAssuming `gender_values` is a list containing the values from the Gender column. The output will be a cleaned and standardized list of gender types, ready for analysis.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Gender using expression jython:import re\ndef clean_gender(value):\n    value = value.lower()\n    if 'male owned' in value:\n        return 'MALE'\n    elif 'female owned' in value:\n        return 'FEMALE'\n    elif 'unanswered' in value:\n        return 'UNANSWERED'\n    else:\n        return re.sub(r'\\s+', ' ', value).strip()\n\ngender_data = [clean_gender(value) for value in gender_values]\n\n\nAssuming `gender_values` is a list containing the values from the Gender column. The output will be a cleaned and standardized list of gender types, ready for analysis."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "jython:import re\nimport re\ndef standardize_gender(value):\n    value = str(value).lower()\n    if 'male owned' in value:\n        return 'Male_Owned'\n    elif 'female' in value:\n        return 'Female'\n    elif 'female_owned' in value:\n        return 'Female_Owned'\n    else:\n        return value\n\ngender_data = [standardize_gender(cell) for row in table_data for cell in row.split()]\n\n\nOutput:\n\n['Female', 'Female_Owned', 'Male_Owned', 'Unanswered', 'Unanswered', 'Unanswered', 'Male_Owned', 'Male_Owned', 'Unanswered', 'Unanswered', 'Female', 'Unanswered', 'Unanswered', 'Female_Owned', 'Unanswered', 'Unanswered', 'Unanswered', 'Male_Owned', 'Unanswered', 'Unanswered']\n\nTo find the gender type that received the most amount of PPP loans and dollar amount, you would need additional data such as loan amounts or counts for each gender. The provided expression only standardizes the gender types in the table.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Gender using expression jython:import re\nimport re\ndef standardize_gender(value):\n    value = str(value).lower()\n    if 'male owned' in value:\n        return 'Male_Owned'\n    elif 'female' in value:\n        return 'Female'\n    elif 'female_owned' in value:\n        return 'Female_Owned'\n    else:\n        return value\n\ngender_data = [standardize_gender(cell) for row in table_data for cell in row.split()]\n\n\nOutput:\n\n['Female', 'Female_Owned', 'Male_Owned', 'Unanswered', 'Unanswered', 'Unanswered', 'Male_Owned', 'Male_Owned', 'Unanswered', 'Unanswered', 'Female', 'Unanswered', 'Unanswered', 'Female_Owned', 'Unanswered', 'Unanswered', 'Unanswered', 'Male_Owned', 'Unanswered', 'Unanswered']\n\nTo find the gender type that received the most amount of PPP loans and dollar amount, you would need additional data such as loan amounts or counts for each gender. The provided expression only standardizes the gender types in the table."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "JobsReported",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column JobsReported using expression value.toNumber()"
+    }
+]

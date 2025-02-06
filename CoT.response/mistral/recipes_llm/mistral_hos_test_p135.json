@@ -1,0 +1,93 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "jython:import re\njython:import re\n   def clean_emergency(value):\n       if re.search('[Yy]es', value, re.IGNORECASE):\n           return 'Yes'\n       elif value == 'YCS':\n           return 'Yes'\n       else:\n           return value\n   return clean_emergency(value)\n\nThis expression will standardize the representation of emergency services by replacing \"YES\", \"yes\", and \"YCS\" with a single value like \"Yes\". The function `clean_emergency()` is defined to handle the case-insensitive matching. This way, the data can be grouped consistently for analysis.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression jython:import re\njython:import re\n   def clean_emergency(value):\n       if re.search('[Yy]es', value, re.IGNORECASE):\n           return 'Yes'\n       elif value == 'YCS':\n           return 'Yes'\n       else:\n           return value\n   return clean_emergency(value)\n\nThis expression will standardize the representation of emergency services by replacing \"YES\", \"yes\", and \"YCS\" with a single value like \"Yes\". The function `clean_emergency()` is defined to handle the case-insensitive matching. This way, the data can be grouped consistently for analysis."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "jython:import re\njython:value = value.upper()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression jython:import re\njython:value = value.upper()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_owner(value):\n    abbreviations = {\n        'government - hospital district or authority': 'Govt',\n        'government - hospital district': 'Govt',\n        'government': 'Govt',\n        'proprietary': 'Prop',\n        'voluntary non-profit - private': 'VNP',\n        'voluntary non-profit - other': 'VNP',\n        'government - federal': 'Govt',\n        'government - local': 'Govt',\n        'government - state': 'Govt'\n    }\n\n    for key, value in abbreviations.items():\n        if re.search(key, value):\n            return abbreviations[key]\n    else:\n        return value\n\nhospital_owner = [standardize_hospital_owner(row) for row in hospital_owner]\n\n\nThis expression standardizes the representations of hospital owner types by using consistent abbreviations, such as \"Govt\" for government, \"Prop\" for proprietary, and \"VNP\" for voluntary non-profit. This will improve data quality and facilitate analysis.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\ndef standardize_hospital_owner(value):\n    abbreviations = {\n        'government - hospital district or authority': 'Govt',\n        'government - hospital district': 'Govt',\n        'government': 'Govt',\n        'proprietary': 'Prop',\n        'voluntary non-profit - private': 'VNP',\n        'voluntary non-profit - other': 'VNP',\n        'government - federal': 'Govt',\n        'government - local': 'Govt',\n        'government - state': 'Govt'\n    }\n\n    for key, value in abbreviations.items():\n        if re.search(key, value):\n            return abbreviations[key]\n    else:\n        return value\n\nhospital_owner = [standardize_hospital_owner(row) for row in hospital_owner]\n\n\nThis expression standardizes the representations of hospital owner types by using consistent abbreviations, such as \"Govt\" for government, \"Prop\" for proprietary, and \"VNP\" for voluntary non-profit. This will improve data quality and facilitate analysis."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\n hospital_map = {\n     \"government - hospital district or authority\": \"Government\",\n     \"voluntary non-profit - other\": \"Voluntary Non-Profit\",\n     \"voluntary non-profit - private\": \"Voluntary Non-Profit\",\n     \"proprietary\": \"Proprietary\",\n     \"government - state\": \"Government\",\n     \"government - federal\": \"Government\",\n     \"government - local\": \"Government\"\n }\n\ndef standardize_hospital_owner(value):\n    for key, val in hospital_map.items():\n        if value.lower().startswith(key.lower()):\n            return val\n    return \"Unknown\"\n\nfrom collections import Counter\n\nhospital_counts = Counter([standardize_hospital_owner(row['HospitalOwner']) for row in data])\nprint(hospital_counts)",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\n hospital_map = {\n     \"government - hospital district or authority\": \"Government\",\n     \"voluntary non-profit - other\": \"Voluntary Non-Profit\",\n     \"voluntary non-profit - private\": \"Voluntary Non-Profit\",\n     \"proprietary\": \"Proprietary\",\n     \"government - state\": \"Government\",\n     \"government - federal\": \"Government\",\n     \"government - local\": \"Government\"\n }\n\ndef standardize_hospital_owner(value):\n    for key, val in hospital_map.items():\n        if value.lower().startswith(key.lower()):\n            return val\n    return \"Unknown\"\n\nfrom collections import Counter\n\nhospital_counts = Counter([standardize_hospital_owner(row['HospitalOwner']) for row in data])\nprint(hospital_counts)"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_owner(value):\n\n    value = re.sub(r'[- ]+', ' ', value).lower()\n\n    return value.split(' ')[0]\n\nhospital_owner_column = df['HospitalOwner']\nhospital_owner_column = hospital_owner_column.apply(standardize_hospital_owner)\n\n\nThis expression standardizes the naming and formatting of the HospitalOwner column by removing hyphens, spaces, and converting to lowercase. It then splits the string by space and returns the first element (county name). This allows for easier grouping and counting of hospitals by county names.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\ndef standardize_hospital_owner(value):\n\n    value = re.sub(r'[- ]+', ' ', value).lower()\n\n    return value.split(' ')[0]\n\nhospital_owner_column = df['HospitalOwner']\nhospital_owner_column = hospital_owner_column.apply(standardize_hospital_owner)\n\n\nThis expression standardizes the naming and formatting of the HospitalOwner column by removing hyphens, spaces, and converting to lowercase. It then splits the string by space and returns the first element (county name). This allows for easier grouping and counting of hospitals by county names."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_government(value):\n  if value.lower() == 'government':\n    return 'Government'\n  elif re.search(r'^government -', value):\n    return 'Government'\n  else:\n    return value\n\nHospitalOwner = df['HospitalOwner'].apply(standardize_government)\n\ngrouped = HospitalOwner.value_counts().groupby(level=0).sum()\nprint(grouped)\n\n\nThis expression standardizes the representation of government-related entities in the HospitalOwner column, groups them by emergency services, and counts the number of hospitals for each group. The resulting output will be a count of hospitals by county names, grouped by emergency services.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\ndef standardize_government(value):\n  if value.lower() == 'government':\n    return 'Government'\n  elif re.search(r'^government -', value):\n    return 'Government'\n  else:\n    return value\n\nHospitalOwner = df['HospitalOwner'].apply(standardize_government)\n\ngrouped = HospitalOwner.value_counts().groupby(level=0).sum()\nprint(grouped)\n\n\nThis expression standardizes the representation of government-related entities in the HospitalOwner column, groups them by emergency services, and counts the number of hospitals for each group. The resulting output will be a count of hospitals by county names, grouped by emergency services."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "CountyName",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column CountyName using expression value.toUppercase()"
+    }
+]

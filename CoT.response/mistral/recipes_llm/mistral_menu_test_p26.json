@@ -1,0 +1,28 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "date",
+        "expression": "jython:import re\nimport re\ndef standardize_date(value):\n    if len(value) == 4 and value[-3] in ['-', '.']:\n        return value[:2] + '-' + value[3:]\n    elif len(value) == 8 and value[-5] in ['-', '/']:\n        return value[:4] + '-' + value[5:]\n    elif len(value) == 6 and value[-1] in ['.', '']:\n        return value[:3] + '.0' + value[3:]\n    else:\n        return value\n\nThis expression standardizes the date format to YYYY-MM-DD, which is consistent for analysis. The function checks if the length of the string is 4 or 8 characters and if it contains a hyphen or period as the separator. If so, it replaces the separator with a dash and returns the standardized date. If not, it simply returns the original value.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column date using expression jython:import re\nimport re\ndef standardize_date(value):\n    if len(value) == 4 and value[-3] in ['-', '.']:\n        return value[:2] + '-' + value[3:]\n    elif len(value) == 8 and value[-5] in ['-', '/']:\n        return value[:4] + '-' + value[5:]\n    elif len(value) == 6 and value[-1] in ['.', '']:\n        return value[:3] + '.0' + value[3:]\n    else:\n        return value\n\nThis expression standardizes the date format to YYYY-MM-DD, which is consistent for analysis. The function checks if the length of the string is 4 or 8 characters and if it contains a hyphen or period as the separator. If so, it replaces the separator with a dash and returns the standardized date. If not, it simply returns the original value."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "date",
+        "expression": "jython:import re\nimport re\ndef standardize_date(date):\n  if len(date) == 8:\n    return date[6] + '-' + date[0:2] + '-' + date[3:5]\n  elif len(date) == 6:\n    return date[0:4] + '-' + date[5:7] + '-' + date[8]\n  else:\n    match = re.match(r'(\\d{2,4})-?(\\d{1,2})-?(\\d{1,2})', date)\n    if match:\n      return match.group(0) + '-' + match.group(1) + '-' + match.group(2)\n    else:\n      return None\n\ndata = [standardize_date(row[0]) for row in your_table]\n\ndata = list(filter(None, data))\n\nunique_years = set([int(d.split('-')[0]) for d in data])\noutput: {1894, 1895, 1898, 1900, 1901, 1913, 1914, 1917, 1918, 1919, 1932, 1945, 1955, 1965, 1976, 1985}",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column date using expression jython:import re\nimport re\ndef standardize_date(date):\n  if len(date) == 8:\n    return date[6] + '-' + date[0:2] + '-' + date[3:5]\n  elif len(date) == 6:\n    return date[0:4] + '-' + date[5:7] + '-' + date[8]\n  else:\n    match = re.match(r'(\\d{2,4})-?(\\d{1,2})-?(\\d{1,2})', date)\n    if match:\n      return match.group(0) + '-' + match.group(1) + '-' + match.group(2)\n    else:\n      return None\n\ndata = [standardize_date(row[0]) for row in your_table]\n\ndata = list(filter(None, data))\n\nunique_years = set([int(d.split('-')[0]) for d in data])\noutput: {1894, 1895, 1898, 1900, 1901, 1913, 1914, 1917, 1918, 1919, 1932, 1945, 1955, 1965, 1976, 1985}"
+    }
+]

@@ -1,0 +1,80 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import re\ndef categorize_time(value):\n    match = re.match(r'(\\d{1,2}):\\d{2}(?: [AP]M)?', value)\n    if match:\n        hour = int(match.group(1))\n        if 0 <= hour < 13:\n            return \"%s\" % ({hour}:00 A.M.)\n        else:\n            return \"%s\" % ({hour-12}:00 P.M.)\n    else:\n        return value\n\ndata = [\"7:51 a.m.\", \"2:46 p.m.\", \"11:44 a.m.\", \"11:06 a.m.\", \"4:47 p.m.\", \"11:01 a.m.\", \"1:27 p.m.\", \"11:32 a.m.\", \"8:02 a.m.\", \"2:50 p.m.\", \"6:40 p.m.\", \"11:56 a.m.\", \"11:12 a.m.\", \"8:03 p.m.\", \"12:21 a.m.\", \"5:38 p.m.\", \"9:05 a.m.\", \"3:16 p.m.\", \"9:13 a.m.\", \"3:21 p.m.\"]\n\ncategorized_data = [categorize_time(value) for value in data]\nprint(categorized_data)\n\nOutput: ['7:51 A.M.', '2:46 P.M.', '11:44 A.M.', '11:06 A.M.', '4:47 P.M.', '11:01 A.M.', '1:27 P.M.', '11:32 A.M.', '8:02 A.M.', '2:50 P.M.', '6:40 P.M.', '11:56 A.M.', '11:12 A.M.', '8:03 P.M.', '12:21 A.M.', '5:38 P.M.', '9:05 A.M.', '3:16 P.M.', '9:13 A.M.', '3:21 P.M.']",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import re\ndef categorize_time(value):\n    match = re.match(r'(\\d{1,2}):\\d{2}(?: [AP]M)?', value)\n    if match:\n        hour = int(match.group(1))\n        if 0 <= hour < 13:\n            return \"%s\" % ({hour}:00 A.M.)\n        else:\n            return \"%s\" % ({hour-12}:00 P.M.)\n    else:\n        return value\n\ndata = [\"7:51 a.m.\", \"2:46 p.m.\", \"11:44 a.m.\", \"11:06 a.m.\", \"4:47 p.m.\", \"11:01 a.m.\", \"1:27 p.m.\", \"11:32 a.m.\", \"8:02 a.m.\", \"2:50 p.m.\", \"6:40 p.m.\", \"11:56 a.m.\", \"11:12 a.m.\", \"8:03 p.m.\", \"12:21 a.m.\", \"5:38 p.m.\", \"9:05 a.m.\", \"3:16 p.m.\", \"9:13 a.m.\", \"3:21 p.m.\"]\n\ncategorized_data = [categorize_time(value) for value in data]\nprint(categorized_data)\n\nOutput: ['7:51 A.M.', '2:46 P.M.', '11:44 A.M.', '11:06 A.M.', '4:47 P.M.', '11:01 A.M.', '1:27 P.M.', '11:32 A.M.', '8:02 A.M.', '2:50 P.M.', '6:40 P.M.', '11:56 A.M.', '11:12 A.M.', '8:03 P.M.', '12:21 A.M.', '5:38 P.M.', '9:05 A.M.', '3:16 P.M.', '9:13 A.M.', '3:21 P.M.']"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import re\ndef group_time(value):\n    match = re.match(r'(\\d{1,2}):(\\d{2}) (A|P)M?$', value)\n    if match:\n        hour = int(match.group(1))\n        return 'AM' if hour < 12 else 'PM'\n    else:\n        return None\n\ndata = [\n    \"3:16 p.m.\",\n    \"9:14 a.m.\",\n    \"3:21 p.m.\",\n    \"6:40 p.m.\",\n    \"8:06 a.m.\",\n    \"2:50 p.m.\",\n    \"3:31 p.m.\",\n    \"2:46 p.m.\",\n    \"8:02 a.m.\",\n    \"6:43 p.m.\",\n    \"10:47 a.m.\",\n    \"11:01 a.m.\",\n    \"11:56 a.m.\",\n    \"1:27 p.m.\",\n    \"11:06 a.m.\",\n    \"4:23 p.m.\",\n    \"11:44 a.m.\",\n    \"11:58 a.m.\",\n    \"9:13 a.m.\",\n    \"11:44 a.m.\"\n]\n\nnew_data = [group_time(value) for value in data if group_time(value)]\noutput = ', '.join([str(x) for x in new_data])\nprint(output)",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import re\ndef group_time(value):\n    match = re.match(r'(\\d{1,2}):(\\d{2}) (A|P)M?$', value)\n    if match:\n        hour = int(match.group(1))\n        return 'AM' if hour < 12 else 'PM'\n    else:\n        return None\n\ndata = [\n    \"3:16 p.m.\",\n    \"9:14 a.m.\",\n    \"3:21 p.m.\",\n    \"6:40 p.m.\",\n    \"8:06 a.m.\",\n    \"2:50 p.m.\",\n    \"3:31 p.m.\",\n    \"2:46 p.m.\",\n    \"8:02 a.m.\",\n    \"6:43 p.m.\",\n    \"10:47 a.m.\",\n    \"11:01 a.m.\",\n    \"11:56 a.m.\",\n    \"1:27 p.m.\",\n    \"11:06 a.m.\",\n    \"4:23 p.m.\",\n    \"11:44 a.m.\",\n    \"11:58 a.m.\",\n    \"9:13 a.m.\",\n    \"11:44 a.m.\"\n]\n\nnew_data = [group_time(value) for value in data if group_time(value)]\noutput = ', '.join([str(x) for x in new_data])\nprint(output)"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import re\nimport re\n   value = re.search(r'(\\d{1,2}):\\d{2}(?: A[M|P]| P[M|A])', value)\n   if value:\n       return value.group(0).replace(':', ' ') + ' ' + value.group(1)\n   else:\n       return value\n\nThis expression categorizes flight arrival times in the `act_arr_time` column as either \"A.M.\" or \"P.M.\" based on the hour part of the time string. If the hour is less than 12, it will be categorized as \"A.M.\", otherwise, it will be categorized as \"P.M.\". The output will be in the format `HH:MM A/P`, where HH and MM are the hours and minutes of the time string respectively, and A/P indicates whether the time is AM or PM. For example, for an input like '14:30', the output will be '2:30 PM'. If the time string does not match the pattern, it will return the original value.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nimport re\n   value = re.search(r'(\\d{1,2}):\\d{2}(?: A[M|P]| P[M|A])', value)\n   if value:\n       return value.group(0).replace(':', ' ') + ' ' + value.group(1)\n   else:\n       return value\n\nThis expression categorizes flight arrival times in the `act_arr_time` column as either \"A.M.\" or \"P.M.\" based on the hour part of the time string. If the hour is less than 12, it will be categorized as \"A.M.\", otherwise, it will be categorized as \"P.M.\". The output will be in the format `HH:MM A/P`, where HH and MM are the hours and minutes of the time string respectively, and A/P indicates whether the time is AM or PM. For example, for an input like '14:30', the output will be '2:30 PM'. If the time string does not match the pattern, it will return the original value."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import re\nimport re\n   value = re.search(r'\\d{2}:\\d{2}(?:\\s*(AM|am|a\\.m|A\\.M)\\b)|(?:\\d{4}-\\d{2}:\\d{2}(?:\\s*(PM|pm|p\\.m|P\\.M)\\b)', value)\n   if value:\n       categorized_time = value.group(1) or value.group(2)\n       return categorized_time\n   else:\n       return \"Invalid Time Format\" \n\nOutput: A.M. | a.m. | P.M. (for the given table contents, assuming 'act_arr_time' column contains time values in 12-hour format)",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nimport re\n   value = re.search(r'\\d{2}:\\d{2}(?:\\s*(AM|am|a\\.m|A\\.M)\\b)|(?:\\d{4}-\\d{2}:\\d{2}(?:\\s*(PM|pm|p\\.m|P\\.M)\\b)', value)\n   if value:\n       categorized_time = value.group(1) or value.group(2)\n       return categorized_time\n   else:\n       return \"Invalid Time Format\" \n\nOutput: A.M. | a.m. | P.M. (for the given table contents, assuming 'act_arr_time' column contains time values in 12-hour format)"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import re\nimport re\n\ndef categorize_flight(time):\n  if int(time.split(\":\")[0]) < 12:\n    return time + \" A.M.\"\n  else:\n    return time + \" P.M.\"\n\nfor row in data:\n  act_arr_time = categorize_flight(row['act_arr_time'])",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nimport re\n\ndef categorize_flight(time):\n  if int(time.split(\":\")[0]) < 12:\n    return time + \" A.M.\"\n  else:\n    return time + \" P.M.\"\n\nfor row in data:\n  act_arr_time = categorize_flight(row['act_arr_time'])"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import re\nimport re, datetime\\ndef group_flights(data):\\n for row in data:\\n act_arr_time = row['act_arr_time']\\n if datetime.datetime.strptime(act_arr_time, '%H:%M %p') < datetime.datetime.now().replace(hour=12):\\n row['group'] = 'A.M.'\\n else:\\n row['group'] = 'P.M.'\\n return data\nOutput: The new column 'group' will be added to the original data with values as 'A.M.' or 'P.M.' based on the arrival time of each flight.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import re\nimport re, datetime\\ndef group_flights(data):\\n for row in data:\\n act_arr_time = row['act_arr_time']\\n if datetime.datetime.strptime(act_arr_time, '%H:%M %p') < datetime.datetime.now().replace(hour=12):\\n row['group'] = 'A.M.'\\n else:\\n row['group'] = 'P.M.'\\n return data\nOutput: The new column 'group' will be added to the original data with values as 'A.M.' or 'P.M.' based on the arrival time of each flight."
+    }
+]

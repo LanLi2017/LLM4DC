@@ -1,0 +1,281 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "JobsReported",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column JobsReported using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "BusinessType",
+        "expression": "jython:import re\ndef standardize_business(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[(),.]', '', value)\n    if 'sole proprietorship' in value:\n        value = 'Sole Proprietorship'\n    elif 'corporation' in value:\n        value = 'Corporation'\n    elif 'non-profit organizations' in value:\n        value = 'Non-Profit Organizations'\n    elif 'limited liability company(llc)' in value or 'limited liability company (LLC)' in value:\n        value = 'Limited Liability Company (LLC)'\n    return value\n\n\nThis expression standardizes the representation of each business type to ensure consistency for a more accurate identification of the top 10 business types receiving PPP loans.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column BusinessType using expression jython:import re\ndef standardize_business(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[(),.]', '', value)\n    if 'sole proprietorship' in value:\n        value = 'Sole Proprietorship'\n    elif 'corporation' in value:\n        value = 'Corporation'\n    elif 'non-profit organizations' in value:\n        value = 'Non-Profit Organizations'\n    elif 'limited liability company(llc)' in value or 'limited liability company (LLC)' in value:\n        value = 'Limited Liability Company (LLC)'\n    return value\n\n\nThis expression standardizes the representation of each business type to ensure consistency for a more accurate identification of the top 10 business types receiving PPP loans."
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "BusinessType",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "Sole Proprietorship"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "Independent Contractors"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Independent Contractor"
+            },
+            {
+                "from": [
+                    "Non-Profit Organizations"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Non-Profit Organization"
+            },
+            {
+                "from": [
+                    "Corporation"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Corporation"
+            },
+            {
+                "from": [
+                    "Corporation"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Corporation"
+            },
+            {
+                "from": [
+                    "Sole Proprietorship"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "Subchapter S Corporation"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Subchapter S Corporation"
+            },
+            {
+                "from": [
+                    "Sole Proprietorship"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "Independent Contractors"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Independent Contractor"
+            },
+            {
+                "from": [
+                    "Sole Proprietorship"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "S.S Corporation"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Subchapter S Corporation"
+            },
+            {
+                "from": [
+                    "Self-Employed Individuals"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Self-Employed Individual"
+            },
+            {
+                "from": [
+                    "Limited  Liability Company(LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Limited Liability Company (LLC)"
+            },
+            {
+                "from": [
+                    "Limited  liability company(LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Limited Liability Company (LLC)"
+            },
+            {
+                "from": [
+                    "Limited  Liability Company(LLC.)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Limited Liability Company (LLC)"
+            },
+            {
+                "from": [
+                    "Limited  Liability Company(LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Limited Liability Company (LLC)"
+            },
+            {
+                "from": [
+                    "limited  liability company(LLC);"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Limited Liability Company (LLC)"
+            }
+        ],
+        "description": "Mass edit cells in column BusinessType"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "BusinessType",
+        "expression": "jython:import re\ndef standardize_business(value):\n  if \"Sole Proprietorship\" in value or \"Sole Proprietor\" in value:\n    return \"Sole Proprietor\"\n  else:\n    return value\n\nbusiness_types = [standardize_business(row[0]) for row in data]\n\n\nAssuming `data` is a list of lists containing the table rows. The above expression standardizes the representation of Sole Proprietorship and Sole Proprietor for consistency across the dataset, allowing further analysis to identify the top 10 business types that received the most PPP loans.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column BusinessType using expression jython:import re\ndef standardize_business(value):\n  if \"Sole Proprietorship\" in value or \"Sole Proprietor\" in value:\n    return \"Sole Proprietor\"\n  else:\n    return value\n\nbusiness_types = [standardize_business(row[0]) for row in data]\n\n\nAssuming `data` is a list of lists containing the table rows. The above expression standardizes the representation of Sole Proprietorship and Sole Proprietor for consistency across the dataset, allowing further analysis to identify the top 10 business types that received the most PPP loans."
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "BusinessType",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "Sole Proprietorship"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "[Sole Proprietorship]"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "Sole Proprietor"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietor"
+            },
+            {
+                "from": [
+                    "Limited Liability Company (LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "LLC"
+            },
+            {
+                "from": [
+                    "Limited Liability Company (LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "LLC"
+            },
+            {
+                "from": [
+                    "Limited Liability Company (LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "LLC"
+            },
+            {
+                "from": [
+                    "Limited Liability Company (LLC)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "LLC"
+            },
+            {
+                "from": [
+                    "Corporation"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Corp"
+            },
+            {
+                "from": [
+                    "Self-Employed Individual"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Self Employed"
+            },
+            {
+                "from": [
+                    "Independent Contractor"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Independent Contractor"
+            }
+        ],
+        "description": "Mass edit cells in column BusinessType"
+    }
+]

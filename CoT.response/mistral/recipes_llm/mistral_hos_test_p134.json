@@ -1,0 +1,41 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\nimport collections\n\ndef clean_hospital_owner(value):\n    value = re.sub(r'\\s+', ' ', value)\n    value = value.lower()\n    value = re.sub(r'[^a-z0-9\\-_]', '', value)\n    return value\n\ncleaned_hospital_owners = [clean_hospital_owner(row['HospitalOwner']) for index, row in df.iterrows()]\n\ncounts = collections.Counter([tuple(map(split, cleaned_hospital_owners))])\n\nmost_frequent = counts.most_common()\n\nprint(\"Most Frequent Combinations of Hospital Type and Ownership:\")\nfor combination, count in most_frequent:\n    print(combination)\n\nThis expression cleans the HospitalOwner column by removing spaces, converting to lowercase, and replacing special characters. It then counts the frequency of each unique hospital owner type and ownership combination using a Counter object from the collections module. Finally, it prints the most frequent combinations.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\nimport collections\n\ndef clean_hospital_owner(value):\n    value = re.sub(r'\\s+', ' ', value)\n    value = value.lower()\n    value = re.sub(r'[^a-z0-9\\-_]', '', value)\n    return value\n\ncleaned_hospital_owners = [clean_hospital_owner(row['HospitalOwner']) for index, row in df.iterrows()]\n\ncounts = collections.Counter([tuple(map(split, cleaned_hospital_owners))])\n\nmost_frequent = counts.most_common()\n\nprint(\"Most Frequent Combinations of Hospital Type and Ownership:\")\nfor combination, count in most_frequent:\n    print(combination)\n\nThis expression cleans the HospitalOwner column by removing spaces, converting to lowercase, and replacing special characters. It then counts the frequency of each unique hospital owner type and ownership combination using a Counter object from the collections module. Finally, it prints the most frequent combinations."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_capitalization(value):\n    return value.lower()\n\ndef add_missing_hyphens(value):\n    return re.sub(r'[ -]+', '-', value)\n\ndef normalize_ownership_types(value):\n    if 'government' in value:\n        return 'Government'\n    elif 'voluntary non-profit' in value:\n        return 'Voluntary Non-Profit'\n    elif 'private' in value:\n        return 'Private'\n    elif 'prioprietary' in value:\n        return 'Proprietary'\n    else:\n        return value\n\ndef clean_hospital_owner(value):\n    return normalize_ownership_types(add_missing_hyphens(standardize_capitalization(value)))\n\ncleaned_HospitalOwner = [clean_hospital_owner(row) for row in HospitalOwner]\n\n\nThis expression standardizes capitalization, adds missing hyphens, and normalizes inconsistent representations of hospital ownership types. The resulting cleaned_HospitalOwner list contains consistent and accurate data that can be used for further analysis to determine the most frequent combinations of hospital type and ownership.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\ndef standardize_capitalization(value):\n    return value.lower()\n\ndef add_missing_hyphens(value):\n    return re.sub(r'[ -]+', '-', value)\n\ndef normalize_ownership_types(value):\n    if 'government' in value:\n        return 'Government'\n    elif 'voluntary non-profit' in value:\n        return 'Voluntary Non-Profit'\n    elif 'private' in value:\n        return 'Private'\n    elif 'prioprietary' in value:\n        return 'Proprietary'\n    else:\n        return value\n\ndef clean_hospital_owner(value):\n    return normalize_ownership_types(add_missing_hyphens(standardize_capitalization(value)))\n\ncleaned_HospitalOwner = [clean_hospital_owner(row) for row in HospitalOwner]\n\n\nThis expression standardizes capitalization, adds missing hyphens, and normalizes inconsistent representations of hospital ownership types. The resulting cleaned_HospitalOwner list contains consistent and accurate data that can be used for further analysis to determine the most frequent combinations of hospital type and ownership."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n   return value.lower().replace(\" acute care hospitals\", \" Acute Care Hospitals\").replace(\"acute care hospitals\", \" Acute Care Hospitals\")\n\nThis expression will convert all instances of \"acute care hospitals\" and \"Acute Care Hospitals\" to the same format, making it easier to analyze the data. The `lower()` function ensures that case is not a factor in the comparison, and the `replace()` functions are used to standardize the capitalization.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n   return value.lower().replace(\" acute care hospitals\", \" Acute Care Hospitals\").replace(\"acute care hospitals\", \" Acute Care Hospitals\")\n\nThis expression will convert all instances of \"acute care hospitals\" and \"Acute Care Hospitals\" to the same format, making it easier to analyze the data. The `lower()` function ensures that case is not a factor in the comparison, and the `replace()` functions are used to standardize the capitalization."
+    }
+]

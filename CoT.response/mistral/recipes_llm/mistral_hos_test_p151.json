@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n   return re.sub(r'[ _-]', '', value).lower()\n\nThis expression will remove spaces, underscores, and hyphens from the HospitalType column, and convert the remaining text to lowercase. This ensures that all variations of the same category name are standardized, making it easier for accurate analysis.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n   return re.sub(r'[ _-]', '', value).lower()\n\nThis expression will remove spaces, underscores, and hyphens from the HospitalType column, and convert the remaining text to lowercase. This ensures that all variations of the same category name are standardized, making it easier for accurate analysis."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\ndef regexr_transform(column):\n    expression = \"\"\"\\nimport re\\nvalue = value.lower()\\nvalue = re.sub(r'[^a-z0-9]+', ' ', value)\\nvalue = value.strip()\\nreturn value\"\"\"\n    return eval(expression)\n\ndf['HospitalOwner'] = df['HospitalOwner'].apply(regexr_transform)\n\n\nThis expression will lowercase all characters, remove any non-alphanumeric characters (including spaces), and strip leading/trailing spaces from each value in the 'HospitalOwner' column. This should help standardize the formatting of the data for improved analysis and interpretation.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\ndef regexr_transform(column):\n    expression = \"\"\"\\nimport re\\nvalue = value.lower()\\nvalue = re.sub(r'[^a-z0-9]+', ' ', value)\\nvalue = value.strip()\\nreturn value\"\"\"\n    return eval(expression)\n\ndf['HospitalOwner'] = df['HospitalOwner'].apply(regexr_transform)\n\n\nThis expression will lowercase all characters, remove any non-alphanumeric characters (including spaces), and strip leading/trailing spaces from each value in the 'HospitalOwner' column. This should help standardize the formatting of the data for improved analysis and interpretation."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalName",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalName using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalName",
+        "expression": "jython:import re\njython:import re\n\n expression = r'\\s+|[^a-zA-Z0-9 ]+'\n cleaned_hospital_name = re.sub(expression, '', value).strip()\n\n words = cleaned_hospital_name.split()\n\n if words[0].lower() in ['voluntary', 'non-profit']:\n\n     if len(words) > 1:\n         hospital_type = words[1:]\n         return ' '.join(hospital_type) + ' Hospital'\n     else:\n         return 'Hospital'\n\n else:\n     return cleaned_hospital_name\n\nThis expression removes any extra spaces, punctuation, and special characters from the hospital names. It then splits the cleaned name into words and checks if the first word is a type of ownership (e.g., voluntary non-profit). If it is, it returns the hospital name with only the ownership and hospital type. If not, it simply returns the cleaned hospital name. This makes the data more concise and easier to identify hospitals based on ownership type and hospital type.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalName using expression jython:import re\njython:import re\n\n expression = r'\\s+|[^a-zA-Z0-9 ]+'\n cleaned_hospital_name = re.sub(expression, '', value).strip()\n\n words = cleaned_hospital_name.split()\n\n if words[0].lower() in ['voluntary', 'non-profit']:\n\n     if len(words) > 1:\n         hospital_type = words[1:]\n         return ' '.join(hospital_type) + ' Hospital'\n     else:\n         return 'Hospital'\n\n else:\n     return cleaned_hospital_name\n\nThis expression removes any extra spaces, punctuation, and special characters from the hospital names. It then splits the cleaned name into words and checks if the first word is a type of ownership (e.g., voluntary non-profit). If it is, it returns the hospital name with only the ownership and hospital type. If not, it simply returns the cleaned hospital name. This makes the data more concise and easier to identify hospitals based on ownership type and hospital type."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalName",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalName using expression value.trim()"
+    }
+]

@@ -1,0 +1,59 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "jython:import re\nTo achieve the purpose, we first need to clean the data by extracting the scheduled and actual arrival times. Here's how you can do it using regexr_transform():\n\n\n\n\ndef extract_times(value):\n    match = re.search(r'(?:\\b[A-Z]{3,4}-)?\\d{3,5}(?:-\\d{3,5})?', value)\n    if match:\n        return match.group()\n    else:\n        return None\n\nflights_with_times = df['flight'].apply(extract_times)\n\ndf['scheduled_arrival'] = flights_with_times.str.replace('-', '')\ndf['actual_arrival'] = df['flights_with_times'].str.split('-').str[1]\n\ndf['time_difference'] = pd.to_timedelta(df['actual_arrival']) - pd.to_timedelta(df['scheduled_arrival'])\n\n\nAfter cleaning the data, you can now calculate the number of flights with a time difference using:\n\n\n\nnum_flights_with_difference = len(df[df['time_difference'].notnull()])\nprint(f'Number of flights with a time difference: {num_flights_with_difference}')",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import re\nTo achieve the purpose, we first need to clean the data by extracting the scheduled and actual arrival times. Here's how you can do it using regexr_transform():\n\n\n\n\ndef extract_times(value):\n    match = re.search(r'(?:\\b[A-Z]{3,4}-)?\\d{3,5}(?:-\\d{3,5})?', value)\n    if match:\n        return match.group()\n    else:\n        return None\n\nflights_with_times = df['flight'].apply(extract_times)\n\ndf['scheduled_arrival'] = flights_with_times.str.replace('-', '')\ndf['actual_arrival'] = df['flights_with_times'].str.split('-').str[1]\n\ndf['time_difference'] = pd.to_timedelta(df['actual_arrival']) - pd.to_timedelta(df['scheduled_arrival'])\n\n\nAfter cleaning the data, you can now calculate the number of flights with a time difference using:\n\n\n\nnum_flights_with_difference = len(df[df['time_difference'].notnull()])\nprint(f'Number of flights with a time difference: {num_flights_with_difference}')"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "flight_arrival_time"
+            }
+        ],
+        "description": "Mass edit cells in column flight"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_arr_time",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_arr_time using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "value.toDate(\"h:mm a\").toString(\"HH:mm\")",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression value.toDate(\"h:mm a\").toString(\"HH:mm\")"
+    }
+]

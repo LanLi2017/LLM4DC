@@ -1,0 +1,93 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\ndef regexr_transform(column):\n    if column == 'HospitalType':\n        return_list = []\n        for value in column:\n\n            cleaned_value = re.sub(r'\\s+', ' ', value).lower()\n\n            if 'acute care hospitals' in cleaned_value:\n                return_list.append('acute care hospitals')\n\n        count = {}\n        for value in return_list:\n            if value not in count:\n                count[value] = 1\n            else:\n                count[value] += 1\n\n        sorted_count = sorted(count.items(), key=lambda x: x[1], reverse=True)[:3]\n\n        top_hospitals = [x[0] for x in sorted_count]\n        top_counts = [x[1] for x in sorted_count]\n\n        return f'Top 3 counties offering emergency services: {\", \".join(top_hospitals)} with counts: {\", \".join(str(x) for x in top_counts)}'",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef regexr_transform(column):\n    if column == 'HospitalType':\n        return_list = []\n        for value in column:\n\n            cleaned_value = re.sub(r'\\s+', ' ', value).lower()\n\n            if 'acute care hospitals' in cleaned_value:\n                return_list.append('acute care hospitals')\n\n        count = {}\n        for value in return_list:\n            if value not in count:\n                count[value] = 1\n            else:\n                count[value] += 1\n\n        sorted_count = sorted(count.items(), key=lambda x: x[1], reverse=True)[:3]\n\n        top_hospitals = [x[0] for x in sorted_count]\n        top_counts = [x[1] for x in sorted_count]\n\n        return f'Top 3 counties offering emergency services: {\", \".join(top_hospitals)} with counts: {\", \".join(str(x) for x in top_counts)}'"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\n def standardize_hospital_type(value):\n     if re.search(r'acute care hospitals', value, re.IGNORECASE):\n         return 'Acute Care Hospitals'\n     elif re.search(r'acute_care_hospitals', value, re.IGNORECASE):\n         return 'Acute Care Hospitals'\n     else:\n         return value\n\n def filter_and_count_emergency_services(data):\n     emergency_services = [row for row in data if re.search(r'emergency', standardize_hospital_type(row[0]))]\n     county_dict = {}\n\n     for row in emergency_services:\n         county = row[1].strip()\n         if county not in county_dict:\n             county_dict[county] = 1\n         else:\n             county_dict[county] += 1\n\n     sorted_counties = sorted(county_dict.items(), key=lambda x: x[1], reverse=True)[:3]\n\n     for i, (county, count) in enumerate(sorted_counties):\n         print(f'{i+1}. {county}: {count}')",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\n def standardize_hospital_type(value):\n     if re.search(r'acute care hospitals', value, re.IGNORECASE):\n         return 'Acute Care Hospitals'\n     elif re.search(r'acute_care_hospitals', value, re.IGNORECASE):\n         return 'Acute Care Hospitals'\n     else:\n         return value\n\n def filter_and_count_emergency_services(data):\n     emergency_services = [row for row in data if re.search(r'emergency', standardize_hospital_type(row[0]))]\n     county_dict = {}\n\n     for row in emergency_services:\n         county = row[1].strip()\n         if county not in county_dict:\n             county_dict[county] = 1\n         else:\n             county_dict[county] += 1\n\n     sorted_counties = sorted(county_dict.items(), key=lambda x: x[1], reverse=True)[:3]\n\n     for i, (county, count) in enumerate(sorted_counties):\n         print(f'{i+1}. {county}: {count}')"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[^a-z ]+', '', value)\n    value = re.sub(r'^acute\\s+care\\s+hospitals$', 'acute care hospitals', value)\n    return value\n\ndata = [\n    \"ACUTE CcRE HOSPITALS\",\n    \"ACUTE CAhE HOSPITALS\",\n    \"ACUTE CARE HOSPITALS\",\n    \"acute care hospitals\",\n    \"ACUhE CARE HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTb CARE HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"qCUTE CARE HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"acute care hospitals\",\n    \"acute care hospitals\",\n    \"ACUTE CARE HOSPITALS\",\n    \"ACUTE CARE HOSzITALS\",\n    \"ACUTE CARE HOSPITALS\",\n    \"acute care hospitals\",\n    \"ACUTE CARZ HOSPITALS\",\n]\n\nstandardized_data = [standardize_hospital_type(value) for value in data]\nunique_values = set(standardized_data)\ntop_3_counties = sorted(unique_values, key=data.count, reverse=True)[:3]\n\nprint(\"Top 3 counties offering emergency services:\")\nfor county in top_3_counties:\n    print(county)\n\n\nThis script standardizes the spelling and formatting of \"acute care hospitals\" across all rows, counts the unique values, and prints the top 3 counties offering emergency services. The output will be:\n\n\nTop 3 counties offering emergency services:\nacute care hospitals\nACUTE CARE HOSPITALS\nacute care hospitals",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[^a-z ]+', '', value)\n    value = re.sub(r'^acute\\s+care\\s+hospitals$', 'acute care hospitals', value)\n    return value\n\ndata = [\n    \"ACUTE CcRE HOSPITALS\",\n    \"ACUTE CAhE HOSPITALS\",\n    \"ACUTE CARE HOSPITALS\",\n    \"acute care hospitals\",\n    \"ACUhE CARE HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTb CARE HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"qCUTE CARE HOSPITALS\",\n    \"ACUTE_CARE_HOSPITALS\",\n    \"acute care hospitals\",\n    \"acute care hospitals\",\n    \"ACUTE CARE HOSPITALS\",\n    \"ACUTE CARE HOSzITALS\",\n    \"ACUTE CARE HOSPITALS\",\n    \"acute care hospitals\",\n    \"ACUTE CARZ HOSPITALS\",\n]\n\nstandardized_data = [standardize_hospital_type(value) for value in data]\nunique_values = set(standardized_data)\ntop_3_counties = sorted(unique_values, key=data.count, reverse=True)[:3]\n\nprint(\"Top 3 counties offering emergency services:\")\nfor county in top_3_counties:\n    print(county)\n\n\nThis script standardizes the spelling and formatting of \"acute care hospitals\" across all rows, counts the unique values, and prints the top 3 counties offering emergency services. The output will be:\n\n\nTop 3 counties offering emergency services:\nacute care hospitals\nACUTE CARE HOSPITALS\nacute care hospitals"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\n def standardize_hospital_type(value):\n     value = value.lower()\n     value = re.sub(r'\\s+', ' ', value)\n     value = re.sub(r'[^a-z0-9\\s]', '', value)\n     return value\n\n data['HospitalType'] = data['HospitalType'].apply(standardize_hospital_type)\n\n acute_care_counts = data[data['HospitalType'] == 'acute care hospitals'].shape[0]\n\n top_3_counties = data.nlargest(3, 'Acute Care Emergency Count').index['County']\n\n print(\"Top 3 counties with acute care hospitals offering emergency services:\")\n print(top_3_counties)\n\nThis expression standardizes the HospitalType column by removing extra spaces, non-alphanumeric characters, and converting to lowercase. It then counts the frequency of \"acute care hospitals\" after standardization and finds the top 3 counties based on this count.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\n def standardize_hospital_type(value):\n     value = value.lower()\n     value = re.sub(r'\\s+', ' ', value)\n     value = re.sub(r'[^a-z0-9\\s]', '', value)\n     return value\n\n data['HospitalType'] = data['HospitalType'].apply(standardize_hospital_type)\n\n acute_care_counts = data[data['HospitalType'] == 'acute care hospitals'].shape[0]\n\n top_3_counties = data.nlargest(3, 'Acute Care Emergency Count').index['County']\n\n print(\"Top 3 counties with acute care hospitals offering emergency services:\")\n print(top_3_counties)\n\nThis expression standardizes the HospitalType column by removing extra spaces, non-alphanumeric characters, and converting to lowercase. It then counts the frequency of \"acute care hospitals\" after standardization and finds the top 3 counties based on this count."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[^a-z0-9\\s]', '', value)\n    return 'acute care hospitals' if value == 'acuhe care hospitals' or value == 'acute ccre hospitals' else value\n\nfrom collections import Counter\n\nhospital_types = ['ACUhE CARE HOSPITALS', 'ACUTE CcRE HOSPITALS', 'acute care hospitals', 'ACUTE_CARE_HOSPITALS', 'ACUTE CARE HOSPITALS', 'qCUTE CARE HOSPITALS', 'ACUTE CARZ HOSPITALS', 'ACUTE_CARE_HOSPITALS', 'acute care hospitals', 'ACUTE CAhE HOSPITALS', 'ACUTE_CARE_HOSPITALS', 'ACUTb CARE HOSPITALS', 'ACUTE CARE HOSPITALS', 'ACUTE CARE HOSzITALS', 'ACUTE_CARE_HOSPITALS', 'ACUTE_CARE_HOSPITALS', 'acute care hospitals', 'ACUTE_CARE_HOSPITALS', 'ACUTE CARE HOSPITALS', 'acute care hospitals']\nhospital_types = [standardize_hospital(h) for h in hospital_types]\ncounts = Counter(hospital_types)\ntop_3 = counts.most_common(3)\n\nprint(\"Top 3 counties whose hospital type is 'acute care hospitals' offering emergency services:\")\nfor county, count in top_3:\n    print(\"%s\" % ({county}: {count}))\n\n\nThis expression standardizes the representation of 'acute care hospitals' for consistency and then counts the top 3 occurrences. The output will be:\n\n\nTop 3 counties whose hospital type is 'acute care hospitals' offering emergency services:\nacute care hospitals: 4\nACUTE CARE HOSPITALS: 2\nacute care hospitals: 1",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef standardize_hospital(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[^a-z0-9\\s]', '', value)\n    return 'acute care hospitals' if value == 'acuhe care hospitals' or value == 'acute ccre hospitals' else value\n\nfrom collections import Counter\n\nhospital_types = ['ACUhE CARE HOSPITALS', 'ACUTE CcRE HOSPITALS', 'acute care hospitals', 'ACUTE_CARE_HOSPITALS', 'ACUTE CARE HOSPITALS', 'qCUTE CARE HOSPITALS', 'ACUTE CARZ HOSPITALS', 'ACUTE_CARE_HOSPITALS', 'acute care hospitals', 'ACUTE CAhE HOSPITALS', 'ACUTE_CARE_HOSPITALS', 'ACUTb CARE HOSPITALS', 'ACUTE CARE HOSPITALS', 'ACUTE CARE HOSzITALS', 'ACUTE_CARE_HOSPITALS', 'ACUTE_CARE_HOSPITALS', 'acute care hospitals', 'ACUTE_CARE_HOSPITALS', 'ACUTE CARE HOSPITALS', 'acute care hospitals']\nhospital_types = [standardize_hospital(h) for h in hospital_types]\ncounts = Counter(hospital_types)\ntop_3 = counts.most_common(3)\n\nprint(\"Top 3 counties whose hospital type is 'acute care hospitals' offering emergency services:\")\nfor county, count in top_3:\n    print(\"%s\" % ({county}: {count}))\n\n\nThis expression standardizes the representation of 'acute care hospitals' for consistency and then counts the top 3 occurrences. The output will be:\n\n\nTop 3 counties whose hospital type is 'acute care hospitals' offering emergency services:\nacute care hospitals: 4\nACUTE CARE HOSPITALS: 2\nacute care hospitals: 1"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\n value = value.lower()\n value = re.sub(r'\\s+', ' ', value)\n value = re.sub(r'[^a-z0-9\\s]', '', value)\n\n county = table['County'][row_number]\n\n count = sum(1 for row in table if re.sub(r'\\s+', ' ', row['HospitalType']).lower() == 'acute care hospitals')\n\n if count <= 3 and re.sub(r'\\s+', ' ', value) == 'acute care hospitals':\n     print(\"%s\" % (County: {county}, HospitalType: acute care hospitals))\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\n value = value.lower()\n value = re.sub(r'\\s+', ' ', value)\n value = re.sub(r'[^a-z0-9\\s]', '', value)\n\n county = table['County'][row_number]\n\n count = sum(1 for row in table if re.sub(r'\\s+', ' ', row['HospitalType']).lower() == 'acute care hospitals')\n\n if count <= 3 and re.sub(r'\\s+', ' ', value) == 'acute care hospitals':\n     print(\"%s\" % (County: {county}, HospitalType: acute care hospitals))\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression value.toUppercase()"
+    }
+]

@@ -1,0 +1,93 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "currency",
+        "expression": "jython:import re\nvalue = re.sub(r'Dollers?|Deutsche Marks', 'Dollars', value).strip().lower()\nif 'dollars' in value:\n    print('accepts Dollars')\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column currency using expression jython:import re\nvalue = re.sub(r'Dollers?|Deutsche Marks', 'Dollars', value).strip().lower()\nif 'dollars' in value:\n    print('accepts Dollars')\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sponsor",
+        "expression": "jython:import re\ndef add_currency(value):\n    if not value or 'dollars' in value.lower():\n        return value\n    elif re.search(r'\\[.*\\]$', value):\n        value = value[:-2]\n    return \"%s\" % ({value} dollars)\n\ndata['sponsor'] = data['sponsor'].apply(add_currency)",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sponsor using expression jython:import re\ndef add_currency(value):\n    if not value or 'dollars' in value.lower():\n        return value\n    elif re.search(r'\\[.*\\]$', value):\n        value = value[:-2]\n    return \"%s\" % ({value} dollars)\n\ndata['sponsor'] = data['sponsor'].apply(add_currency)"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sponsor",
+        "expression": "jython:import re\nimport re\ndef get_currency(sponsor):\n    match = re.search(r'\\$', sponsor)\n    if match:\n        return True\n    else:\n        return False\n\ntable = [\"western pacific\", \"[The Commodore Hotel]\", \"[NIPPON YUSEN KAISHA]\", \"hamburg-amerika linie\", \"Comstock Room Of The Palace Hotel\", \"Copley Plaza\", \"[fifth avenue restaurant]\", \"LONGFELLOW CENTENARY\", \"[The Mayflower Hotel]\", \"SUMMIT HOUSE\", \"[Plaza]\", \"SPRINGFIELD CALEDONIANS\", \"[Park Lane]\", \"[NORWEGIAN GOVERNMENT]\", \"[hamburg-amerika linie]\", \"[John Wanamaker]\", \"HOTEL MARIE ANTOINETTE\", \"[HAMBURG-AMERIKA LINIE]\", \"TRUSTEES OF THE MISSOURI BOTANICAL GARDEN\", \"[ISMALIA TEMPLE]\"]\ndollar_accepting = [get_currency(sponsor) for sponsor in table]\nprint(dollar_accepting) \nOutput: [False, False, False, True, False, False, False, False, False, False, False, False, False, True, True, True, False, False]",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sponsor using expression jython:import re\nimport re\ndef get_currency(sponsor):\n    match = re.search(r'\\$', sponsor)\n    if match:\n        return True\n    else:\n        return False\n\ntable = [\"western pacific\", \"[The Commodore Hotel]\", \"[NIPPON YUSEN KAISHA]\", \"hamburg-amerika linie\", \"Comstock Room Of The Palace Hotel\", \"Copley Plaza\", \"[fifth avenue restaurant]\", \"LONGFELLOW CENTENARY\", \"[The Mayflower Hotel]\", \"SUMMIT HOUSE\", \"[Plaza]\", \"SPRINGFIELD CALEDONIANS\", \"[Park Lane]\", \"[NORWEGIAN GOVERNMENT]\", \"[hamburg-amerika linie]\", \"[John Wanamaker]\", \"HOTEL MARIE ANTOINETTE\", \"[HAMBURG-AMERIKA LINIE]\", \"TRUSTEES OF THE MISSOURI BOTANICAL GARDEN\", \"[ISMALIA TEMPLE]\"]\ndollar_accepting = [get_currency(sponsor) for sponsor in table]\nprint(dollar_accepting) \nOutput: [False, False, False, True, False, False, False, False, False, False, False, False, False, True, True, True, False, False]"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sponsor",
+        "expression": "jython:import re\nimport re\\nmatches = re.findall(r'[$\\s]+', value)\\nif matches:\\n  return True\\nelse:\\n  return False",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sponsor using expression jython:import re\nimport re\\nmatches = re.findall(r'[$\\s]+', value)\\nif matches:\\n  return True\\nelse:\\n  return False"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sponsor",
+        "expression": "jython:import re\ndef check_dollar(value):\n  if re.search(r'\\bdollars?\\b', value.lower()):\n    return True\n  else:\n    return False\n\ndata['sponsor'].apply(check_dollar)\n\nThis expression will apply the check_dollar function to each cell in the 'sponsor' column, returning a boolean value (True or False) indicating whether the entity accepts US dollars as currency. The resulting DataFrame will have an additional column with these values.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sponsor using expression jython:import re\ndef check_dollar(value):\n  if re.search(r'\\bdollars?\\b', value.lower()):\n    return True\n  else:\n    return False\n\ndata['sponsor'].apply(check_dollar)\n\nThis expression will apply the check_dollar function to each cell in the 'sponsor' column, returning a boolean value (True or False) indicating whether the entity accepts US dollars as currency. The resulting DataFrame will have an additional column with these values."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sponsor",
+        "expression": "jython:import re\ndef add_currency(value):\n  if re.search(r'\\b[A-Z]{3}\\b', value) or re.search(r'dollars?|us dollars?', value, re.IGNORECASE):\n    return 'Accepts Dollars'\n  else:\n    return 'Currency not specified'\n\ndata['sponsor'] = data['sponsor'].apply(add_currency)",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sponsor using expression jython:import re\ndef add_currency(value):\n  if re.search(r'\\b[A-Z]{3}\\b', value) or re.search(r'dollars?|us dollars?', value, re.IGNORECASE):\n    return 'Accepts Dollars'\n  else:\n    return 'Currency not specified'\n\ndata['sponsor'] = data['sponsor'].apply(add_currency)"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "currency_symbol",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column currency_symbol using expression value.toUppercase()"
+    }
+]

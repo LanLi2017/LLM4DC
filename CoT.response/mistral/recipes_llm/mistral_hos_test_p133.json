@@ -1,0 +1,41 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "jython:import re\njython:value = value.lower()\\nif value not in ['yes', 'no']:\\n    return None\\nelse:\\n    return 'Yes' if value == 'yes' else 'No'\n\nThis expression will standardize the spelling and capitalization of values in the EmergencyService column, converting all to lowercase, and replacing \"yes\" with \"Yes\". It also ensures that only \"Yes\" or \"No\" are returned, making it easier for further analysis.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression jython:import re\njython:value = value.lower()\\nif value not in ['yes', 'no']:\\n    return None\\nelse:\\n    return 'Yes' if value == 'yes' else 'No'\n\nThis expression will standardize the spelling and capitalization of values in the EmergencyService column, converting all to lowercase, and replacing \"yes\" with \"Yes\". It also ensures that only \"Yes\" or \"No\" are returned, making it easier for further analysis."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n   pattern = re.compile(r'^(?i)acute\\s*care\\s+hospitals$')\n   return len([match for match in pattern.finditer(value)])\n\nThis expression standardizes the spelling and capitalization of \"acute care hospitals\" by making it case-insensitive (using `(?i)`) and allowing for whitespace between words (using `\\s*`). It then counts the number of matches found in the cell value using a list comprehension. The `len()` function is used to get the count of matches, which represents the number of hospitals offering emergency services by \"acute care hospitals\" hospital type.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n   pattern = re.compile(r'^(?i)acute\\s*care\\s+hospitals$')\n   return len([match for match in pattern.finditer(value)])\n\nThis expression standardizes the spelling and capitalization of \"acute care hospitals\" by making it case-insensitive (using `(?i)`) and allowing for whitespace between words (using `\\s*`). It then counts the number of matches found in the cell value using a list comprehension. The `len()` function is used to get the count of matches, which represents the number of hospitals offering emergency services by \"acute care hospitals\" hospital type."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n\n    value = re.sub(r'[_ ]+', ' ', value)\n\n    value = value.lower()\n\n    if 'acute care' in value:\n        return 'acute care hospitals'\n    elif 'acute_care' in value:\n        return 'acute care hospitals'\n    else:\n        return value\n\ncleaned_hospital_type = [standardize_hospital_type(hospital_type) for hospital_type in hospital_types]\n\ncount = sum([1 if 'acute care hospitals' == cleaned_hospital_type else 0 for cleaned_hospital_type in cleaned_hospital_type])\n\n\nThis expression standardizes the spelling and formatting of the \"HospitalType\" column, counts the number of hospitals offering emergency services by acute care hospitals, and returns the count.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n\n    value = re.sub(r'[_ ]+', ' ', value)\n\n    value = value.lower()\n\n    if 'acute care' in value:\n        return 'acute care hospitals'\n    elif 'acute_care' in value:\n        return 'acute care hospitals'\n    else:\n        return value\n\ncleaned_hospital_type = [standardize_hospital_type(hospital_type) for hospital_type in hospital_types]\n\ncount = sum([1 if 'acute care hospitals' == cleaned_hospital_type else 0 for cleaned_hospital_type in cleaned_hospital_type])\n\n\nThis expression standardizes the spelling and formatting of the \"HospitalType\" column, counts the number of hospitals offering emergency services by acute care hospitals, and returns the count."
+    }
+]

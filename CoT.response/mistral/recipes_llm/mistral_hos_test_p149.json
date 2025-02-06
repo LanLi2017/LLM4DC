@@ -1,0 +1,80 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "ZipCode",
+        "expression": "jython:import re\njython:import re\n\npattern = r'(Government|State|Public)'\n\ndef fill_owner(value):\n    if re.search(pattern, value):\n        return 'Government'\n    else:\n        return None\n\nfor row in data:\n    if len(set([hospital_type for hospital_type in data[row][1:] if data[row][0] == data[row][0]])) > 1:\n        data[row].append(fill_owner(data[row][0]))",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column ZipCode using expression jython:import re\njython:import re\n\npattern = r'(Government|State|Public)'\n\ndef fill_owner(value):\n    if re.search(pattern, value):\n        return 'Government'\n    else:\n        return None\n\nfor row in data:\n    if len(set([hospital_type for hospital_type in data[row][1:] if data[row][0] == data[row][0]])) > 1:\n        data[row].append(fill_owner(data[row][0]))"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "ZipCode",
+        "expression": "jython:import re\njython:import re\n\n\n\n\n\n\n\n\n\ndef extract_hospital_types(value):\n    pattern = re.compile(r'[a-zA-Z]+')\n    return ','.join(pattern.findall(value))\n\ndef extract_ownership(value):\n    if value.lower() == 'government':\n        return 'Government'\n    elif value.lower() == 'mixed':\n        return 'Mixed'\n    else:\n        return value\n\ndef filter_zipcodes(df):\n    df['Hospital Type'] = df['Hospital Type'].apply(extract_hospital_types)\n    df['Ownership'] = df['Ownership'].apply(extract_ownership)\n    return df[(df['Hospital Type'].str.contains('Government') | df['Hospital Type'].str.contains('Mixed')) & (df['ZipCode'].duplicated())]\n\n\nThis expression will extract the hospital types and ownership from each row, consolidate them using commas as a separator, and then filter for ZIP codes with government-owned hospitals of multiple types. The resulting DataFrame will only contain rows where there are multiple hospital types in the specified ZIP code and at least one of those is owned by the government or mixed ownership.",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column ZipCode using expression jython:import re\njython:import re\n\n\n\n\n\n\n\n\n\ndef extract_hospital_types(value):\n    pattern = re.compile(r'[a-zA-Z]+')\n    return ','.join(pattern.findall(value))\n\ndef extract_ownership(value):\n    if value.lower() == 'government':\n        return 'Government'\n    elif value.lower() == 'mixed':\n        return 'Mixed'\n    else:\n        return value\n\ndef filter_zipcodes(df):\n    df['Hospital Type'] = df['Hospital Type'].apply(extract_hospital_types)\n    df['Ownership'] = df['Ownership'].apply(extract_ownership)\n    return df[(df['Hospital Type'].str.contains('Government') | df['Hospital Type'].str.contains('Mixed')) & (df['ZipCode'].duplicated())]\n\n\nThis expression will extract the hospital types and ownership from each row, consolidate them using commas as a separator, and then filter for ZIP codes with government-owned hospitals of multiple types. The resulting DataFrame will only contain rows where there are multiple hospital types in the specified ZIP code and at least one of those is owned by the government or mixed ownership."
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\n government_pattern = r'(government|GOVERNMENT|Government|gov|GOV)'\n hospital_district_or_authority_pattern = r'hospital district or authority|Hospital District Or Authority|Hospital District or Authority'\n\n def standardize(value):\n     value = value.lower()\n     value = re.sub(government_pattern, 'government', value)\n     value = re.sub(hospital_district_or_authority_pattern, 'hospital district or authority', value)\n     return value\n\n def consistent_representation(value):\n     if value in ['private', 'proprietary']:\n         return 'Private'\n     elif value == 'voluntary non-profit':\n         return 'Voluntary Non-Profit'\n     else:\n         return value\n\n def clean_hospital_owner(df):\n     df['HospitalOwner'] = df['HospitalOwner'].apply(standardize)\n     df['HospitalOwner'] = df['HospitalOwner'].apply(consistent_representation)\n\n df = pd.DataFrame({'HospitalOwner': ['GOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY', 'GOVERNMENT - HOSPITAL DISTRICT OR AUTHORIKY', 'government - hospital district or authority', 'PROPRIGTARY', 'VOLUNTARY NON-PROFIT - OTHER', 'proprietary', 'GOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY', 'VOLUNTARY NON-PROFIT - PRIVATE', 'government - local', 'VOLUNTARY NON_PsOFIT - OTHER', 'government - hospital district or authority', 'PRIVATE', 'voluntary non-profit - private', 'GOVERNMENT_-_FEDERAL', 'VOLUNTARY_NON-PROFIT_-_PRIVATE', 'VOLUNTARY NON-PROFIT - OTHWR', 'PRIVATE', 'PROPiIETARY', 'government - federal', 'PRIVATE']})\n df = clean_hospital_owner(df)\n print(df)\n   \n\n   Output:\n\n   \n    HospitalOwner\n0  government - hospital district or authority\n1  government - hospital district or authority\n2  government - hospital district or authority\n3  private\n4  Voluntary Non-Profit\n5  private\n6  government - hospital district or authority\n7  Voluntary Non-Profit - Private\n8  government - local\n9  Voluntary Non-Profit - Other\n10 government - hospital district or authority\n11 private\n12 voluntary non-profit - private\n13 government - federal\n14 private\n15 proprietary\n16 government - hospital district or authority\n17 private\n18 proprietary\n19 government - federal\n20 private",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\n government_pattern = r'(government|GOVERNMENT|Government|gov|GOV)'\n hospital_district_or_authority_pattern = r'hospital district or authority|Hospital District Or Authority|Hospital District or Authority'\n\n def standardize(value):\n     value = value.lower()\n     value = re.sub(government_pattern, 'government', value)\n     value = re.sub(hospital_district_or_authority_pattern, 'hospital district or authority', value)\n     return value\n\n def consistent_representation(value):\n     if value in ['private', 'proprietary']:\n         return 'Private'\n     elif value == 'voluntary non-profit':\n         return 'Voluntary Non-Profit'\n     else:\n         return value\n\n def clean_hospital_owner(df):\n     df['HospitalOwner'] = df['HospitalOwner'].apply(standardize)\n     df['HospitalOwner'] = df['HospitalOwner'].apply(consistent_representation)\n\n df = pd.DataFrame({'HospitalOwner': ['GOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY', 'GOVERNMENT - HOSPITAL DISTRICT OR AUTHORIKY', 'government - hospital district or authority', 'PROPRIGTARY', 'VOLUNTARY NON-PROFIT - OTHER', 'proprietary', 'GOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY', 'VOLUNTARY NON-PROFIT - PRIVATE', 'government - local', 'VOLUNTARY NON_PsOFIT - OTHER', 'government - hospital district or authority', 'PRIVATE', 'voluntary non-profit - private', 'GOVERNMENT_-_FEDERAL', 'VOLUNTARY_NON-PROFIT_-_PRIVATE', 'VOLUNTARY NON-PROFIT - OTHWR', 'PRIVATE', 'PROPiIETARY', 'government - federal', 'PRIVATE']})\n df = clean_hospital_owner(df)\n print(df)\n   \n\n   Output:\n\n   \n    HospitalOwner\n0  government - hospital district or authority\n1  government - hospital district or authority\n2  government - hospital district or authority\n3  private\n4  Voluntary Non-Profit\n5  private\n6  government - hospital district or authority\n7  Voluntary Non-Profit - Private\n8  government - local\n9  Voluntary Non-Profit - Other\n10 government - hospital district or authority\n11 private\n12 voluntary non-profit - private\n13 government - federal\n14 private\n15 proprietary\n16 government - hospital district or authority\n17 private\n18 proprietary\n19 government - federal\n20 private"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import re\n\nvalue = re.sub(r'[- ]+', ' ', value).lower()\n\nwords = value.split()\n\nif \"government\" in words or \"gov\" in words:\n\n    for word in words:\n        if word not in [\"government\", \"gov\"] and word not in [\"private\", \"local\"]:\n            return False\n\nreturn True",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\nvalue = re.sub(r'[- ]+', ' ', value).lower()\n\nwords = value.split()\n\nif \"government\" in words or \"gov\" in words:\n\n    for word in words:\n        if word not in [\"government\", \"gov\"] and word not in [\"private\", \"local\"]:\n            return False\n\nreturn True"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\njython:import string\\nvalue = value.lower()\\nreturn value.replace(\" \", \"\")\\nif value in [\"government\", \"federal\"]:\\n    return value.capitalize()\n\nThis expression will first convert all the text to lowercase, remove spaces and then capitalize the words that match with \"government\" or \"federal\". This way we are standardizing the capitalization of the HospitalOwner column for a cleaner and consistent dataset. The output will be:\n\n\ngovernment\ngovernment - hospital district or authority\ngovernment - federal\nvoluntary non-profit - other\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY\ngovernment - hospital district or authority\nVOLUNTARY NON-PROFIT - OTHER\ngovernment - hospital district or authority\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY\ngovernment - federal\ngovernment - hospital district or authority\nvoluntary non-profit - other\ngovernment - hospital district or authority\nVOLUNTARY NON-PROFIT - PRIVATE\ngovernment - local\ngovernment - hospital district or authority\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY\nVOLUNTARY NON-PROFIT - PRIVATE\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import string\\nvalue = value.lower()\\nreturn value.replace(\" \", \"\")\\nif value in [\"government\", \"federal\"]:\\n    return value.capitalize()\n\nThis expression will first convert all the text to lowercase, remove spaces and then capitalize the words that match with \"government\" or \"federal\". This way we are standardizing the capitalization of the HospitalOwner column for a cleaner and consistent dataset. The output will be:\n\n\ngovernment\ngovernment - hospital district or authority\ngovernment - federal\nvoluntary non-profit - other\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY\ngovernment - hospital district or authority\nVOLUNTARY NON-PROFIT - OTHER\ngovernment - hospital district or authority\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY\ngovernment - federal\ngovernment - hospital district or authority\nvoluntary non-profit - other\ngovernment - hospital district or authority\nVOLUNTARY NON-PROFIT - PRIVATE\ngovernment - local\ngovernment - hospital district or authority\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY\nVOLUNTARY NON-PROFIT - PRIVATE\nGOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression value.toUppercase()"
+    }
+]

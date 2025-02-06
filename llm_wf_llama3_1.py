@@ -262,7 +262,7 @@ def generate_target_columns(df, purpose, av_cols, model):
 
     prompt_sel_col = sel_col_learn + f"""
     
-    \n\nBased on table contents and Purpose provided below, output Selected columns as a list inside ``` ```. 
+    \n\nBased on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
 /*
 {format_sel_col(df)}
 */
@@ -472,7 +472,7 @@ Selected Operation:
             count_empty = 0
             sel_op = None
 
-            while not sel_op or sel_op not in ops_pool:
+            while (not sel_op or sel_op not in ops_pool) and count_empty < 3:
                 context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
                 logging.info(f"\nGenerated operation description:\n{sel_op_desc}")
                 
@@ -480,103 +480,106 @@ Selected Operation:
                 
                 if sel_op in ops_pool:
                     break
-                
                 count_empty += 1
                 logging.warning(f"Invalid operation selected. Retrying... (Attempt {count_empty})")
 
-            print(f"Selected operation: {sel_op}")
+            if sel_op not in ops_pool:
+                sel_op = None
+                logging.error("Failed to select a valid operation after 5 attempts.")
+            else:
+                print(f"Selected operation: {sel_op}")
 
-            with open(f'prompts/{sel_op}.txt', 'r') as f1:
-                prompt_sel_args = f1.read()
+                with open(f'prompts/{sel_op}.txt', 'r') as f1:
+                    prompt_sel_args = f1.read()
 
-            # Prepare the operation purpose
-            prompt_eod = eod_learn + f"""\
-\n\nBased on table contents, Objective, and Flag provided as following, output Explanations.
-/*
-{col_str}
-*/
+                # Prepare the operation purpose
+                prompt_eod = eod_learn + f"""\
+    \n\nBased on table contents, Objective, and Flag provided as following, output Explanations.
+    /*
+    {col_str}
+    */
 
-Purpose: {purpose}
-Flag: ```False```
-Explanations: 
-                                            """
-            _, eod_desc = gen(prompt_eod, [], model, {'temperature': 0.2}) #clear out context
-            prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
-            _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], model, {'temperature': 0.2, 'top_p': 0.95})
-            # Regular expression to extract the desired sentence
-            # eod_pattern= r"Next operation:\s*(.*?)\."
-            print(one_sent_eod_desc)
-            logging.info(f'data cleaning objectives: {one_sent_eod_desc}')
-            eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
-            # Search for the pattern in the text
-            eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
-            # Extract the matched sentence if found
-            sum_eod = eod_match.group(1).strip() + '.' if eod_match else one_sent_eod_desc
-            print(sum_eod)
-                
-            # >>>>Start Arguments Generation>>>>
-            context = []
-            if sel_op == 'regexr_transform':
-                # tb_str = gen_table_str(df, num_rows=50, tg_col=sel_col)
-                col_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
-                prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression in ``` ```. """ \
-                                    +f"""\
-/*
-{col_str}
-*/
-Purpose: {purpose}
-Current Operation Purpose: {sum_eod}
-Python Expression:
-                                    """
-                # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
-                context, py_exp = gen(prompt_sel_args, context, model)
-                # exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
-                exp = convert_python_to_jython(py_exp)
-                logging.info(f"#TASK III: generate regexr arguments: \n\n {exp}")
-                print(f'********predicted expression: {exp}')
-                text_transform(project_id, column=sel_col, expression=exp)
-            elif sel_op == 'numeric':
-                text_transform(project_id, column=sel_col, expression="value.toNumber()")
-            elif sel_op == 'date':
-                text_transform(project_id, column=sel_col, expression="value.toDate()")
-            elif sel_op == 'trim':
-                text_transform(project_id, column=sel_col, expression="value.trim()")
-            elif sel_op == 'upper':
-                text_transform(project_id, column=sel_col, expression="value.toUppercase()")
-            elif sel_op == 'mass_edit':
-                # sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
-                # sum_edo = sum_eod.replace('\n', ' ')
-                col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
-                # print(col_str)
-                prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```. DO NOT add any comments in the list!"""\
-                                + f"""\n
-/*
-{col_str}
-*/
-Purpose: {purpose}
-Current Operation Purpose: {sum_eod}
-edits: 
-"""
-                print("prompts for generating edits:")
-                print(prompt_sel_args)
-                options = {
-                    'temperature': 0.2,
-                    'stop':['\n\n\n']
-                }
-                try:
-                    context, edits_desc = gen(prompt_sel_args, context, model, options)
-                    edits_v = extract_exp(edits_desc)
-                    print(f'descriptions for edits: \n\n {edits_desc}')
-                    logging.info(f"#TASK III: generate mass_edit arguments: \n\n {edits_desc}")
-                
-                    if edits_v:
-                        edits_v = edits_v[0].replace("edits: ", "")
-                        edits_v = parse_edits(edits_v)
-                        mass_edit(project_id, column=sel_col, edits=edits_v)
-                    else: 
-                        print('No edits are parsed')
-                except:
-                    pass
+    Purpose: {purpose}
+    Flag: ```False```
+    Explanations: 
+                                                """
+                _, eod_desc = gen(prompt_eod, [], model, {'temperature': 0.2}) #clear out context
+                prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
+                _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], model, {'temperature': 0.2, 'top_p': 0.95})
+                # Regular expression to extract the desired sentence
+                # eod_pattern= r"Next operation:\s*(.*?)\."
+                print(one_sent_eod_desc)
+                logging.info(f'data cleaning objectives: {one_sent_eod_desc}')
+                eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
+                # Search for the pattern in the text
+                eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
+                # Extract the matched sentence if found
+                sum_eod = eod_match.group(1).strip() + '.' if eod_match else one_sent_eod_desc
+                print(sum_eod)
+                    
+                # >>>>Start Arguments Generation>>>>
+                context = []
+                if sel_op == 'regexr_transform':
+                    # tb_str = gen_table_str(df, num_rows=50, tg_col=sel_col)
+                    col_str = gen_table_str(df, num_rows=30, tg_col=sel_col)
+                    prompt_sel_args += """\n\nBased on table contents, Purpose, and Current Operation Purpose provided as following, output expression in ``` ```. """ \
+                                        +f"""\
+    /*
+    {col_str}
+    */
+    Purpose: {purpose}
+    Current Operation Purpose: {sum_eod}
+    Python Expression:
+                                        """
+                    # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
+                    context, py_exp = gen(prompt_sel_args, context, model)
+                    # exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
+                    exp = convert_python_to_jython(py_exp)
+                    logging.info(f"#TASK III: generate regexr arguments: \n\n {exp}")
+                    print(f'********predicted expression: {exp}')
+                    text_transform(project_id, column=sel_col, expression=exp)
+                elif sel_op == 'numeric':
+                    text_transform(project_id, column=sel_col, expression="value.toNumber()")
+                elif sel_op == 'date':
+                    text_transform(project_id, column=sel_col, expression="value.toDate()")
+                elif sel_op == 'trim':
+                    text_transform(project_id, column=sel_col, expression="value.trim()")
+                elif sel_op == 'upper':
+                    text_transform(project_id, column=sel_col, expression="value.toUppercase()")
+                elif sel_op == 'mass_edit':
+                    # sel_cols_str = gen_table_str(sel_cols_df, num_rows=num_rows)
+                    # sum_edo = sum_eod.replace('\n', ' ')
+                    col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col)
+                    # print(col_str)
+                    prompt_sel_args += """\n\nBased on the table contents, Purpose, and Current Operation Purpose provided as following, output edits (a list of dictionaries) in ``` ```. DO NOT add any comments in the list!"""\
+                                    + f"""\n
+    /*
+    {col_str}
+    */
+    Purpose: {purpose}
+    Current Operation Purpose: {sum_eod}
+    edits: 
+    """
+                    print("prompts for generating edits:")
+                    print(prompt_sel_args)
+                    options = {
+                        'temperature': 0.2,
+                        'stop':['\n\n\n']
+                    }
+                    try:
+                        context, edits_desc = gen(prompt_sel_args, context, model, options)
+                        edits_v = extract_exp(edits_desc)
+                        print(f'descriptions for edits: \n\n {edits_desc}')
+                        logging.info(f"#TASK III: generate mass_edit arguments: \n\n {edits_desc}")
+                    
+                        if edits_v:
+                            edits_v = edits_v[0].replace("edits: ", "")
+                            edits_v = parse_edits(edits_v)
+                            mass_edit(project_id, column=sel_col, edits=edits_v)
+                        else: 
+                            print('No edits are parsed')
+                    except:
+                        pass
                 # raise NotImplementedError
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
@@ -635,6 +638,8 @@ edits:
     # log_data["Operations"] = list(set(ops_data))
     print(f'The full operation chain: {ops_gen}')
     print(f'The whole process: {log_data}')
+    if len(log_data['Operations'])==0:
+        raise NotImplementedError
     return log_data
 
 
@@ -677,7 +682,7 @@ def test_main():
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
     # 【26,27,54,57,59,60】25-27 53,54 56-57 58-60
-    for index, row in pp_df.iloc[58:60].iterrows():
+    for index, row in pp_df.iloc[99:100].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

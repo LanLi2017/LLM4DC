@@ -54,7 +54,8 @@ def parse_text_transform(ops_list, functions_list):
             elif exp.startswith("jython"):
                 functions_list[idx] = "regexr_transform"
             else:
-                raise NotImplementedError
+                pass
+                # raise NotImplementedError
     return functions_list
 
 def export_intermediate_tb(project_id):
@@ -535,8 +536,8 @@ Selected Operation:
                                         """
                     # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
                     context, py_exp = gen(prompt_sel_args, context, model)
-                    # exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
-                    exp = convert_python_to_jython(py_exp)
+                    exp = extract_exp(py_exp)[0].replace('jython\n', 'jython:')+ '\nreturn value'
+                    # exp = convert_python_to_jython(py_exp)
                     logging.info(f"#TASK III: generate regexr arguments: \n\n {exp}")
                     print(f'********predicted expression: {exp}')
                     text_transform(project_id, column=sel_col, expression=exp)
@@ -685,7 +686,7 @@ def test_main():
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
     # 25-27 53,54 56-57 58-60 rerun date...
-    for index, row in pp_df.iloc[25:27].iterrows():
+    for index, row in pp_df.iloc[10:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

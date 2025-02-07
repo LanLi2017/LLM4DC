@@ -1,0 +1,3224 @@
+INFO:root:Project llama3.1_hos_test_p148 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['index', 'ProviderNumber', 'HospitalName', 'Address1', 'City', 'State', 'ZipCode', 'CountyName', 'PhoneNumber', 'HospitalType', 'HospitalOwner', 'EmergencyService'], 'table_column_priority': [['index', '493', '384', '857'], ['ProviderNumber', '10022', '10087', '10044'], ['HospitalName', 'cherokee medical center', 'univ of south alabama medical center', 'marion regional medical center'], ['Address1', '400 northwood dr', '2451 fillingim street', '1256 military street south'], ['City', 'centre', 'mobile', 'hamilton'], ['State', 'al', 'al', 'al'], ['ZipCode', '35960', '36617', '35570'], ['CountyName', 'CHEROKEE', 'MOBILE', 'MARION'], ['PhoneNumber', '2569275531', '2514717110', '2059216200'], ['HospitalType', 'acute care hospitals', 'acute care hospitals', 'acute care hospitals'], ['HospitalOwner', 'voluntary non-profit - private', 'government - state', 'voluntary non-profit - private'], ['EmergencyService', 'YES', 'YsS', 'yes']]}
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:```['CountyName', 'EmergencyService']```
+
+Explanations:
+
+similar words link to columns :
+number of counties -> CountyName
+offer the emergency services -> EmergencyService
+column value link to columns :
+YES/YsS/yes -> EmergencyService
+semantic sentence link to columns :
+None
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   | CountyName   |
+row 19: | yes                | etowah       |
+row 16: | NO                 | elmore       |
+row 7: | YES                | CRENSHAW     |
+row 10: | YES                | MARSHALL     |
+row 8: | yes                | SHELBY       |
+row 20: | NO                 | COVINGTON    |
+row 13: | YES                | MONTGOMERY   |
+row 3: | yes                | MARION       |
+row 6: | NO                 | ELMORE       |
+row 18: | YES                | LEE          |
+row 12: | MES                | AUTAUGA      |
+row 4: | YEz                | CHILTuN      |
+row 1: | YES                | CHEROKEE     |
+row 2: | YsS                | MOBILE       |
+row 15: | YES                | CHEROKEE     |
+row 17: | rES                | ANCHORAGE    |
+row 9: | YES                | MONTGOMERY   |
+row 11: | yes                | JEFFERSON    |
+row 5: | yes                | COmFEE       |
+row 14: | YES                | montgomery   |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: EmergencyService
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it can standardize categorical data by replacing variations of similar values with a consistent representation. In this case, the "EmergencyService" column contains different representations of the same value (e.g., "yes", "YES", "YeZ"), which need to be standardized for accurate counting and analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The "EmergencyService" column has inconsistent spellings and cases, affecting its accuracy and conciseness.
+
+**Data Cleaning Objective:** Standardize the values in the "EmergencyService" column to a consistent format (e.g., all uppercase or title case) to improve its accuracy and conciseness.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['NO', 'YES', 'YEz', 'YsS'], 'to': 'Yes'},
+    {'from': ['rES', 'MES'], 'to': 'Yes'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project llama3.1_hos_test_p148 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['index', 'ProviderNumber', 'HospitalName', 'Address1', 'City', 'State', 'ZipCode', 'CountyName', 'PhoneNumber', 'HospitalType', 'HospitalOwner', 'EmergencyService'], 'table_column_priority': [['index', '493', '384', '857'], ['ProviderNumber', '10022', '10087', '10044'], ['HospitalName', 'cherokee medical center', 'univ of south alabama medical center', 'marion regional medical center'], ['Address1', '400 northwood dr', '2451 fillingim street', '1256 military street south'], ['City', 'centre', 'mobile', 'hamilton'], ['State', 'al', 'al', 'al'], ['ZipCode', '35960', '36617', '35570'], ['CountyName', 'CHEROKEE', 'MOBILE', 'MARION'], ['PhoneNumber', '2569275531', '2514717110', '2059216200'], ['HospitalType', 'acute care hospitals', 'acute care hospitals', 'acute care hospitals'], ['HospitalOwner', 'voluntary non-profit - private', 'government - state', 'voluntary non-profit - private'], ['EmergencyService', 'Yes', 'Yes', 'yes']]}
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:```['CountyName', 'EmergencyService']```
+
+Explanations:
+
+similar words link to columns :
+number of counties -> CountyName
+offer the emergency services -> EmergencyService
+column value link to columns :
+yes -> EmergencyService
+semantic sentence link to columns :
+None
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   | EmergencyService   |
+row 4: | CHILTuN      | Yes                |
+row 7: | CRENSHAW     | YES                |
+row 2: | MOBILE       | Yes                |
+row 11: | JEFFERSON    | yes                |
+row 5: | COmFEE       | yes                |
+row 9: | MONTGOMERY   | Yes                |
+row 20: | COVINGTON    | NO                 |
+row 10: | MARSHALL     | Yes                |
+row 1: | CHEROKEE     | Yes                |
+row 18: | LEE          | Yes                |
+row 14: | montgomery   | Yes                |
+row 12: | AUTAUGA      | Yes                |
+row 8: | SHELBY       | yes                |
+row 19: | etowah       | yes                |
+row 13: | MONTGOMERY   | Yes                |
+row 3: | MARION       | yes                |
+row 6: | ELMORE       | NO                 |
+row 16: | elmore       | NO                 |
+row 15: | CHEROKEE     | YES                |
+row 17: | ANCHORAGE    | Yes                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: CountyName
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it standardizes categorical data by replacing variations of similar values with a consistent representation. In this case, the CountyName column contains mixed capitalization and spelling (e.g., CHILTuN, CRENSHAW, MOBILE). Applying mass_edit ensures that all county names are in a consistent format, making it easier to retrieve accurate information for analysis purposes.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The "CountyName" column contains typos and inconsistent spellings, compromising its accuracy.
+
+**Data Cleaning Objective:** Next operation: Clean the "CountyName" column to standardize spelling and formatting to improve its accuracy.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['elmore', 'etowah', 'COmFEE', 'CHILTuN'], 'to': 'Elmore'},
+    {'from': ['CHEROKEE', 'cherokee', 'CHEROKEE'], 'to': 'Cherokee'},
+    {'from': ['MONTGOMERY', 'montgomery', 'MONTGOMERY'], 'to': 'Montgomery'},
+    {'from': ['CRENSHAW'], 'to': 'Crenshaw'},
+    {'from': ['etowah'], 'to': 'Etowah'},
+    {'from': ['COmFEE'], 'to': 'Coffee'},
+    {'from': ['CHILTuN'], 'to': 'Chilton'},
+    {'from': ['MOBILE'], 'to': 'Mobile'},
+    {'from': ['ANCHORAGE'], 'to': 'Anchorage'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   |
+row 18: | Yes                |
+row 11: | yes                |
+row 6: | NO                 |
+row 16: | NO                 |
+row 19: | yes                |
+row 15: | YES                |
+row 7: | YES                |
+row 12: | Yes                |
+row 20: | NO                 |
+row 2: | Yes                |
+row 5: | yes                |
+row 3: | yes                |
+row 10: | Yes                |
+row 14: | Yes                |
+row 8: | yes                |
+row 4: | Yes                |
+row 1: | Yes                |
+row 17: | Yes                |
+row 13: | Yes                |
+row 9: | Yes                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: EmergencyService
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is suitable for standardizing categorical data by replacing variations of similar values with a consistent representation. In this case, we have different representations of "yes" (Yes, yes, YES) and "no" (NO, no). Applying mass_edit will standardize these to a single format ("Yes" or "No") for consistency and accuracy in future analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are the one-sentence summarization and data cleaning objective:
+
+**Summarization:** The EmergencyService column has inconsistent representations of values, with extra letters in some cases and varying case sensitivity.
+
+**Data Cleaning Objective:** Clean the EmergencyService column by standardizing all values to a consistent representation (e.g. "YES" or "No") to improve accuracy and conciseness.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['Yes', 'YES'], 'to': 'yes'},
+    {'from': ['NO'], 'to': 'no'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ Flag: ```False```
+
+Explanation: Accuracy: False (Inconsistent spellings and capitalizations: "yes", "YES", "no", "NO") Relevance: True (The EmergencyService column is relevant to the objective) Completeness: True (No missing values in EmergencyService) Conciseness: False (Inconsistent representations) Since there are concerns with Accuracy, Conciseness, not all of the dimensions are True, I will return ```False```. The inconsistent spellings and capitalizations suggest that the column is not clean and ready for analysis.
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   |
+row 7: | YES                |
+row 2: | yes                |
+row 6: | NO                 |
+row 1: | yes                |
+row 12: | yes                |
+row 10: | yes                |
+row 18: | yes                |
+row 20: | NO                 |
+row 17: | yes                |
+row 11: | yes                |
+row 14: | yes                |
+row 13: | yes                |
+row 3: | yes                |
+row 15: | YES                |
+row 4: | yes                |
+row 16: | NO                 |
+row 9: | yes                |
+row 19: | yes                |
+row 5: | yes                |
+row 8: | yes                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Clean the EmergencyService column by standardizing all values to a consistent representation (e.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it will standardize the categorical data in the EmergencyService column, replacing variations of similar values with a consistent representation. In this case, all "yes" values should be converted to a standard format, such as "YES", to ensure consistency and accuracy for future analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective based on the provided information:
+
+**Summarization:** The EmergencyService column contains inconsistent representations ("NO" vs. "no", "yes" vs. "YES") that affect its accuracy and conciseness.
+
+**Data Cleaning Objective:** Clean the EmergencyService column to standardize its values to a consistent representation (e.g., all lowercase or title case) to improve accuracy and conciseness.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['NO', 'YES'], 'to': 'yes'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ Based on the provided table and objective, I will evaluate the quality of the target column "EmergencyService".
+
+1. Profiling the column:
+	* Column name is meaningful and relevant to the objective.
+	* Data instances: The values in the column are mostly consistent, with a mix of uppercase and lowercase letters.
+
+2. Assessing profiling results from four dimensions:
+
+	* **Accuracy**: True (although there's a mix of case sensitivity, it doesn't affect the accuracy of the data)
+	* **Relevance**: True (the column exists to indicate whether emergency services are offered)
+	* **Completeness**: N/A (since all values are available, completeness is not a concern)
+	* **Conciseness**: False (there are inconsistent representations: "YES", "NO", and "yes")
+
+Since there's a concern with Conciseness (False), I will return ```False``` for the Flag. The data cleaning pipeline should continue to address this issue.
+
+Flag: ```False```
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   |
+row 5: | yes                |
+row 18: | yes                |
+row 8: | yes                |
+row 13: | yes                |
+row 14: | yes                |
+row 9: | yes                |
+row 3: | yes                |
+row 15: | YES                |
+row 11: | yes                |
+row 6: | NO                 |
+row 2: | yes                |
+row 16: | NO                 |
+row 12: | yes                |
+row 20: | NO                 |
+row 4: | yes                |
+row 19: | yes                |
+row 10: | yes                |
+row 1: | yes                |
+row 7: | YES                |
+row 17: | yes                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Clean the EmergencyService column to standardize its values to a consistent representation (e.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it will standardize the categorical data in the "EmergencyService" column by replacing variations of similar values with a consistent representation. In this case, all instances of "yes" and "YES" should be converted to a single value, such as "yes", for consistency.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are the requested one-sentence summarization and data cleaning objective:
+
+**Summarization:** The "EmergencyService" column has inconsistent representations of "no" and "yes", with some using uppercase letters ("YES") and others using lowercase letters ("yes"), preventing it from being considered clean.
+
+**Data Cleaning Objective for Next Operation:** Standardize the spellings in the "EmergencyService" column to use either uppercase or lowercase letters consistently throughout, ensuring that all instances of "no" and "yes" are represented uniformly.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['YES', 'NO'], 'to': 'YES'},
+    {'from': ['yes'], 'to': 'YES'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project llama3.1_hos_test_p148 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['index', 'ProviderNumber', 'HospitalName', 'Address1', 'City', 'State', 'ZipCode', 'CountyName', 'PhoneNumber', 'HospitalType', 'HospitalOwner', 'EmergencyService'], 'table_column_priority': [['index', '493', '384', '857'], ['ProviderNumber', '10022', '10087', '10044'], ['HospitalName', 'cherokee medical center', 'univ of south alabama medical center', 'marion regional medical center'], ['Address1', '400 northwood dr', '2451 fillingim street', '1256 military street south'], ['City', 'centre', 'mobile', 'hamilton'], ['State', 'al', 'al', 'al'], ['ZipCode', '35960', '36617', '35570'], ['CountyName', 'CHEROKEE', 'MOBILE', 'MARION'], ['PhoneNumber', '2569275531', '2514717110', '2059216200'], ['HospitalType', 'acute care hospitals', 'acute care hospitals', 'acute care hospitals'], ['HospitalOwner', 'voluntary non-profit - private', 'government - state', 'voluntary non-profit - private'], ['EmergencyService', 'YES', 'YsS', 'yes']]}
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:```['CountyName', 'EmergencyService']```
+
+Explanations:
+
+similar words link to columns :
+number of counties -> CountyName
+offer the emergency services -> EmergencyService
+column value link to columns :
+YES/YsS/yes -> EmergencyService
+semantic sentence link to columns :
+None
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   | CountyName   |
+row 5: | yes                | COmFEE       |
+row 4: | YEz                | CHILTuN      |
+row 8: | yes                | SHELBY       |
+row 15: | YES                | CHEROKEE     |
+row 20: | NO                 | COVINGTON    |
+row 11: | yes                | JEFFERSON    |
+row 13: | YES                | MONTGOMERY   |
+row 17: | rES                | ANCHORAGE    |
+row 10: | YES                | MARSHALL     |
+row 18: | YES                | LEE          |
+row 14: | YES                | montgomery   |
+row 7: | YES                | CRENSHAW     |
+row 2: | YsS                | MOBILE       |
+row 9: | YES                | MONTGOMERY   |
+row 12: | MES                | AUTAUGA      |
+row 6: | NO                 | ELMORE       |
+row 16: | NO                 | elmore       |
+row 3: | yes                | MARION       |
+row 1: | YES                | CHEROKEE     |
+row 19: | yes                | etowah       |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: EmergencyService
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is necessary because the target column "EmergencyService" contains mixed capitalization (yes, YEz, YES, yEs, etc.). Applying mass_edit ensures all values are consistent and can be accurately counted for further analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here is the one-sentence summarization and one-sentence data cleaning objective:
+
+**Summarization:** The EmergencyService column contains inconsistent spellings and representations of "YES", affecting its accuracy and conciseness.
+
+**Data Cleaning Objective:** Standardize all values in the EmergencyService column to a consistent representation of "YES" (e.g., "yes") for improved accuracy and conciseness.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['NO', 'YEz', 'yes', 'MES', 'YsS'], 'to': 'YES'},
+    {'from': ['rES'], 'to': 'YES'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project llama3.1_hos_test_p148 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['index', 'ProviderNumber', 'HospitalName', 'Address1', 'City', 'State', 'ZipCode', 'CountyName', 'PhoneNumber', 'HospitalType', 'HospitalOwner', 'EmergencyService'], 'table_column_priority': [['index', '493', '384', '857'], ['ProviderNumber', '10022', '10087', '10044'], ['HospitalName', 'cherokee medical center', 'univ of south alabama medical center', 'marion regional medical center'], ['Address1', '400 northwood dr', '2451 fillingim street', '1256 military street south'], ['City', 'centre', 'mobile', 'hamilton'], ['State', 'al', 'al', 'al'], ['ZipCode', '35960', '36617', '35570'], ['CountyName', 'CHEROKEE', 'MOBILE', 'MARION'], ['PhoneNumber', '2569275531', '2514717110', '2059216200'], ['HospitalType', 'acute care hospitals', 'acute care hospitals', 'acute care hospitals'], ['HospitalOwner', 'voluntary non-profit - private', 'government - state', 'voluntary non-profit - private'], ['EmergencyService', 'YES', 'YES', 'YES']]}
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:```['CountyName', 'EmergencyService']```
+
+Explanation:
+
+similar words link to columns :
+number of counties -> CountyName
+offer the emergency services -> EmergencyService
+column value link to columns :
+YES -> EmergencyService
+semantic sentence link to columns :
+None
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   | EmergencyService   |
+row 6: | ELMORE       | NO                 |
+row 3: | MARION       | YES                |
+row 8: | SHELBY       | YES                |
+row 10: | MARSHALL     | YES                |
+row 17: | ANCHORAGE    | YES                |
+row 19: | etowah       | YES                |
+row 2: | MOBILE       | YES                |
+row 13: | MONTGOMERY   | YES                |
+row 7: | CRENSHAW     | YES                |
+row 12: | AUTAUGA      | YES                |
+row 5: | COmFEE       | YES                |
+row 11: | JEFFERSON    | YES                |
+row 20: | COVINGTON    | NO                 |
+row 15: | CHEROKEE     | YES                |
+row 1: | CHEROKEE     | YES                |
+row 14: | montgomery   | YES                |
+row 9: | MONTGOMERY   | YES                |
+row 4: | CHILTuN      | YES                |
+row 16: | elmore       | NO                 |
+row 18: | LEE          | YES                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: CountyName
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it allows for standardizing categorical data by replacing variations of similar values with a consistent representation. In this case, there are multiple spellings and abbreviations in the "CountyName" column (e.g., "COmFEE", "CHILTuN", "CHEROKEE"), which need to be standardized to ensure accurate counting for the purpose of retrieving the number of counties that offer emergency services.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** Due to accuracy and conciseness issues caused by extra characters and inconsistent spellings in county names, the profiling results indicate that the CountyName column is not fully reliable.
+
+**Data Cleaning Objective:** Clean the CountyName column by standardizing spellings and removing extra characters to ensure accurate parsing and analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['etowah'], 'to': 'Etowah'},
+    {'from': ['CHEROKEE', 'cherokee'], 'to': 'Cherokee'},
+    {'from': ['CHILTuN'], 'to': 'Chilton'},
+    {'from': ['AUTAUGA'], 'to': 'Autauga'},
+    {'from': ['montgomery'], 'to': 'Montgomery'},
+    {'from': ['LEE'], 'to': 'Lee'},
+    {'from': ['MONTGOMERY', 'mONTgOMEry'], 'to': 'Montgomery'},
+    {'from': ['COVINGTON'], 'to': 'Covington'},
+    {'from': ['elmore'], 'to': 'Elmore'},
+    {'from': ['MOBILE'], 'to': 'Mobile'},
+    {'from': ['SHELBY'], 'to': 'Shelby'},
+    {'from': ['MARION'], 'to': 'Marion'},
+    {'from': ['ANCHORAGE'], 'to': 'Anchorage'},
+    {'from': ['CRENsHAW'], 'to': 'Crenshaw'},
+    {'from': ['JEFFERSON'], 'to': 'Jefferson'},
+    {'from': ['MARSHALL'], 'to': 'Marshall'},
+    {'from': ['COmFEE'], 'to': 'Coffee'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ To determine whether the column "CountyName" is clean and ready for analysis, we need to assess it from four dimensions:
+
+1. **Accuracy**: Whether the target column is free from obvious errors, inconsistencies, or biases
+2. **Relevance**: Whether the target column exists in the dataset to address the objectives.
+3. **Completeness**: Whether the target column has a reasonable sample size and contains enough data instances (not too many missing values)
+4. **Conciseness**: Whether the spellings in the target column are standardized, no same semantics but different representations exist
+
+Let's evaluate each dimension:
+
+1. **Accuracy**:
+	* There are some obvious errors or inconsistencies in the "CountyName" column: 
+		+ Row 3 has a value of "Lee", which seems to be a single-word county name.
+		+ The rest of the values appear to be proper county names, but there might be a few typos (e.g., "CRENSHAW" instead of "Crenshaw").
+2. **Relevance**:
+	* Yes, the "CountyName" column is relevant to the objective of retrieving the number of counties that offer emergency services.
+3. **Completeness**:
+	* The sample size appears to be sufficient (20 rows), but there are some missing values (e.g., Row 3 has only one word).
+4. **Conciseness**:
+	* No, the spellings in the target column are not standardized: 
+		+ There are multiple instances of "MONTGOMERY" with different capitalizations.
+		+ Other counties have varying capitalization and formatting (e.g., "SHELBY", "Shelby").
+
+Since Conciseness is False due to inconsistent spellings, the Flag should be:
+
+**False**
+
+This indicates that the column "CountyName" may not be clean or ready for analysis as it needs some data cleaning and standardization.
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   | EmergencyService   |
+row 9: | Montgomery   | YES                |
+row 18: | Lee          | YES                |
+row 7: | CRENSHAW     | YES                |
+row 6: | ELMORE       | NO                 |
+row 10: | MARSHALL     | YES                |
+row 1: | Cherokee     | YES                |
+row 3: | MARION       | YES                |
+row 20: | Covington    | NO                 |
+row 2: | MOBILE       | YES                |
+row 16: | Elmore       | NO                 |
+row 12: | Autauga      | YES                |
+row 19: | Etowah       | YES                |
+row 17: | Anchorage    | YES                |
+row 11: | JEFFERSON    | YES                |
+row 5: | Coffee       | YES                |
+row 15: | CHEROKEE     | YES                |
+row 13: | MONTGOMERY   | YES                |
+row 8: | SHELBY       | YES                |
+row 14: | Montgomery   | YES                |
+row 4: | Chilton      | YES                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Clean the CountyName column by standardizing spellings and removing extra characters to ensure accurate parsing and analysis.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it allows for the standardization of categorical data, which in this case involves cleaning up the CountyName column. The goal here is not only to remove extra characters but also to standardize spellings to ensure accurate parsing and analysis. By applying mass_edit, we can replace variations of similar values with a consistent representation, making the data more reliable for further use.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The CountyName column contains inconsistent naming conventions with some county names in uppercase, while others are in mixed case or title case.
+
+**Data Cleaning Objective:** Clean the CountyName column to standardize all county names to either mixed case or title case for improved readability and consistency.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['CHEROKEE', 'Cherokee'], 'to': 'Cherokee'},
+    {'from': ['SHELBY', 'Shelby'], 'to': 'Shelby'},
+    {'from': ['MARION', 'Marion'], 'to': 'Marion'},
+    {'from': ['MONTGOMERY', 'Montgomery'], 'to': 'Montgomery'},
+    {'from': ['MOBILE', 'Mobile'], 'to': 'Mobile'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ Based on the provided table and objective, I will assess the quality of the "CountyName" column.
+
+**Profiling the Column**
+
+* Whether the column name is meaningful or not? Yes, it's a descriptive name for the data in this column.
+* What are the distributions of data instances? The column contains 20 unique county names with various capitalization and spelling.
+* Are they clearly represented in this column? No, there seems to be inconsistencies in spelling and capitalization.
+
+**Assessing Profiling Results from Four Dimensions**
+
+- **Accuracy**: Whether the target column is free from obvious errors, inconsistencies, or biases
+	+ Result: False (Inconsistent spellings and capitalizations)
+- **Relevance**: Whether the target column exists in the dataset to address the objectives.
+	+ Result: True (The CountyName column is relevant to the objective of retrieving county information)
+- **Completeness**: Whether the target column has a reasonable sample size or population
+	+ Result: True (There are 20 unique counties, which seems like a reasonable sample size)
+- **Conciseness**: Whether the data in the column is consistently formatted and free from variations
+	+ Result: False (Inconsistent spellings and capitalizations)
+
+Since Accuracy is False, I will return `False` as the Flag. The "CountyName" column has inconsistencies that need to be addressed before it can be used for analysis or retrieval of county information.
+
+Flag: ```False```
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   | EmergencyService   |
+row 6: | ELMORE       | NO                 |
+row 11: | JEFFERSON    | YES                |
+row 10: | MARSHALL     | YES                |
+row 17: | Anchorage    | YES                |
+row 2: | MOBILE       | YES                |
+row 13: | MONTGOMERY   | YES                |
+row 15: | CHEROKEE     | YES                |
+row 3: | MARION       | YES                |
+row 4: | Chilton      | YES                |
+row 12: | Autauga      | YES                |
+row 1: | Cherokee     | YES                |
+row 16: | Elmore       | NO                 |
+row 7: | CRENSHAW     | YES                |
+row 5: | Coffee       | YES                |
+row 14: | Montgomery   | YES                |
+row 9: | Montgomery   | YES                |
+row 19: | Etowah       | YES                |
+row 18: | Lee          | YES                |
+row 20: | Covington    | NO                 |
+row 8: | SHELBY       | YES                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Clean the CountyName column to standardize all county names to either mixed case or title case for improved readability and consistency.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it can be used to standardize categorical data by replacing variations of similar values with a consistent representation. In this case, the CountyName column contains different representations of county names (e.g., ELMORE, Jefferson, MARSHALL), which need to be standardized for improved readability and consistency. The mass_edit operation can achieve this by mapping all county names to either mixed case or title case.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The "CountyName" column has inconsistent capitalization of county names, leading to potential errors in retrieving counties that offer emergency services.
+
+**Data Cleaning Objective:** Standardize the formatting of the "CountyName" column by converting all county names to either uppercase or lowercase letters.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['MARION', 'MOBILE'], 'to': 'Marion'},
+    {'from': ['CHEROKEE', 'CHEROKEE'], 'to': 'Cherokee'},
+    {'from': ['MONTGOMERY', 'MONTGOMERY'], 'to': 'Montgomery'},
+    {'from': ['SHELBY'], 'to': 'Shelby'},
+    {'from': ['ELMORE', 'ELMORE'], 'to': 'Elmore'},
+    {'from': ['CRENSHAW'], 'to': 'Crenshaw'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ Based on the table contents and the objective provided, I would evaluate the quality of the column "CountyName".
+
+The target column is: CountyName
+
+Purpose: Retrieve the number of counties that offer the emergency services.
+
+1. Profiling the column:
+
+Column name: CountyName
+Data instances:
+- MOBILE
+- ELMORE
+- Anchorage
+- Elmore
+- MONTGOMERY
+- JEFFERSON
+- Lee
+- Crenshaw
+- MARSHALL
+- Coffee
+- Montgomery
+- Autauga
+- CHEROKEE
+- Covington
+- Cherokee
+- MARION
+- Chilton
+- Etowah
+- Montgomery
+- SHELBY
+
+2. Assessing the profiling results from four dimensions:
+
+**Accuracy**: 
+There are some inconsistencies in the spellings of county names, such as "Anchorage" which seems out of place among other county names.
+
+**Relevance**: The column is relevant to the objective of retrieving the number of counties that offer emergency services.
+
+**Completeness**: There are no missing values in the CountyName column.
+
+**Conciseness**: There are multiple variations in spellings, such as "MONTGOMERY" vs. "Montgomery", indicating a lack of consistency in county name representation.
+
+Since Conciseness is False due to inconsistent spellings and multiple variations, I will return:
+
+Flag: ```False```
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   | EmergencyService   |
+row 9: | Montgomery   | YES                |
+row 1: | Cherokee     | YES                |
+row 14: | Montgomery   | YES                |
+row 7: | Crenshaw     | YES                |
+row 4: | Chilton      | YES                |
+row 5: | Coffee       | YES                |
+row 13: | MONTGOMERY   | YES                |
+row 20: | Covington    | NO                 |
+row 17: | Anchorage    | YES                |
+row 12: | Autauga      | YES                |
+row 10: | MARSHALL     | YES                |
+row 15: | CHEROKEE     | YES                |
+row 19: | Etowah       | YES                |
+row 6: | ELMORE       | NO                 |
+row 8: | SHELBY       | YES                |
+row 16: | Elmore       | NO                 |
+row 3: | MARION       | YES                |
+row 18: | Lee          | YES                |
+row 11: | JEFFERSON    | YES                |
+row 2: | MOBILE       | YES                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Standardize the formatting of the "CountyName" column by converting all county names to either uppercase or lowercase letters.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```upper```
+The selected operation is `upper`. This will convert all text values in the 'CountyName' column to uppercase, ensuring format consistency for string data.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here is a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The `CountyName` column has an accuracy issue due to the presence of an outlier value ("Anchorage") that does not belong to county names.
+
+**Data Cleaning Objective:** Next operation: Remove or correct the outlier value "Anchorage" in the `CountyName` column to improve data accuracy.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   |
+row 14: | YES                |
+row 17: | YES                |
+row 8: | YES                |
+row 4: | YES                |
+row 16: | NO                 |
+row 11: | YES                |
+row 9: | YES                |
+row 20: | NO                 |
+row 6: | NO                 |
+row 7: | YES                |
+row 13: | YES                |
+row 18: | YES                |
+row 5: | YES                |
+row 10: | YES                |
+row 15: | YES                |
+row 2: | YES                |
+row 12: | YES                |
+row 19: | YES                |
+row 1: | YES                |
+row 3: | YES                |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: EmergencyService
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```trim```
+The selected operation is `trim`. This operation removes leading and trailing whitespaces in string data. In this case, there are no leading or trailing spaces in the "EmergencyService" column, but it's still a good practice to apply `trim` to ensure consistency and accuracy of the data.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are the requested sentences:
+
+**One-sentence summarization:**
+The "EmergencyService" column has a conciseness issue due to inconsistent representations ("YES" and "NO") of a binary value, requiring further cleaning or standardization.
+
+**One-sentence data cleaning objective:**
+Clean the "EmergencyService" column by standardizing its values to a consistent representation (e.g., using only "TRUE" or "FALSE", 1 or 0) to ensure conciseness and accuracy.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project llama3.1_hos_test_p148 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['index', 'ProviderNumber', 'HospitalName', 'Address1', 'City', 'State', 'ZipCode', 'CountyName', 'PhoneNumber', 'HospitalType', 'HospitalOwner', 'EmergencyService'], 'table_column_priority': [['index', '493', '384', '857'], ['ProviderNumber', '10022', '10087', '10044'], ['HospitalName', 'cherokee medical center', 'univ of south alabama medical center', 'marion regional medical center'], ['Address1', '400 northwood dr', '2451 fillingim street', '1256 military street south'], ['City', 'centre', 'mobile', 'hamilton'], ['State', 'al', 'al', 'al'], ['ZipCode', '35960', '36617', '35570'], ['CountyName', 'CHEROKEE', 'MOBILE', 'MARION'], ['PhoneNumber', '2569275531', '2514717110', '2059216200'], ['HospitalType', 'acute care hospitals', 'acute care hospitals', 'acute care hospitals'], ['HospitalOwner', 'voluntary non-profit - private', 'government - state', 'voluntary non-profit - private'], ['EmergencyService', 'YES', 'YsS', 'yes']]}
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:```['CountyName', 'EmergencyService']```
+
+Explanations:
+
+similar words link to columns :
+number of counties -> CountyName
+offer the emergency services -> EmergencyService
+column value link to columns :
+YES/YsS/yes -> EmergencyService
+semantic sentence link to columns :
+None
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | EmergencyService   | CountyName   |
+row 2: | YsS                | MOBILE       |
+row 16: | NO                 | elmore       |
+row 4: | YEz                | CHILTuN      |
+row 12: | MES                | AUTAUGA      |
+row 5: | yes                | COmFEE       |
+row 9: | YES                | MONTGOMERY   |
+row 15: | YES                | CHEROKEE     |
+row 20: | NO                 | COVINGTON    |
+row 18: | YES                | LEE          |
+row 10: | YES                | MARSHALL     |
+row 6: | NO                 | ELMORE       |
+row 8: | yes                | SHELBY       |
+row 17: | rES                | ANCHORAGE    |
+row 13: | YES                | MONTGOMERY   |
+row 3: | yes                | MARION       |
+row 14: | YES                | montgomery   |
+row 1: | YES                | CHEROKEE     |
+row 11: | yes                | JEFFERSON    |
+row 7: | YES                | CRENSHAW     |
+row 19: | yes                | etowah       |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: EmergencyService
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: EmergencyService
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it can standardize categorical data by replacing variations of similar values with a consistent representation. In this case, the EmergencyService column contains different representations (YES, yes, YEz, YsS) that need to be standardized for accurate counting. The mass_edit operation will replace these variations with a consistent value, such as "YES", allowing for easier and more accurate analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The "EmergencyService" column contains inconsistent representations of values, including different casing and formatting, which affects its accuracy and conciseness.
+
+**Data Cleaning Objective:** Next operation: Standardize the value representation in the "EmergencyService" column to ensure consistency in formatting and case sensitivity.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['yes', 'YES'], 'to': 'Yes'},
+    {'from': ['NO', 'no'], 'to': 'No'},
+    {'from': ['rES', 'MES', 'YEz', 'YsS'], 'to': 'Yes'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   |
+row 13: | MONTGOMERY   |
+row 1: | CHEROKEE     |
+row 4: | CHILTuN      |
+row 11: | JEFFERSON    |
+row 15: | CHEROKEE     |
+row 8: | SHELBY       |
+row 17: | ANCHORAGE    |
+row 20: | COVINGTON    |
+row 12: | AUTAUGA      |
+row 16: | elmore       |
+row 9: | MONTGOMERY   |
+row 18: | LEE          |
+row 10: | MARSHALL     |
+row 5: | COmFEE       |
+row 14: | montgomery   |
+row 7: | CRENSHAW     |
+row 2: | MOBILE       |
+row 6: | ELMORE       |
+row 19: | etowah       |
+row 3: | MARION       |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: CountyName
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it will standardize the categorical data in the "CountyName" column by replacing variations of similar values with a consistent representation. This will help ensure that counties are accurately counted and compared, which is necessary for retrieving the number of counties that offer emergency services.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective based on the provided information:
+
+**Summarization:** The CountyName column contains multiple spelling errors and variations with different capitalizations, compromising its accuracy and conciseness.
+
+**Data Cleaning Objective for Next Operation:** Clean the CountyName column by standardizing spellings and capitalizations to ensure accurate and concise identification of unique counties.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['COmFEE'], 'to': 'Coffee'},
+    {'from': ['etowah'], 'to': 'Etowah'},
+    {'from': ['elmore'], 'to': 'Elmore'},
+    {'from': ['LEE'], 'to': 'Lee'},
+    {'from': ['JEFFERSON'], 'to': 'Jefferson'},
+    {'from': ['ELMORE'], 'to': 'Elmore'},
+    {'from': ['CHILTuN'], 'to': 'Chilton'},
+    {'from': ['COVINGTON'], 'to': 'Covington'},
+    {'from': ['ANCHORAGE'], 'to': 'Anchorage'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ Based on the provided table contents and objective, I will assess the quality of the target column "CountyName".
+
+**Profiling the column**
+
+* Column name is meaningful: Yes
+* Distribution of data instances: The column contains a mix of uppercase and lowercase letters, but all county names are unique.
+
+**Assessing profiling results from four dimensions**
+
+1. **Accuracy**: Whether the target column is free from obvious errors, inconsistencies, or biases.
+	* Accuracy result: False (Extra spaces in some county names)
+2. **Relevance**: Whether the target column exists in the dataset to address the objectives.
+	* Relevance result: True (The CountyName column is relevant to the objective of retrieving counties that offer emergency services)
+3. **Completeness**: Whether the target column has a reasonable sample size and contains enough data instances (not too many missing values).
+	* Completeness result: True (No missing values in the CountyName column)
+4. **Conciseness**: Whether there are variations in naming conventions, such as inconsistent capitalization.
+	* Conciseness result: False (Inconsistent capitalization of county names)
+
+**Flag**
+
+Since not all quality dimensions are True (Accuracy and Conciseness), I will return:
+
+```False```
+
+The CountyName column is not clean due to the presence of extra spaces in some county names and inconsistent capitalization, making it unsuitable for analysis without further data cleaning.
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   |
+row 20: | Covington    |
+row 1: | CHEROKEE     |
+row 11: | JEFFERSON    |
+row 10: | MARSHALL     |
+row 12: | AUTAUGA      |
+row 14: | montgomery   |
+row 13: | MONTGOMERY   |
+row 17: | Anchorage    |
+row 9: | MONTGOMERY   |
+row 8: | SHELBY       |
+row 15: | CHEROKEE     |
+row 7: | CRENSHAW     |
+row 18: | Lee          |
+row 5: | Coffee       |
+row 4: | Chilton      |
+row 3: | MARION       |
+row 2: | MOBILE       |
+row 6: | ELMORE       |
+row 19: | Etowah       |
+row 16: | Elmore       |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Here are a one-sentence summarization and a one-sentence data cleaning objective based on the provided information:
+
+**Summarization:** The CountyName column contains multiple spelling errors and variations with different capitalizations, compromising its accuracy and conciseness.
+
+**Data Cleaning Objective for Next Operation:** Clean the CountyName column by standardizing spellings and capitalizations to ensure accurate and concise identification of unique counties.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```mass_edit```
+
+This operation is chosen because it can be used to standardize categorical data, which in this case includes multiple spelling errors and variations with different capitalizations in the CountyName column. By applying mass_edit, we can replace these variations with a consistent representation, ensuring accurate and concise identification of unique counties.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here is a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The profiling results indicate that the CountyName column has inconsistent representations with extra spaces in some county names, affecting accuracy and conciseness.
+
+**Data Cleaning Objective:** Clean the CountyName column by removing extra spaces to ensure consistent formatting and improve overall data quality.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+ ```
+[
+    {'from': ['MONTGOMERY', 'montgomery'], 'to': 'Montgomery'},
+    {'from': ['CHEROKEE', 'CHEEROKEE'], 'to': 'Cherokee'},
+    {'from': ['ELMORE', 'Elmore'], 'to': 'Elmore'},
+    {'from': ['COVINGTON', 'Covington'], 'to': 'Covington'},
+    {'from': ['CHILTON', 'Chilton'], 'to': 'Chilton'},
+    {'from': ['CRENSHAW', 'Crensahw'], 'to': 'Crenshaw'},
+    {'from': ['COFFEE', 'Coffee'], 'to': 'Coffee'},
+    {'from': ['MARION', 'Marion'], 'to': 'Marion'},
+    {'from': ['MARSHALL', 'Marshalls'], 'to': 'Marshall'},
+    {'from': ['JEFFERSON', 'Jefferson'], 'to': 'Jefferson'},
+    {'from': ['SHELBY', 'Shelby'], 'to': 'Shelby'},
+    {'from': ['MOBILE', 'Mobile'], 'to': 'Mobile'},
+    {'from': ['AUTAUGA', 'Autauga'], 'to': 'Autauga'},
+    {'from': ['LEE', 'Lee'], 'to': 'Lee'}
+]
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK IV: data quality inspection: 
+
+ Based on the table contents and objective provided, I will evaluate the quality of the "CountyName" column.
+
+**Profiling the column**
+
+The column name is "CountyName", which is meaningful. The distributions of data instances are as follows:
+
+| CountyName |
+| --- | --- |
+| Anchorage | 1 |
+| Chilton | 1 |
+| Crenshaw | 1 |
+| MARION | 1 |
+| MARSHALL | 1 |
+| CHEROKEE | 2 |
+| Coffee | 1 |
+| MONTGOMERY | 3 |
+| Montgomery | 2 |
+| ELMORE | 2 |
+| JEFFERSON | 1 |
+| Elmore | 1 |
+| SHELBY | 1 |
+| Covington | 1 |
+| Lee | 1 |
+| Etowah | 1 |
+| Autauga | 1 |
+| Cherokee | 2 |
+| MOBILE | 1 |
+
+**Evaluating quality dimensions**
+
+* **Accuracy**: The county names appear to be correctly spelled and consistently formatted.
+* **Relevance**: The CountyName column is relevant to the objective of retrieving the number of counties that offer emergency services.
+* **Completeness**: There are no missing values in the CountyName column.
+* **Conciseness**: However, there are inconsistencies in the naming format. Some counties have proper case (e.g., "Anchorage"), while others use uppercase or a mix of both (e.g., "MARION", "MONTGOMERY").
+
+**Conclusion**
+
+Since Conciseness is False due to inconsistent naming formats, I will return `False` as the Flag.
+
+Flag: `False`
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date: Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date | WG
+row 1 : |ISO/IEC TR 19759 | 2005.10.04   | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: | CountyName   |
+row 17: | Anchorage    |
+row 10: | MARSHALL     |
+row 13: | MONTGOMERY   |
+row 7: | Crenshaw     |
+row 8: | SHELBY       |
+row 9: | Montgomery   |
+row 15: | CHEROKEE     |
+row 20: | Covington    |
+row 18: | Lee          |
+row 2: | MOBILE       |
+row 6: | ELMORE       |
+row 5: | Coffee       |
+row 12: | Autauga      |
+row 4: | Chilton      |
+row 3: | MARION       |
+row 1: | Cherokee     |
+row 14: | Montgomery   |
+row 19: | Etowah       |
+row 16: | Elmore       |
+row 11: | JEFFERSON    |
+*/
+Purpose: Retrieve the number of counties that offer the emergency services.
+Target column: CountyName
+Explanation: Clean the CountyName column by removing extra spaces to ensure consistent formatting and improve overall data quality.
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+```trim```
+
+This operation removes leading and trailing whitespaces in string data, which is necessary for cleaning the CountyName column. The original values have inconsistent spacing (e.g., "Anchorage", " MARSHALL ", " Montgomery "), making it essential to apply trim to ensure accurate formatting and improve overall data quality.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: Here are a one-sentence summarization and a one-sentence data cleaning objective:
+
+**Summarization:** The "CountyName" column has inconsistent representations of county names, affecting its accuracy and conciseness.
+
+**Data Cleaning Objective:** Standardize the spellings and representations of county names in the "CountyName" column to improve its quality.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"

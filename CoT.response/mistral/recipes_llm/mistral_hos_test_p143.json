@@ -5,51 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "CountyName",
-        "expression": "jython:import re\njython:import string\\nreturn value.title()\n\nThis expression will convert all words in each cell of the CountyName column to title case, ensuring consistent capitalization. This is a necessary step before further analysis to determine if hospital ownership changed among counties for the same type.\nreturn value",
+        "columnName": "HospitalType",
+        "expression": "jython:import re\n\n   # Remove extra spaces, punctuations, and convert to lowercase\n   expression = r'\\s+|[.,/@#$%^&*()]|[AEIOUaeiou]'\n   cleaned_value = re.sub(expression, '', value.lower())\n\n   # Standardize the spelling of 'hospital type'\n   standardized_value = 'acute care hospitals' if 'acute' in cleaned_value else 'community hospitals'\n\n   return standardized_value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column CountyName using expression jython:import re\njython:import string\\nreturn value.title()\n\nThis expression will convert all words in each cell of the CountyName column to title case, ensuring consistent capitalization. This is a necessary step before further analysis to determine if hospital ownership changed among counties for the same type.\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "CountyName",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column CountyName using expression value.toUppercase()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalOwner",
-        "expression": "jython:import re\njython:import re\n   return re.sub(r'[\\s-]', ' ', value).upper()\n\nThis expression will remove any whitespace, dashes, and convert the text to uppercase for consistent analysis and comparison across counties.",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n   return re.sub(r'[\\s-]', ' ', value).upper()\n\nThis expression will remove any whitespace, dashes, and convert the text to uppercase for consistent analysis and comparison across counties."
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalOwner",
-        "expression": "jython:import re\njython:import re\n\ndef regexr_transform(column):\n\n    pattern = re.compile(r'[A-Za-z]+')\n    for i, value in enumerate(column):\n        column[i] = pattern.sub(lambda x: x.group(0).upper(), value).replace('  ', ' ')\n\n    pattern = re.compile(r'([Gg]overnment|[Vv]oluntary) ([Nn]on-[Pp]rofit|[Pp]rivate)')\n    for i, value in enumerate(column):\n        column[i] = pattern.sub(lambda x: x.group(1).lower() + '-' + x.group(2).lower(), value)\n\n    return column\n\n\nThis expression standardizes the capitalization and removes extra spaces for each value in the HospitalOwner column. It also ensures consistent hyphen usage for hospital ownership types (Government, Voluntary, Non-Profit, Private). The resulting data will be more concise and easier to analyze for changes among counties for the same type of hospital ownership.",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\ndef regexr_transform(column):\n\n    pattern = re.compile(r'[A-Za-z]+')\n    for i, value in enumerate(column):\n        column[i] = pattern.sub(lambda x: x.group(0).upper(), value).replace('  ', ' ')\n\n    pattern = re.compile(r'([Gg]overnment|[Vv]oluntary) ([Nn]on-[Pp]rofit|[Pp]rivate)')\n    for i, value in enumerate(column):\n        column[i] = pattern.sub(lambda x: x.group(1).lower() + '-' + x.group(2).lower(), value)\n\n    return column\n\n\nThis expression standardizes the capitalization and removes extra spaces for each value in the HospitalOwner column. It also ensures consistent hyphen usage for hospital ownership types (Government, Voluntary, Non-Profit, Private). The resulting data will be more concise and easier to analyze for changes among counties for the same type of hospital ownership."
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\n   # Remove extra spaces, punctuations, and convert to lowercase\n   expression = r'\\s+|[.,/@#$%^&*()]|[AEIOUaeiou]'\n   cleaned_value = re.sub(expression, '', value.lower())\n\n   # Standardize the spelling of 'hospital type'\n   standardized_value = 'acute care hospitals' if 'acute' in cleaned_value else 'community hospitals'\n\n   return standardized_value\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -58,11 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n   return value.upper().replace(\"_\", \" \")\n\nThis expression will standardize the formatting of the HospitalType column by converting all characters to uppercase and replacing underscores with spaces, ensuring consistent representation for accurate comparison in further analysis.",
+        "expression": "jython:import re\n   return value.lower().replace(\" \", \"\").replace(\"_\", \"\").replace(\"-\", \"\")\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n   return value.upper().replace(\"_\", \" \")\n\nThis expression will standardize the formatting of the HospitalType column by converting all characters to uppercase and replacing underscores with spaces, ensuring consistent representation for accurate comparison in further analysis."
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n   return value.lower().replace(\" \", \"\").replace(\"_\", \"\").replace(\"-\", \"\")\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -71,10 +32,75 @@
             "mode": "row-based"
         },
         "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n   regexr_transform(\"HospitalType\", \"value.lower().replace(' ', '').title()\")\n\nThis expression will convert all characters to lowercase, remove spaces, and capitalize the first letter of each word in the HospitalType column for consistent presentation. This standardized data can then be used for further analysis to determine if hospital ownership changed among counties for the same type.\nreturn value",
+        "expression": "jython:import re\n\n # Remove extra spaces, punctuations, and convert to lowercase\n value = re.sub(r'\\s+', ' ', value).lower()\n\n # Split the standardized string into words\n words = value.split()\n\n # Check if the first word is a county name (assuming county names are always capitalized)\n if words[0].isupper():\n     # If it is, assume that this row represents a new hospital in the same county\n     return 'Same County'\n else:\n     # If not, assume that this row represents a new hospital in a different county\n     return 'Different County'\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n   regexr_transform(\"HospitalType\", \"value.lower().replace(' ', '').title()\")\n\nThis expression will convert all characters to lowercase, remove spaces, and capitalize the first letter of each word in the HospitalType column for consistent presentation. This standardized data can then be used for further analysis to determine if hospital ownership changed among counties for the same type.\nreturn value"
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\n # Remove extra spaces, punctuations, and convert to lowercase\n value = re.sub(r'\\s+', ' ', value).lower()\n\n # Split the standardized string into words\n words = value.split()\n\n # Check if the first word is a county name (assuming county names are always capitalized)\n if words[0].isupper():\n     # If it is, assume that this row represents a new hospital in the same county\n     return 'Same County'\n else:\n     # If not, assume that this row represents a new hospital in a different county\n     return 'Different County'\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\n   \\nreturn re.sub(r'[^a-zA-Z ]', '', value).lower().replace(' ', '_').title()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n   \\nreturn re.sub(r'[^a-zA-Z ]', '', value).lower().replace(' ', '_').title()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\n   return value.upper().replace(\"_\", \"\").replace(\"-\", \"\")\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n   return value.upper().replace(\"_\", \"\").replace(\"-\", \"\")\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\n   return re.sub(r'[^A-Za-z ]+', '', value).title()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n   return re.sub(r'[^A-Za-z ]+', '', value).title()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "CountyName",
+        "expression": "jython:import string\\nreturn value.upper()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column CountyName using expression jython:import string\\nreturn value.upper()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n# Remove extra spaces, hyphens, underscores and convert to lowercase\ncleaned_value = re.sub(r'\\s+|-|_', ' ', value).lower()\n\n# Split the cleaned value into words and check if it contains any of the standardized ownership types\nstandardized_ownership_types = ['voluntary non-profit', 'government', 'proprietart', 'private', 'church']\nfor type in standardized_ownership_types:\n    if type in cleaned_value.split():\n        # If a standardized ownership type is found, return the original value (with spaces, hyphens, underscores and case preserved)\n        return value\n\n# If no standardized ownership type is found, return an empty string to indicate that the ownership type could not be determined\nreturn \"\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Remove extra spaces, hyphens, underscores and convert to lowercase\ncleaned_value = re.sub(r'\\s+|-|_', ' ', value).lower()\n\n# Split the cleaned value into words and check if it contains any of the standardized ownership types\nstandardized_ownership_types = ['voluntary non-profit', 'government', 'proprietart', 'private', 'church']\nfor type in standardized_ownership_types:\n    if type in cleaned_value.split():\n        # If a standardized ownership type is found, return the original value (with spaces, hyphens, underscores and case preserved)\n        return value\n\n# If no standardized ownership type is found, return an empty string to indicate that the ownership type could not be determined\nreturn \"\"\nreturn value"
     }
 ]

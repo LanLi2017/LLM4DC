@@ -6,76 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "EmergencyService",
-        "expression": "jython:import re\njython:import re\n   return value.lower() if re.search(r'yes|yus|qes', value) else 'No'\n\nThis expression will convert all instances of 'Yes', 'YES', 'YUS', and 'qES' to lowercase, ensuring data accuracy and conciseness. It also adds a default value for cases where the input is not one of the specified options, which helps maintain consistency in the dataset.",
+        "expression": "jython:value = value.upper()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column EmergencyService using expression jython:import re\njython:import re\n   return value.lower() if re.search(r'yes|yus|qes', value) else 'No'\n\nThis expression will convert all instances of 'Yes', 'YES', 'YUS', and 'qES' to lowercase, ensuring data accuracy and conciseness. It also adds a default value for cases where the input is not one of the specified options, which helps maintain consistency in the dataset."
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "EmergencyService",
-        "expression": "jython:import re\njython:value = value.upper()\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column EmergencyService using expression jython:import re\njython:value = value.upper()\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "EmergencyService",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column EmergencyService using expression value.toUppercase()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "EmergencyService",
-        "expression": "value.trim()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column EmergencyService using expression value.trim()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "EmergencyService",
-        "expression": "jython:import re\njython:import re\n   return value.upper() if re.search(r'yes', value) else 'YES'",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column EmergencyService using expression jython:import re\njython:import re\n   return value.upper() if re.search(r'yes', value) else 'YES'"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "EmergencyService",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column EmergencyService using expression value.toUppercase()"
+        "description": "Text transform on cells in column EmergencyService using expression jython:value = value.upper()\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -84,10 +19,36 @@
             "mode": "row-based"
         },
         "columnName": "HospitalOwner",
-        "expression": "jython:import re\njython:import string\\nvalue = value.lower()\\nreturn ' '.join(word.capitalize() for word in value.split())\n\nThis expression will convert all the values in the HospitalOwner column to title case, which means that each word will start with a capital letter and the rest of the letters will be in lowercase. This will help improve data quality and consistency across the column.\nreturn value",
+        "expression": "jython:import re\n   return re.sub(r'[\\s-]', ' ', value).strip().lower()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import string\\nvalue = value.lower()\\nreturn ' '.join(word.capitalize() for word in value.split())\n\nThis expression will convert all the values in the HospitalOwner column to title case, which means that each word will start with a capital letter and the rest of the letters will be in lowercase. This will help improve data quality and consistency across the column.\nreturn value"
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n   return re.sub(r'[\\s-]', ' ', value).strip().lower()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n# Standardize spelling and capitalization\nvalue = value.lower()\nvalue = re.sub(r'\\s+', ' ', value)  # remove extra spaces\nvalue = re.sub(r'[^a-z0-9\\s]', '', value)  # remove non-alphanumeric characters\nvalue = re.sub(r'(\\b[ap]\\w*\\b)', 'private', value)  # replace proprietary with private\nvalue = re.sub(r'(\\bvoluntary\\b)', 'non-profit', value)  # replace voluntary with non-profit\nvalue = re.sub(r'\\bgovernment\\b', 'govt', value)  # replace Government with govt\nvalue = re.sub(r'\\bchurch\\b', 'church', value)  # add church to the list of hospital types\n\n# Ensure consistent representation of hospital ownership types\nvalue = re.sub(r'private$', 'Private', value)  # capitalize private at the end\nvalue = re.sub(r'non-profit$', 'Non-Profit', value)  # capitalize non-profit at the end\nvalue = re.sub(r'govt$', 'Govt', value)  # capitalize govt at the end\nvalue = re.sub(r'\\bprivate\\s+non-profit\\b', 'Private Non-Profit', value)  # combine private and non-profit\nvalue = re.sub(r'\\bchurch\\s+govt\\b', 'Church Govt', value)  # combine church and govt\n\n# Remove unnecessary hyphens and underscores\nvalue = re.sub(r'_-+|_+', '_', value)\nvalue = re.sub(r'_$', '', value)\n\n# Ensure uniformity in hospital ownership types\nvalue = re.sub(r'\\bvoluntary_non-profit\\b', 'Voluntary Non-Profit', value)\nvalue = re.sub(r'\\bvoluntarv\\b', 'Voluntary', value)\nvalue = re.sub(r'\\bvoluntary_n_p_c\\b', 'Voluntary Non-Profit Church', value)\nvalue = re.sub(r'\\bgovt_hospital_district_or_authority\\b', 'Govt Hospital District or Authority', value)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Standardize spelling and capitalization\nvalue = value.lower()\nvalue = re.sub(r'\\s+', ' ', value)  # remove extra spaces\nvalue = re.sub(r'[^a-z0-9\\s]', '', value)  # remove non-alphanumeric characters\nvalue = re.sub(r'(\\b[ap]\\w*\\b)', 'private', value)  # replace proprietary with private\nvalue = re.sub(r'(\\bvoluntary\\b)', 'non-profit', value)  # replace voluntary with non-profit\nvalue = re.sub(r'\\bgovernment\\b', 'govt', value)  # replace Government with govt\nvalue = re.sub(r'\\bchurch\\b', 'church', value)  # add church to the list of hospital types\n\n# Ensure consistent representation of hospital ownership types\nvalue = re.sub(r'private$', 'Private', value)  # capitalize private at the end\nvalue = re.sub(r'non-profit$', 'Non-Profit', value)  # capitalize non-profit at the end\nvalue = re.sub(r'govt$', 'Govt', value)  # capitalize govt at the end\nvalue = re.sub(r'\\bprivate\\s+non-profit\\b', 'Private Non-Profit', value)  # combine private and non-profit\nvalue = re.sub(r'\\bchurch\\s+govt\\b', 'Church Govt', value)  # combine church and govt\n\n# Remove unnecessary hyphens and underscores\nvalue = re.sub(r'_-+|_+', '_', value)\nvalue = re.sub(r'_$', '', value)\n\n# Ensure uniformity in hospital ownership types\nvalue = re.sub(r'\\bvoluntary_non-profit\\b', 'Voluntary Non-Profit', value)\nvalue = re.sub(r'\\bvoluntarv\\b', 'Voluntary', value)\nvalue = re.sub(r'\\bvoluntary_n_p_c\\b', 'Voluntary Non-Profit Church', value)\nvalue = re.sub(r'\\bgovt_hospital_district_or_authority\\b', 'Govt Hospital District or Authority', value)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import string\\nvalue = value.lower()\\nreturn ' '.join(string.capwords(value))\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import string\\nvalue = value.lower()\\nreturn ' '.join(string.capwords(value))\nreturn value"
     }
 ]

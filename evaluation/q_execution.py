@@ -1345,8 +1345,8 @@ class QExecute:
         """
         Determine the top 3 counties whose hospital type is "acute care hospitals" offering emergency services.
         """
-        df['HospitalType'] = df['HospitalType'].str.lower()
-        df['EmergencyService'] = df['EmergencyService'].str.lower()
+        df['HospitalType'] = df['HospitalType'].astype(str).str.lower()
+        df['EmergencyService'] = df['EmergencyService'].astype(str).str.lower()
         top_3_counties = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')]['CountyName'].value_counts().head(3)
         return top_3_counties.to_dict()
 
@@ -1508,8 +1508,10 @@ class QExecute:
         """
         Investigate correlations between city size (estimated by the number of hospitals) and the prevalence of emergency services.
         """
-        city_size_emergency_service = df.groupby('City')['EmergencyService'].apply(lambda x: (x == 'Yes').sum() / len(x))
-        return city_size_emergency_service.to_dict()
+
+        count_cities = df.groupby('City')['EmergencyService'].apply(lambda x: (x.str.lower() == 'yes').any()).sum() 
+        return int(count_cities)
+        
 
     def pp146_exe(df):
         """
@@ -1607,16 +1609,16 @@ if __name__ == '__main__':
     # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
     groundtruth_tag = False
     # groundtruth_tag = True
-    dirty_tag = False
     # dirty_tag = True
+    dirty_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
     # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
-    model = "gemma2"
-    # model = "mistral"
+    # model = "gemma2"
+    model = "mistral"
     # model = "mistral:7b-instruct"
     # model = "mistral" 
     llm_folder = f"CoT.response/{model}/datasets_llm"
@@ -1675,7 +1677,7 @@ if __name__ == '__main__':
         
         answer = getattr(qexecute, func)(target_df)
         
-        print('answer', type(answer), answer)
+        # print('answer', type(answer), answer)
         result_single = {'pp_id': query_id,
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
@@ -1683,9 +1685,11 @@ if __name__ == '__main__':
         # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
+
         with open(f'answer_1-154_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
+
         # with open(f'answer_1-154_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')

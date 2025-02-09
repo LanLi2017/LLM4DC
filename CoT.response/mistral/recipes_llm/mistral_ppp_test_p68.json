@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "JobsReported",
-        "expression": "value.toNumber()",
+        "columnName": "BusinessType",
+        "expression": "jython:import re\n\n   # Define a pattern to match all possible variations of business types\n   pattern = r'|'.join([r'\\b(sole_proprietorship|limited-liability-company|corporation|subchapter_s_corporation|non-profit_organization|independent_contractors)\\b',\n                      r'\\b(self-employed-individuals-inc|limited-liability-company\\(llc\\)|limited-liability-company\\(LLC\\))\\b'])\n\n   # Use the pattern to standardize the business type names\n   def clean_business_type(value):\n       match = re.search(pattern, value)\n       if match:\n           return match.group(0).lower()\n       else:\n           return value\n\n   # Apply the function to each row in the BusinessType column\n   cleaned_data = [clean_business_type(row['BusinessType']) for index, row in data.iterrows()]\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column JobsReported using expression value.toNumber()"
+        "description": "Text transform on cells in column BusinessType using expression jython:import re\n\n   # Define a pattern to match all possible variations of business types\n   pattern = r'|'.join([r'\\b(sole_proprietorship|limited-liability-company|corporation|subchapter_s_corporation|non-profit_organization|independent_contractors)\\b',\n                      r'\\b(self-employed-individuals-inc|limited-liability-company\\(llc\\)|limited-liability-company\\(LLC\\))\\b'])\n\n   # Use the pattern to standardize the business type names\n   def clean_business_type(value):\n       match = re.search(pattern, value)\n       if match:\n           return match.group(0).lower()\n       else:\n           return value\n\n   # Apply the function to each row in the BusinessType column\n   cleaned_data = [clean_business_type(row['BusinessType']) for index, row in data.iterrows()]\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -19,159 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "BusinessType",
-        "expression": "jython:import re\ndef standardize_business(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[(),.]', '', value)\n    if 'sole proprietorship' in value:\n        value = 'Sole Proprietorship'\n    elif 'corporation' in value:\n        value = 'Corporation'\n    elif 'non-profit organizations' in value:\n        value = 'Non-Profit Organizations'\n    elif 'limited liability company(llc)' in value or 'limited liability company (LLC)' in value:\n        value = 'Limited Liability Company (LLC)'\n    return value\n\n\nThis expression standardizes the representation of each business type to ensure consistency for a more accurate identification of the top 10 business types receiving PPP loans.",
+        "expression": "jython:import re\n\n# Standardize the capitalization and remove unnecessary spaces and special characters\ndef clean_business_type(value):\n    value = value.strip().lower()\n    value = re.sub(r'[^a-z0-9\\s]', '', value)\n    value = ' '.join(word.capitalize() for word in value.split())\n    return value\n\n# Apply the clean_business_type function to each cell in the BusinessType column\ndef regexr_transform(column):\n    return [clean_business_type(value) for value in column]\n\n# Assuming that the data is stored in a pandas DataFrame as df, and the BusinessType column is at index 0\ndf['BusinessType'] = regexr_transform(df['BusinessType'])\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column BusinessType using expression jython:import re\ndef standardize_business(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[(),.]', '', value)\n    if 'sole proprietorship' in value:\n        value = 'Sole Proprietorship'\n    elif 'corporation' in value:\n        value = 'Corporation'\n    elif 'non-profit organizations' in value:\n        value = 'Non-Profit Organizations'\n    elif 'limited liability company(llc)' in value or 'limited liability company (LLC)' in value:\n        value = 'Limited Liability Company (LLC)'\n    return value\n\n\nThis expression standardizes the representation of each business type to ensure consistency for a more accurate identification of the top 10 business types receiving PPP loans."
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "Sole Proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "Independent Contractors"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Independent Contractor"
-            },
-            {
-                "from": [
-                    "Non-Profit Organizations"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Non-Profit Organization"
-            },
-            {
-                "from": [
-                    "Corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Corporation"
-            },
-            {
-                "from": [
-                    "Corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Corporation"
-            },
-            {
-                "from": [
-                    "Sole Proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "Subchapter S Corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Subchapter S Corporation"
-            },
-            {
-                "from": [
-                    "Sole Proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "Independent Contractors"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Independent Contractor"
-            },
-            {
-                "from": [
-                    "Sole Proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "S.S Corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Subchapter S Corporation"
-            },
-            {
-                "from": [
-                    "Self-Employed Individuals"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Self-Employed Individual"
-            },
-            {
-                "from": [
-                    "Limited  Liability Company(LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company (LLC)"
-            },
-            {
-                "from": [
-                    "Limited  liability company(LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company (LLC)"
-            },
-            {
-                "from": [
-                    "Limited  Liability Company(LLC.)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company (LLC)"
-            },
-            {
-                "from": [
-                    "Limited  Liability Company(LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company (LLC)"
-            },
-            {
-                "from": [
-                    "limited  liability company(LLC);"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company (LLC)"
-            }
-        ],
-        "description": "Mass edit cells in column BusinessType"
+        "description": "Text transform on cells in column BusinessType using expression jython:import re\n\n# Standardize the capitalization and remove unnecessary spaces and special characters\ndef clean_business_type(value):\n    value = value.strip().lower()\n    value = re.sub(r'[^a-z0-9\\s]', '', value)\n    value = ' '.join(word.capitalize() for word in value.split())\n    return value\n\n# Apply the clean_business_type function to each cell in the BusinessType column\ndef regexr_transform(column):\n    return [clean_business_type(value) for value in column]\n\n# Assuming that the data is stored in a pandas DataFrame as df, and the BusinessType column is at index 0\ndf['BusinessType'] = regexr_transform(df['BusinessType'])\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -180,102 +32,10 @@
             "mode": "row-based"
         },
         "columnName": "BusinessType",
-        "expression": "jython:import re\ndef standardize_business(value):\n  if \"Sole Proprietorship\" in value or \"Sole Proprietor\" in value:\n    return \"Sole Proprietor\"\n  else:\n    return value\n\nbusiness_types = [standardize_business(row[0]) for row in data]\n\n\nAssuming `data` is a list of lists containing the table rows. The above expression standardizes the representation of Sole Proprietorship and Sole Proprietor for consistency across the dataset, allowing further analysis to identify the top 10 business types that received the most PPP loans.",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column BusinessType using expression jython:import re\ndef standardize_business(value):\n  if \"Sole Proprietorship\" in value or \"Sole Proprietor\" in value:\n    return \"Sole Proprietor\"\n  else:\n    return value\n\nbusiness_types = [standardize_business(row[0]) for row in data]\n\n\nAssuming `data` is a list of lists containing the table rows. The above expression standardizes the representation of Sole Proprietorship and Sole Proprietor for consistency across the dataset, allowing further analysis to identify the top 10 business types that received the most PPP loans."
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "Sole Proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "[Sole Proprietorship]"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "Sole Proprietor"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietor"
-            },
-            {
-                "from": [
-                    "Limited Liability Company (LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "LLC"
-            },
-            {
-                "from": [
-                    "Limited Liability Company (LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "LLC"
-            },
-            {
-                "from": [
-                    "Limited Liability Company (LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "LLC"
-            },
-            {
-                "from": [
-                    "Limited Liability Company (LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "LLC"
-            },
-            {
-                "from": [
-                    "Corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Corp"
-            },
-            {
-                "from": [
-                    "Self-Employed Individual"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Self Employed"
-            },
-            {
-                "from": [
-                    "Independent Contractor"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Independent Contractor"
-            }
-        ],
-        "description": "Mass edit cells in column BusinessType"
+        "description": "Text transform on cells in column BusinessType using expression value.toUppercase()"
     }
 ]

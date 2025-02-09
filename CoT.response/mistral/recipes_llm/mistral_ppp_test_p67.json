@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "JobsReported",
-        "expression": "value.toNumber()",
+        "columnName": "City",
+        "expression": "jython:import re\n\ndef standardize_city(value):\n    value = value.lower() # Convert to lowercase for consistency\n    value = re.sub(r'[^a-z0-9\\s]', '', value) # Remove any non-alphanumeric characters\n    value = re.sub(r'\\s+', ' ', value).strip() # Replace multiple spaces with a single space and remove leading/trailing spaces\n    return value\n\n# Apply the function to each city value in the column\ncity_column = [standardize_city(city) for city in city_column]\n\n# Filter for cities that match \"honolulu\" (case-insensitive)\nloans_in_honolulu = [loan for loan in loans if standardize_city(loan['City']) == 'honolulu']\n\n# Count the number of loans disbursed in Honolulu\nnum_loans = len(loans_in_honolulu)\nreturn num_loans\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column JobsReported using expression value.toNumber()"
+        "description": "Text transform on cells in column City using expression jython:import re\n\ndef standardize_city(value):\n    value = value.lower() # Convert to lowercase for consistency\n    value = re.sub(r'[^a-z0-9\\s]', '', value) # Remove any non-alphanumeric characters\n    value = re.sub(r'\\s+', ' ', value).strip() # Replace multiple spaces with a single space and remove leading/trailing spaces\n    return value\n\n# Apply the function to each city value in the column\ncity_column = [standardize_city(city) for city in city_column]\n\n# Filter for cities that match \"honolulu\" (case-insensitive)\nloans_in_honolulu = [loan for loan in loans if standardize_city(loan['City']) == 'honolulu']\n\n# Count the number of loans disbursed in Honolulu\nnum_loans = len(loans_in_honolulu)\nreturn num_loans\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -18,32 +18,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "JobsReported",
-        "expression": "value.toNumber()",
+        "columnName": "City",
+        "expression": "jython:import pandas as pd\n   # Assuming df is the DataFrame containing the table data\n   filtered_df = df[df['City'] == 'Honolulu']['LoanID'].count()\n   return str(filtered_df)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column JobsReported using expression value.toNumber()"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "JobsReported",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "JobsReported"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": ""
-            }
-        ],
-        "description": "Mass edit cells in column JobsReported"
+        "description": "Text transform on cells in column City using expression jython:import pandas as pd\n   # Assuming df is the DataFrame containing the table data\n   filtered_df = df[df['City'] == 'Honolulu']['LoanID'].count()\n   return str(filtered_df)\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -51,66 +31,37 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "JobsReported",
+        "columnName": "City",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "LoanAmount",
         "expression": "value.toNumber()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column JobsReported using expression value.toNumber()"
+        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
     },
     {
-        "op": "core/mass-edit",
+        "op": "core/text-transform",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "JobsReported",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "0.0",
-                    "1.0",
-                    "1.0",
-                    "3.0",
-                    "4.0",
-                    "3.0",
-                    "0.0",
-                    "1.0",
-                    "1.0",
-                    "1.0",
-                    "3.0",
-                    "2.0",
-                    "1.0",
-                    "0.0",
-                    "4.0",
-                    "1.0"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": []
-            }
-        ],
-        "description": "Mass edit cells in column JobsReported"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "JobsReported",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "JobsReported"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": ""
-            }
-        ],
-        "description": "Mass edit cells in column JobsReported"
+        "columnName": "LoanAmount",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column LoanAmount using expression value.trim()"
     }
 ]

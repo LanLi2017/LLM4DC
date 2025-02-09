@@ -710,7 +710,7 @@ def test_main():
     # ds_name = "menu_test"
     # 47, 105,106,112,144
     # 46-47, 92-94, 99-100, 131-132
-    for index, row in pp_df.iloc[:].iterrows():
+    for index, row in pp_df.iloc[32:35].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -729,6 +729,7 @@ def test_main():
         elif 92<= pp_id <=110:
             ds_name = "dish_test"
             ds_file = f"datasets/dish_datasets/dish_data_p{pp_id}.csv" 
+            print(ds_file)
         elif 111<=pp_id<=126:
             ds_name = "flights_test"
             ds_file = f"datasets/flights/flights_data_p{pp_id}.csv"

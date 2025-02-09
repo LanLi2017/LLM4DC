@@ -686,7 +686,7 @@ def test_main():
     # 【26,27,54,57,59,60】25-27 53,54 56-57 58-60
     # 34-36, 37-39, 52-53, 54-55, 57-59 [35, 36, 38,39,53,55,58,59]
 
-    for index, row in pp_df.iloc[22:].iterrows():
+    for index, row in pp_df.iloc[32:35].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

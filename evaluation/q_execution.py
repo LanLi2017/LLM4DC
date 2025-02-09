@@ -690,7 +690,7 @@ class QExecute:
         pp67: Determine how many PPP loans were disbursed in the city of Honolulu.
         cols: City
         """
-        honolulu_loans_count = df[df['City'].str.lower() == 'honolulu'].shape[0]
+        honolulu_loans_count = df[df['City'].astype(str).str.lower() == 'honolulu'].shape[0]
         return honolulu_loans_count
 
     def pp68_exe(df):

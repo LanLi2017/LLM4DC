@@ -669,7 +669,8 @@ def test_main():
     # pp_f = 'purposes/queries.csv'
     # pp_f = 'purposes/all_purposes.csv'
     # pp_f = 'purposes/m_pp.csv'
-    pp_f = 'purposes/pp_rerun.csv'
+    # pp_f = 'purposes/pp_rerun.csv'
+    pp_f = "purposes/ppp_dish_rerun.csv"
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"{log_dir}/datasets_llm"
@@ -687,7 +688,7 @@ def test_main():
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
     # 25-27 53,54 56-57 58-60 rerun date...
-    for index, row in pp_df.iloc[32:].iterrows():
+    for index, row in pp_df.iloc[22:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

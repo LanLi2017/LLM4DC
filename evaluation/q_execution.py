@@ -815,7 +815,7 @@ class QExecute:
 
         # Sort by Total Loan Amount in descending order
         highest_zip_codes = zip_loan_totals.sort_values(by='TotalLoanAmount', ascending=False)
-        return str(highest_zip_codes.iloc[0]['Zip'])
+        return str(highest_zip_codes.iloc[0]['Zip']) if not highest_zip_codes.empty else None
     
     def pp79_exe(df):
         """
@@ -878,10 +878,10 @@ class QExecute:
         # df['City'] = df['City'].str.strip().str.title()
 
         # Group by City, State, and Zip, and sum the Loan Amounts
-        geo_distribution = df.groupby(['City', 'State', 'Zip']).agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
+        geo_distribution = df.groupby(['City', 'Zip']).agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
         geo_distribution = geo_distribution.loc[geo_distribution['TotalLoanAmount'].idxmax()]
         # geo_distribution = geo_distribution.sort_values(by='TotalLoanAmount', ascending=False)
-        return [str(x) for x in geo_distribution[['City', 'State', 'Zip']].tolist()]
+        return [str(x) for x in geo_distribution[['City', 'Zip']].tolist()]
     
     def pp92_exe(df):
         """
@@ -896,25 +896,20 @@ class QExecute:
         Identify which dishes have been on the menu for the shortest duration, based on their 'first_appeared' and 'last_appeared' dates.
         cols: first_appeared, last_appeared
         """
-        df['last_appeared'] = pd.to_datetime(df['last_appeared'], errors='coerce')
-        df['first_appeared'] = pd.to_datetime(df['first_appeared'], errors='coerce')
+        try:
+            df['last_appeared'] = pd.to_datetime(df['last_appeared'], errors='coerce')
+            df['first_appeared'] = pd.to_datetime(df['first_appeared'], errors='coerce')
 
-        # Calculate the difference in years
-        df['duration'] = (df['last_appeared'] - df['first_appeared']).dt.days
-        # if pd.api.types.is_datetime64_any_dtype(df['last_appeared']) and pd.api.types.is_datetime64_any_dtype(df['first_appeared']):
-        #     # Calculate duration as the difference in days if both are datetime
-        #     df['duration'] = (df['last_appeared'] - df['first_appeared']).dt.days
-        # elif pd.api.types.is_integer_dtype(df['last_appeared']) and pd.api.types.is_integer_dtype(df['first_appeared']):
-        #     # Calculate duration as a direct difference if both are integers
-        #     df['duration'] = df['last_appeared'] - df['first_appeared']
-        # else:
-        #     print("Columns are neither both datetime nor both integer.")
-        #     df['duration'] = False
+            # Calculate the difference in years
+            df = df.dropna(subset=['first_appeared', 'last_appeared'])
+            df['duration'] = (df['last_appeared'] - df['first_appeared']).dt.days
 
-        # Filter to identify dishes with the shortest duration
-        shortest_duration = df['duration'].min()
-        shortest_duration_dishes = df[df['duration'] == shortest_duration]
-        return shortest_duration_dishes['name'].tolist() 
+            # Filter to identify dishes with the shortest duration
+            shortest_duration = df['duration'].min()
+            shortest_duration_dishes = df[df['duration'] == shortest_duration]
+            return shortest_duration_dishes['name'].tolist() 
+        except:
+            return []
         
     
     def pp94_exe(df):
@@ -1060,6 +1055,14 @@ class QExecute:
         cols: name,  hightest_price, lowest_price
         """
         # Calculate average price for each dish
+        df = df.dropna(subset=['name', 'highest_price', 'lowest_price'])
+
+        # Ensure prices are numeric
+        df[['highest_price', 'lowest_price']] = df[['highest_price', 'lowest_price']].apply(pd.to_numeric, errors='coerce')
+
+        # Check if df is still valid after dropping missing values
+        if df.empty:
+            return None
         df['average_price'] = df[['lowest_price', 'highest_price']].mean(axis=1)
 
         # Select relevant columns for display

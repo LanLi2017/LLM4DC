@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "lowest_price",
-        "expression": "value.toNumber()",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
+        "description": "Text transform on cells in column lowest_price using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -18,12 +18,72 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "highest_price",
-        "expression": "value.toNumber()",
+        "columnName": "name",
+        "expression": "jython:import re\nvalue = re.sub(r'[_-]', ' ', value).lower()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
+        "description": "Text transform on cells in column name using expression jython:import re\nvalue = re.sub(r'[_-]', ' ', value).lower()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\nvalue = re.sub(r'=', '', value)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\nvalue = re.sub(r'=', '', value)\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value",
+        "edits": [],
+        "description": "Mass edit cells in column name"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "thee, kaffee, hafercacao"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Coffee and Cocoa"
+            },
+            {
+                "from": [
+                    "consomme belle fermiere"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Consomm\u00e9 Belle Fermi\u00e8re"
+            },
+            {
+                "from": [
+                    "gran fritto di misto mare"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Fried Mixed Seafood Platter"
+            }
+        ],
+        "description": "Mass edit cells in column name"
     },
     {
         "op": "core/text-transform",
@@ -37,5 +97,18 @@
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column name using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
     }
 ]

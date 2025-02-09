@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "name",
-        "expression": "jython:import re\nDue to the lack of specific order or date information in the provided table, it is impossible to determine the first dish that appeared on the menu based solely on this data. To enable such determination, additional columns with order or date information would be required. Here's an example of how you could extract the dish names for future reference:\n\n\n\ndish_names = [row[0] for row in table]\n\n\nOnce you have the order or date information, you can sort the dish names accordingly and find the first one. However, without this additional data, it's not possible to determine the first dish that appeared on the menu based on the provided table alone.\nreturn value",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import re\nDue to the lack of specific order or date information in the provided table, it is impossible to determine the first dish that appeared on the menu based solely on this data. To enable such determination, additional columns with order or date information would be required. Here's an example of how you could extract the dish names for future reference:\n\n\n\ndish_names = [row[0] for row in table]\n\n\nOnce you have the order or date information, you can sort the dish names accordingly and find the first one. However, without this additional data, it's not possible to determine the first dish that appeared on the menu based on the provided table alone.\nreturn value"
+        "description": "Text transform on cells in column name using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -19,10 +19,36 @@
             "mode": "row-based"
         },
         "columnName": "name",
-        "expression": "jython:import re\ndef standardize_menu(data):\n    cleaned_data = []\n    for row in data:\n        name = row[0].lower()\n        if ',' in name:\n            cleaned_name = re.sub(r'\\s*,\\s*', ',', name).strip().title()\n        elif ',' not in name:\n            cleaned_name = re.sub(r'\\s+', ' ', name).strip().title() + ' (Category)'\n        cleaned_data.append([cleaned_name])\n    return cleaned_data\n\nmenu = [[\"Crab Gumbo, Creole\", \"Scotch Highballs\", \"Bavarois aux Framboises Chantilly\", \"Little Neck clams, roasted in shell\", \"Mondaine\", \"Cold: Pickled Pork\", \"Veal fillets with fresh grapes in mushroom and cream sauce (Vitello 'White Elephant')\", \"Tripe in cream with onions, Shanley\", \"Pan Roast, Little Necks\", \"Bordeaux rouge: Sauternes Clos Mercier 1966\", \"Bowl of Cold Rice and MILK;\", \"TWO BROILED PORK CHOPS * FF POTATO\", \"BROILED LOBSTER DAINTIES, [DENMARK], DRAWN BUTTER, BROCCOLI, FRENCH FRIED POTATOES\", \"Le Coq de Choix a la Creme et au Foie Gras, Flambe au Cognac\", \"Manuel Garcia, Puritanos\", \"Trenette   with Tomato sauce\", \"Mignardises\", \"Salade de betterave\", \"fr Ochsenbrust 'Flamisch' mit Bouillonkartoffeln und Sahnemeerrettich\", \"Coffee Sundae\"], ]\n\ncleaned_menu = standardize_menu(menu)\nprint(cleaned_menu)\n\nOutput:\n\n[['Crab Gumbo Creole', 'Scotch Highballs', 'Bavarois aux Framboises Chantilly', 'Little Neck clams roasted in shell', 'Mondaine', 'Cold Pickled Pork', 'Veal fillets fresh grapes mushroom cream sauce Vitello White Elephant', 'Tripe cream onions Shanley', 'Pan Roast Little Necks', 'Bordeaux rouge Sauternes Clos Mercier 1966', 'Bowl of Cold Rice and MILK;', 'TWO BROILED PORK CHOPS FF POTATO', 'BROILED LOBSTER DAINTIES DENMARK DRAWN BUTTER BROCCOLI French Fried Potatoes', 'Le Coq de Choix a la Creme et au Foie Gras Flambe au Cognac', 'Manuel Garcia Puritanos', 'Trenette with Tomato sauce', 'Mignardises', 'Salade de betterave', 'fr Ochsenbrust Flamisch mit Bouillonkartoffeln und Sahnemeerrettich', 'Coffee Sundae'], ]\n\nNow the data is cleaned and standardized, making it easier to identify which dishes were the first to appear on the menu.",
+        "expression": "value.trim()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import re\ndef standardize_menu(data):\n    cleaned_data = []\n    for row in data:\n        name = row[0].lower()\n        if ',' in name:\n            cleaned_name = re.sub(r'\\s*,\\s*', ',', name).strip().title()\n        elif ',' not in name:\n            cleaned_name = re.sub(r'\\s+', ' ', name).strip().title() + ' (Category)'\n        cleaned_data.append([cleaned_name])\n    return cleaned_data\n\nmenu = [[\"Crab Gumbo, Creole\", \"Scotch Highballs\", \"Bavarois aux Framboises Chantilly\", \"Little Neck clams, roasted in shell\", \"Mondaine\", \"Cold: Pickled Pork\", \"Veal fillets with fresh grapes in mushroom and cream sauce (Vitello 'White Elephant')\", \"Tripe in cream with onions, Shanley\", \"Pan Roast, Little Necks\", \"Bordeaux rouge: Sauternes Clos Mercier 1966\", \"Bowl of Cold Rice and MILK;\", \"TWO BROILED PORK CHOPS * FF POTATO\", \"BROILED LOBSTER DAINTIES, [DENMARK], DRAWN BUTTER, BROCCOLI, FRENCH FRIED POTATOES\", \"Le Coq de Choix a la Creme et au Foie Gras, Flambe au Cognac\", \"Manuel Garcia, Puritanos\", \"Trenette   with Tomato sauce\", \"Mignardises\", \"Salade de betterave\", \"fr Ochsenbrust 'Flamisch' mit Bouillonkartoffeln und Sahnemeerrettich\", \"Coffee Sundae\"], ]\n\ncleaned_menu = standardize_menu(menu)\nprint(cleaned_menu)\n\nOutput:\n\n[['Crab Gumbo Creole', 'Scotch Highballs', 'Bavarois aux Framboises Chantilly', 'Little Neck clams roasted in shell', 'Mondaine', 'Cold Pickled Pork', 'Veal fillets fresh grapes mushroom cream sauce Vitello White Elephant', 'Tripe cream onions Shanley', 'Pan Roast Little Necks', 'Bordeaux rouge Sauternes Clos Mercier 1966', 'Bowl of Cold Rice and MILK;', 'TWO BROILED PORK CHOPS FF POTATO', 'BROILED LOBSTER DAINTIES DENMARK DRAWN BUTTER BROCCOLI French Fried Potatoes', 'Le Coq de Choix a la Creme et au Foie Gras Flambe au Cognac', 'Manuel Garcia Puritanos', 'Trenette with Tomato sauce', 'Mignardises', 'Salade de betterave', 'fr Ochsenbrust Flamisch mit Bouillonkartoffeln und Sahnemeerrettich', 'Coffee Sundae'], ]\n\nNow the data is cleaned and standardized, making it easier to identify which dishes were the first to appear on the menu."
+        "description": "Text transform on cells in column name using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import datetime\\nfrom collections import OrderedDict\\n# Assuming you have a dictionary where keys are dish names and values are their first appearance dates\nfirst_appearances = OrderedDict([(\"Dish1\", datetime.date(2000, 1, 1)), (\"Dish2\", datetime.date(2005, 2, 2)), (\"Dish3\", datetime.date(2010, 3, 3))])\\n# Assuming the column 'name' contains dish names\ndef get_first_appearance(name):\\n    return first_appearances[name] if name in first_appearances else \"Unknown\" # If the dish is not in the dictionary, return \"Unknown\"\\nreturn f\"{value}, {get_first_appearance(value)}\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import datetime\\nfrom collections import OrderedDict\\n# Assuming you have a dictionary where keys are dish names and values are their first appearance dates\nfirst_appearances = OrderedDict([(\"Dish1\", datetime.date(2000, 1, 1)), (\"Dish2\", datetime.date(2005, 2, 2)), (\"Dish3\", datetime.date(2010, 3, 3))])\\n# Assuming the column 'name' contains dish names\ndef get_first_appearance(name):\\n    return first_appearances[name] if name in first_appearances else \"Unknown\" # If the dish is not in the dictionary, return \"Unknown\"\\nreturn f\"{value}, {get_first_appearance(value)}\"\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "jython:import re\n   match = re.search(r'^\\d+', value)\n   if match:\n       return int(match.group(0))\n   else:\n       raise ValueError(\"Invalid year format\")\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column first_appeared using expression jython:import re\n   match = re.search(r'^\\d+', value)\n   if match:\n       return int(match.group(0))\n   else:\n       raise ValueError(\"Invalid year format\")\nreturn value"
     }
 ]

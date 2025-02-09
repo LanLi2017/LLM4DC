@@ -6,49 +6,10 @@
             "mode": "row-based"
         },
         "columnName": "first_appeared",
-        "expression": "value.toNumber()",
+        "expression": "jython:import re\n\ndef regexr_transform(column):\n    if column == 'first_appeared':\n        return_list = []\n        for value in column:\n            if int(value) >= 2000:\n                # If the year is after 2000, update it to a placeholder year that indicates the dish was introduced before 2000.\n                value = 'before_2000'\n            return_list.append(value)\n        return return_list\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column first_appeared using expression value.toNumber()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "first_appeared",
-        "expression": "value.toNumber()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column first_appeared using expression value.toNumber()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "name",
-        "expression": "jython:import re\nDue to the lack of clear indication of the year of introduction for most items in the provided list, it's impossible to determine which dishes were first introduced before the year 2000 using the given data. To address this issue, you could modify the dataset by adding a column for the year of introduction or removing items without such information. Here's an example of how you might add a year column:\n\n\n\nfor dish in dishes:\n    if any(year in dish for year in ['1964', '1966', '19XX']):\n        year = dish.split(',')[0].strip()\n        dishes[dishes.index(dish)] += f' | {year}'\n\n\nThis code will add a year column to the list for items that contain certain years (e.g., '1964', '1966') which might indicate pre-2000 introduction. You can then use this modified dataset to find dishes introduced before 2000 as needed.\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import re\nDue to the lack of clear indication of the year of introduction for most items in the provided list, it's impossible to determine which dishes were first introduced before the year 2000 using the given data. To address this issue, you could modify the dataset by adding a column for the year of introduction or removing items without such information. Here's an example of how you might add a year column:\n\n\n\nfor dish in dishes:\n    if any(year in dish for year in ['1964', '1966', '19XX']):\n        year = dish.split(',')[0].strip()\n        dishes[dishes.index(dish)] += f' | {year}'\n\n\nThis code will add a year column to the list for items that contain certain years (e.g., '1964', '1966') which might indicate pre-2000 introduction. You can then use this modified dataset to find dishes introduced before 2000 as needed.\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "name",
-        "expression": "jython:import re\nDue to the lack of clear indicators of creation dates in the provided table, it is not possible to determine which dishes were first created before the year 2000 using these expressions alone. However, for future operations, it would be beneficial to include explicit date or origin information in the dish names to facilitate accurate assessment.\n\nHere's a Python expression that could be used if such information was available:\n\n\ndef find_year(value):\n    match = re.search(r'\\d{4}', value)\n    if match:\n        year = int(match.group(0))\n        return year\n    else:\n        return None\n\ndef find_creation_date(value):\n    match = re.search(r'(\\d{4})-', value)\n    if match:\n        creation_year = int(match.group(1))\n        return creation_year < 2000\n    else:\n        return False\n\ndef find_dishes_before_2000(data):\n    dishes = []\n    for row in data:\n        name, *info = row\n        if find_creation_date(name) or any(find_year(part) < 2000 for part in info):\n            dishes.append(name)\n    return dishes\n\n\nThis expression assumes that the table is structured as a list of lists, where each inner list represents a row and contains the dish name followed by additional information (if any). The `find_dishes_before_2000()` function will return a list of dish names that were first created before the year 2000.",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import re\nDue to the lack of clear indicators of creation dates in the provided table, it is not possible to determine which dishes were first created before the year 2000 using these expressions alone. However, for future operations, it would be beneficial to include explicit date or origin information in the dish names to facilitate accurate assessment.\n\nHere's a Python expression that could be used if such information was available:\n\n\ndef find_year(value):\n    match = re.search(r'\\d{4}', value)\n    if match:\n        year = int(match.group(0))\n        return year\n    else:\n        return None\n\ndef find_creation_date(value):\n    match = re.search(r'(\\d{4})-', value)\n    if match:\n        creation_year = int(match.group(1))\n        return creation_year < 2000\n    else:\n        return False\n\ndef find_dishes_before_2000(data):\n    dishes = []\n    for row in data:\n        name, *info = row\n        if find_creation_date(name) or any(find_year(part) < 2000 for part in info):\n            dishes.append(name)\n    return dishes\n\n\nThis expression assumes that the table is structured as a list of lists, where each inner list represents a row and contains the dish name followed by additional information (if any). The `find_dishes_before_2000()` function will return a list of dish names that were first created before the year 2000."
+        "description": "Text transform on cells in column first_appeared using expression jython:import re\n\ndef regexr_transform(column):\n    if column == 'first_appeared':\n        return_list = []\n        for value in column:\n            if int(value) >= 2000:\n                # If the year is after 2000, update it to a placeholder year that indicates the dish was introduced before 2000.\n                value = 'before_2000'\n            return_list.append(value)\n        return return_list\nreturn value"
     }
 ]

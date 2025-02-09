@@ -5,32 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "highest_price",
-        "expression": "value.toNumber()",
+        "columnName": "name",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "highest_price",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "highest_price"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "original_price"
-            }
-        ],
-        "description": "Mass edit cells in column highest_price"
+        "description": "Text transform on cells in column name using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -38,63 +18,11 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "highest_price",
-        "expression": "value.toNumber()",
+        "columnName": "name",
+        "expression": "jython:import pandas as pd\n\n   # Assuming you have the data in a pandas DataFrame df\n   df['Price'] = None  # Initialize the Price column with None values\n\n   # Define a function to find the minimum and maximum price for each dish\n   def find_price(row):\n       prices = []\n       for i, row2 in df.iterrows():\n           if row['name'] == row2['name']:\n               prices.append(row2['Price'])\n       return min(prices), max(prices)\n\n   # Apply the function to each row and fill the Price column\n   df['Price'] = df.apply(find_price, axis=1)\n\n   # Now you can use the transformed dataframe for your purpose\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "highest_price",
-        "expression": "jython:import re\nimport re\n\ndef normalize_prices(data):\n  for i in range(len(data)):\n    value = data[i]['highest_price']\n    if isinstance(value, str):\n      value = float(re.sub(r'\\D', '', value))\n    data[i]['highest_price'] = value\n  return data",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression jython:import re\nimport re\n\ndef normalize_prices(data):\n  for i in range(len(data)):\n    value = data[i]['highest_price']\n    if isinstance(value, str):\n      value = float(re.sub(r'\\D', '', value))\n    data[i]['highest_price'] = value\n  return data"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "highest_price",
-        "expression": "jython:import re\nSince the \"highest_price\" column is missing in the provided table, it's not possible to write a Python expression that processes each individual cell value. Instead, you should add this column to your table before performing any analysis on the prices of dishes. Here's an example of how you can create a new DataFrame with the \"highest_price\" column:\n\n\nimport pandas as pd\n\ndf = pd.DataFrame({\n    'dish': ['Pizza', 'Burger', 'Salad'],\n    'lowest_price': [5, 3, 2]\n})\n\nhighest_prices = {\n    'Pizza': 7,\n    'Burger': 4,\n    'Salad': 6\n}\n\ndf['highest_price'] = df['dish'].map(highest_prices)\n\nprint(df)\n\n\nOutput:\n\n\n   dish  lowest_price  highest_price\n0  Pizza             5              7\n1  Burger             3              4\n2  Salad             2              6\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression jython:import re\nSince the \"highest_price\" column is missing in the provided table, it's not possible to write a Python expression that processes each individual cell value. Instead, you should add this column to your table before performing any analysis on the prices of dishes. Here's an example of how you can create a new DataFrame with the \"highest_price\" column:\n\n\nimport pandas as pd\n\ndf = pd.DataFrame({\n    'dish': ['Pizza', 'Burger', 'Salad'],\n    'lowest_price': [5, 3, 2]\n})\n\nhighest_prices = {\n    'Pizza': 7,\n    'Burger': 4,\n    'Salad': 6\n}\n\ndf['highest_price'] = df['dish'].map(highest_prices)\n\nprint(df)\n\n\nOutput:\n\n\n   dish  lowest_price  highest_price\n0  Pizza             5              7\n1  Burger             3              4\n2  Salad             2              6\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "highest_price",
-        "expression": "jython:import re\nSince there is no 'Price' column in the table, it is not possible to identify dishes with minimal price difference at this time. However, here is an example of how you can add a 'Price' column for future analyses:\n\n\n\ntable_data.append(['Price'])\n\nprices = [10.99, 8.50, 7.25, ...]\ntable_data[-1].append(prices[i])\n\n\nThis will add a 'Price' column to your table data and you can use it for future analyses related to price fluctuations or comparisons.\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression jython:import re\nSince there is no 'Price' column in the table, it is not possible to identify dishes with minimal price difference at this time. However, here is an example of how you can add a 'Price' column for future analyses:\n\n\n\ntable_data.append(['Price'])\n\nprices = [10.99, 8.50, 7.25, ...]\ntable_data[-1].append(prices[i])\n\n\nThis will add a 'Price' column to your table data and you can use it for future analyses related to price fluctuations or comparisons.\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "lowest_price",
-        "expression": "jython:import re\ndata = [row.split('|') for row in table.split('\\n')]\ndish_prices = {row[0]: float(row[1]) for row in data if len(row) > 1}\nprev_price = None\nfor dish, price in dish_prices.items():\n    if prev_price is not None:\n        difference = price - prev_price\n        print(f'Dish: {dish}, Difference: {difference}')\n    prev_price = price\n\nThis Python expression initializes a dictionary to store dish prices, iterates through the data, calculates the difference between current and previous prices for each dish, and prints the difference if it exists. The output will be:\n\nDish: dish1, Difference: 0.4\nDish: dish2, Difference: 6.5\n... (for other dishes with a price change)\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column lowest_price using expression jython:import re\ndata = [row.split('|') for row in table.split('\\n')]\ndish_prices = {row[0]: float(row[1]) for row in data if len(row) > 1}\nprev_price = None\nfor dish, price in dish_prices.items():\n    if prev_price is not None:\n        difference = price - prev_price\n        print(f'Dish: {dish}, Difference: {difference}')\n    prev_price = price\n\nThis Python expression initializes a dictionary to store dish prices, iterates through the data, calculates the difference between current and previous prices for each dish, and prints the difference if it exists. The output will be:\n\nDish: dish1, Difference: 0.4\nDish: dish2, Difference: 6.5\n... (for other dishes with a price change)\nreturn value"
+        "description": "Text transform on cells in column name using expression jython:import pandas as pd\n\n   # Assuming you have the data in a pandas DataFrame df\n   df['Price'] = None  # Initialize the Price column with None values\n\n   # Define a function to find the minimum and maximum price for each dish\n   def find_price(row):\n       prices = []\n       for i, row2 in df.iterrows():\n           if row['name'] == row2['name']:\n               prices.append(row2['Price'])\n       return min(prices), max(prices)\n\n   # Apply the function to each row and fill the Price column\n   df['Price'] = df.apply(find_price, axis=1)\n\n   # Now you can use the transformed dataframe for your purpose\nreturn value"
     }
 ]

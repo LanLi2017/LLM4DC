@@ -6,23 +6,10 @@
             "mode": "row-based"
         },
         "columnName": "name",
-        "expression": "value.toDate()",
+        "expression": "jython:import re\n\n# Find all rows that contain a dish name but no price information\ndish_rows = [row for row in table if re.search(r'__|--', row[0]) and not re.search(r'\\d+(\\.\\d{2})?', row[1])]\n\n# For each dish without a price, update the second column with a placeholder value (e.g., \"Missing Price\")\nfor row in dish_rows:\n    row[1] = \"Missing Price\"\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "name",
-        "expression": "jython:import pandas as pd\n\n   # Assuming you have the data in a pandas DataFrame df\n   df['Price'] = None  # Initialize the Price column with None values\n\n   # Define a function to find the minimum and maximum price for each dish\n   def find_price(row):\n       prices = []\n       for i, row2 in df.iterrows():\n           if row['name'] == row2['name']:\n               prices.append(row2['Price'])\n       return min(prices), max(prices)\n\n   # Apply the function to each row and fill the Price column\n   df['Price'] = df.apply(find_price, axis=1)\n\n   # Now you can use the transformed dataframe for your purpose\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import pandas as pd\n\n   # Assuming you have the data in a pandas DataFrame df\n   df['Price'] = None  # Initialize the Price column with None values\n\n   # Define a function to find the minimum and maximum price for each dish\n   def find_price(row):\n       prices = []\n       for i, row2 in df.iterrows():\n           if row['name'] == row2['name']:\n               prices.append(row2['Price'])\n       return min(prices), max(prices)\n\n   # Apply the function to each row and fill the Price column\n   df['Price'] = df.apply(find_price, axis=1)\n\n   # Now you can use the transformed dataframe for your purpose\nreturn value"
+        "description": "Text transform on cells in column name using expression jython:import re\n\n# Find all rows that contain a dish name but no price information\ndish_rows = [row for row in table if re.search(r'__|--', row[0]) and not re.search(r'\\d+(\\.\\d{2})?', row[1])]\n\n# For each dish without a price, update the second column with a placeholder value (e.g., \"Missing Price\")\nfor row in dish_rows:\n    row[1] = \"Missing Price\"\nreturn value"
     }
 ]

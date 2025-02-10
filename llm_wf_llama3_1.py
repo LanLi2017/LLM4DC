@@ -666,7 +666,8 @@ def test_main():
     # pp_f = 'purposes/queries.csv'
     # pp_f = 'purposes/all_purposes.csv'
     # pp_f = 'purposes/pp_rerun.csv'
-    pp_f = 'purposes/ppp_dish_rerun.csv'
+    # pp_f = 'purposes/ppp_dish_rerun.csv'
+    pp_f = 'purposes/dish_recheck.csv'
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"{log_dir}/datasets_llm"
@@ -686,7 +687,7 @@ def test_main():
     # 【26,27,54,57,59,60】25-27 53,54 56-57 58-60
     # 34-36, 37-39, 52-53, 54-55, 57-59 [35, 36, 38,39,53,55,58,59]
 
-    for index, row in pp_df.iloc[32:35].iterrows():
+    for index, row in pp_df.iloc[:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

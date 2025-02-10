@@ -19,24 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "name",
-        "expression": "value.trim()",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression value.trim()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "name",
-        "expression": "jython:import datetime\\nfrom collections import OrderedDict\\n# Assuming you have a dictionary where keys are dish names and values are their first appearance dates\nfirst_appearances = OrderedDict([(\"Dish1\", datetime.date(2000, 1, 1)), (\"Dish2\", datetime.date(2005, 2, 2)), (\"Dish3\", datetime.date(2010, 3, 3))])\\n# Assuming the column 'name' contains dish names\ndef get_first_appearance(name):\\n    return first_appearances[name] if name in first_appearances else \"Unknown\" # If the dish is not in the dictionary, return \"Unknown\"\\nreturn f\"{value}, {get_first_appearance(value)}\"\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import datetime\\nfrom collections import OrderedDict\\n# Assuming you have a dictionary where keys are dish names and values are their first appearance dates\nfirst_appearances = OrderedDict([(\"Dish1\", datetime.date(2000, 1, 1)), (\"Dish2\", datetime.date(2005, 2, 2)), (\"Dish3\", datetime.date(2010, 3, 3))])\\n# Assuming the column 'name' contains dish names\ndef get_first_appearance(name):\\n    return first_appearances[name] if name in first_appearances else \"Unknown\" # If the dish is not in the dictionary, return \"Unknown\"\\nreturn f\"{value}, {get_first_appearance(value)}\"\nreturn value"
+        "description": "Text transform on cells in column name using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -45,10 +32,10 @@
             "mode": "row-based"
         },
         "columnName": "first_appeared",
-        "expression": "jython:import re\n   match = re.search(r'^\\d+', value)\n   if match:\n       return int(match.group(0))\n   else:\n       raise ValueError(\"Invalid year format\")\nreturn value",
+        "expression": "python\nimport pandas as pd\n\n# Assuming df is your DataFrame and 'Competition' is the column containing dish names\nfirst_dishes = df['Competition'].min()  # This will return the first competition (dish) in the list\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column first_appeared using expression jython:import re\n   match = re.search(r'^\\d+', value)\n   if match:\n       return int(match.group(0))\n   else:\n       raise ValueError(\"Invalid year format\")\nreturn value"
+        "description": "Text transform on cells in column first_appeared using expression python\nimport pandas as pd\n\n# Assuming df is your DataFrame and 'Competition' is the column containing dish names\nfirst_dishes = df['Competition'].min()  # This will return the first competition (dish) in the list\nreturn value"
     }
 ]

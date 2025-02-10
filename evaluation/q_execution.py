@@ -918,6 +918,10 @@ class QExecute:
         cols:first_appeared, last_appeared
         """
         try:
+            df['last_appeared'] = pd.to_datetime(df['last_appeared'], errors='coerce')
+            df['first_appeared'] = pd.to_datetime(df['first_appeared'], errors='coerce')
+            df = df.dropna(subset=['first_appeared', 'last_appeared'])
+
             # Calculate duration as a direct difference if both are integers
             df['duration'] = df['last_appeared'] - df['first_appeared']
             longest_duration = df['duration'].max()
@@ -960,21 +964,42 @@ class QExecute:
         Find dishes that first appeared before the year 2000.
         cols: name, first_appeared
         """
-        dishes_2000 = df[df['first_appeared'] <= 2000]
-        earliest_dishes = dishes_2000.loc[dishes_2000['first_appeared'].idxmin()]
-        return earliest_dishes['name']
+        try:
+            df['first_appeared'] = pd.to_datetime(df['first_appeared'], errors='coerce')
+            df = df.dropna(subset=['first_appeared', 'last_appeared'])
+            dishes_2000 = df[df['first_appeared'].dt.year < 2000]
+            # Find the earliest first_appeared date
+            min_date = dishes_2000['first_appeared'].min()
+
+            # Get all dish names that first appeared on that earliest date
+            earliest_dishes = dishes_2000[dishes_2000['first_appeared'] == min_date]['name'].tolist()
+
+            return earliest_dishes
+        except Exception as e:
+            return str(e)
 
     def pp101_exe(df):
         """
         Identify which dishes were the first to appear on the menu.
         cols: name, first_appeared
         """
-        # Find the earliest appearance year
-        earliest_year = df['first_appeared'].min()
+        try:
+            # Convert first_appeared to datetime format
+            df['first_appeared'] = pd.to_datetime(df['first_appeared'], errors='coerce')
 
-        # Filter the dishes that appeared in the earliest year
-        first_dishes = df[df['first_appeared'] == earliest_year]
-        return first_dishes['name'].tolist()
+            # Drop rows with NaN in first_appeared
+            df = df.dropna(subset=['first_appeared'])
+
+            # Find the earliest appearance date
+            earliest_date = df['first_appeared'].min()
+
+            # Get all dish names that appeared on that earliest date
+            first_dishes = df[df['first_appeared'] == earliest_date]['name'].tolist()
+
+            return first_dishes
+        except Exception as e:
+            return str(e)  # Return error message for debugging
+
     
     def pp102_exe(df):
         """
@@ -1612,8 +1637,8 @@ if __name__ == '__main__':
     # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
     groundtruth_tag = False
     # groundtruth_tag = True
-    # dirty_tag = True
-    dirty_tag = False
+    dirty_tag = True
+    # dirty_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
@@ -1685,13 +1710,13 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        # with open('answer_1-154_dirty.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
-
-        with open(f'answer_1-154_{model}.json', 'a') as f:
+        with open('answer_1-154_dirty.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
+
+        # with open(f'answer_1-154_{model}.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
 
         # with open(f'answer_1-154_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))

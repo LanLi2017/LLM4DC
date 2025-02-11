@@ -1637,18 +1637,15 @@ if __name__ == '__main__':
     # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
     groundtruth_tag = False
     # groundtruth_tag = True
-    dirty_tag = True
-    # dirty_tag = False
+    # dirty_tag = True
+    dirty_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
     # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
-    # model = "gemma2"
-    model = "mistral"
-    # model = "mistral:7b-instruct"
-    # model = "mistral" 
+    model = "gemma2"
     llm_folder = f"CoT.response/{model}/datasets_llm"
     par_fp = "/projects/bces/lanl2/LLM4DC"
     # par_fp = ".."
@@ -1710,13 +1707,13 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        with open('answer_1-154_dirty.json', 'a') as f:
-            f.write(json.dumps(result_single))
-            f.write('\n')
-
-        # with open(f'answer_1-154_{model}.json', 'a') as f:
+        # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
+
+        with open(f'answer_1-154_{model}.json', 'a') as f:
+            f.write(json.dumps(result_single))
+            f.write('\n')
 
         # with open(f'answer_1-154_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))

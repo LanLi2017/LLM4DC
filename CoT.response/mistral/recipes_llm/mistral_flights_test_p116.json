@@ -18,12 +18,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "flight",
+        "columnName": "act_dep_time",
         "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression value.toDate()"
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -31,11 +31,24 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "act_arr_time",
-        "expression": "value.toDate()",
+        "columnName": "flight",
+        "expression": "python\nimport datetime\n\n# Assuming df is your DataFrame and it has 'departure_time' and 'arrival_time' columns\ndf['Time'] = pd.to_datetime(df['arrival_time'])  # Convert the arrival time to datetime format\ndf['Hour'] = df['Time'].dt.hour  # Extract hour from the datetime object\nevening_flights = df[df['Hour'] >= 18]  # Filter flights that arrive after 6 PM (18:00)\nnumber_of_evening_flights = len(evening_flights)  # Count the number of evening flights\nprint(number_of_evening_flights)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression value.toDate()"
+        "description": "Text transform on cells in column flight using expression python\nimport datetime\n\n# Assuming df is your DataFrame and it has 'departure_time' and 'arrival_time' columns\ndf['Time'] = pd.to_datetime(df['arrival_time'])  # Convert the arrival time to datetime format\ndf['Hour'] = df['Time'].dt.hour  # Extract hour from the datetime object\nevening_flights = df[df['Hour'] >= 18]  # Filter flights that arrive after 6 PM (18:00)\nnumber_of_evening_flights = len(evening_flights)  # Count the number of evening flights\nprint(number_of_evening_flights)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "python\nimport datetime\n\n# Assuming you have two columns: 'Flight Number' and 'Departure Time' in another dataset\nflights_data = [('ABC123', '2023-03-01 18:30'), ('DEF456', '2023-03-02 09:00')]\n\ndef flight_hour(row):\n    departure_time = row[1]\n    time = datetime.datetime.strptime(departure_time, '%Y-%m-%d %H:%M')\n    return int(time.hour) if time.hour >= 18 else None\n\n# Apply the function to the flights_data and create a new column with flight hours\nflights_data = [(flight, flight_hour((flight, departure_time))) for flight, departure_time in flights_data]\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression python\nimport datetime\n\n# Assuming you have two columns: 'Flight Number' and 'Departure Time' in another dataset\nflights_data = [('ABC123', '2023-03-01 18:30'), ('DEF456', '2023-03-02 09:00')]\n\ndef flight_hour(row):\n    departure_time = row[1]\n    time = datetime.datetime.strptime(departure_time, '%Y-%m-%d %H:%M')\n    return int(time.hour) if time.hour >= 18 else None\n\n# Apply the function to the flights_data and create a new column with flight hours\nflights_data = [(flight, flight_hour((flight, departure_time))) for flight, departure_time in flights_data]\nreturn value"
     }
 ]

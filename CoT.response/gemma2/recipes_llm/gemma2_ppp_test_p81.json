@@ -1,62 +1,5 @@
 [
     {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "LoanAmount",
-        "expression": "value.toNumber()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "LoanAmount",
-        "expression": "value",
-        "edits": [],
-        "description": "Mass edit cells in column LoanAmount"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "LoanAmount",
-        "expression": "value",
-        "edits": [],
-        "description": "Mass edit cells in column LoanAmount"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "LoanAmount",
-        "expression": "value",
-        "edits": [],
-        "description": "Mass edit cells in column LoanAmount"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "LoanAmount",
-        "expression": "value",
-        "edits": [],
-        "description": "Mass edit cells in column LoanAmount"
-    },
-    {
         "op": "core/mass-edit",
         "engineConfig": {
             "facets": [],
@@ -67,26 +10,12 @@
         "edits": [
             {
                 "from": [
-                    "blk/afr am",
-                    "Blk/Afr Am",
-                    "blk/afr am",
                     "b.a.a.",
                     "B.A.A."
                 ],
                 "fromBlank": false,
                 "fromError": false,
                 "to": "Black or African American"
-            },
-            {
-                "from": [
-                    "aisan",
-                    "Aisan",
-                    "aisan",
-                    "as1an"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Asian"
             },
             {
                 "from": [
@@ -100,11 +29,79 @@
             },
             {
                 "from": [
-                    "hispanic/latino"
+                    "othr"
                 ],
                 "fromBlank": false,
                 "fromError": false,
-                "to": "Hispanic or Latino"
+                "to": "Other"
+            },
+            {
+                "from": [
+                    "blak african amer",
+                    "blk/afr am",
+                    "Blk/Afr Am"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Black or African American"
+            },
+            {
+                "from": [
+                    "aisan",
+                    "as1an",
+                    "asin",
+                    "Aisan",
+                    "aisan"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Asian"
+            }
+        ],
+        "description": "Mass edit cells in column RaceEthnicity"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "RaceEthnicity",
+        "expression": "jython:\nimport re\nvalue = value.lower()\nvalue = re.sub(r'blk/afr am|b\\.a\\.a\\.|blk/afr am', 'black or african american', value)\nvalue = re.sub(r'wh1te|whiite', 'white', value)\nvalue = re.sub(r'aisan|asin', 'asian', value)\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column RaceEthnicity using expression jython:\nimport re\nvalue = value.lower()\nvalue = re.sub(r'blk/afr am|b\\.a\\.a\\.|blk/afr am', 'black or african american', value)\nvalue = re.sub(r'wh1te|whiite', 'white', value)\nvalue = re.sub(r'aisan|asin', 'asian', value)\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "RaceEthnicity",
+        "expression": "jython:\nimport re\nvalue = value.lower()\nvalue = re.sub(r'black or african american', 'black', value)\nvalue = re.sub(r'b lak african amer', 'black', value) \nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column RaceEthnicity using expression jython:\nimport re\nvalue = value.lower()\nvalue = re.sub(r'black or african american', 'black', value)\nvalue = re.sub(r'b lak african amer', 'black', value) \nreturn value\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "RaceEthnicity",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "blak african amer"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Black"
             },
             {
                 "from": [
@@ -116,5 +113,31 @@
             }
         ],
         "description": "Mass edit cells in column RaceEthnicity"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "RaceEthnicity",
+        "expression": "jython:\nimport re\nvalue = value.strip().lower()\nif value == 'blak african amer':\n  return 'black'\nelif value == 'othr':\n  return 'other'\nelse:\n  return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column RaceEthnicity using expression jython:\nimport re\nvalue = value.strip().lower()\nif value == 'blak african amer':\n  return 'black'\nelif value == 'othr':\n  return 'other'\nelse:\n  return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "LoanAmount",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
     }
 ]

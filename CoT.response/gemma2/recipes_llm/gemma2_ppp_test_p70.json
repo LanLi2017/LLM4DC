@@ -5,12 +5,25 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "LoanAmount",
-        "expression": "value.toNumber()",
+        "columnName": "BusinessType",
+        "expression": "jython:\nimport re\nvalue = value.lower()\nvalue = re.sub(r'sole proprietorship', 'sole proprietorship', value)\nvalue = re.sub(r'limited liability company\\(llc\\)', 'llc', value)\nvalue = re.sub(r'independent contractors', 'independent contractor', value)\nreturn value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
+        "description": "Text transform on cells in column BusinessType using expression jython:\nimport re\nvalue = value.lower()\nvalue = re.sub(r'sole proprietorship', 'sole proprietorship', value)\nvalue = re.sub(r'limited liability company\\(llc\\)', 'llc', value)\nvalue = re.sub(r'independent contractors', 'independent contractor', value)\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "BusinessType",
+        "expression": "jython:\nimport re\nvalue = value.lower()\nif re.search(r'llc', value):\n  return 'llc'\nelif re.search(r'sole proprietorship', value):\n  return 'sole proprietorship'\nelif re.search(r'corporation', value):\n  return 'corporation'\nelif re.search(r'independent contractor', value):\n  return 'independent contractor'\nelif re.search(r'non-profit organization', value):\n  return 'non-profit organization'\nelse:\n  return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column BusinessType using expression jython:\nimport re\nvalue = value.lower()\nif re.search(r'llc', value):\n  return 'llc'\nelif re.search(r'sole proprietorship', value):\n  return 'sole proprietorship'\nelif re.search(r'corporation', value):\n  return 'corporation'\nelif re.search(r'independent contractor', value):\n  return 'independent contractor'\nelif re.search(r'non-profit organization', value):\n  return 'non-profit organization'\nelse:\n  return value\nreturn value"
     },
     {
         "op": "core/mass-edit",
@@ -23,345 +36,15 @@
         "edits": [
             {
                 "from": [
-                    "limited liability company(llc)",
-                    "LIMITED_LIABILITY_COMPANY(LLC)",
-                    "LIMITED LIABILIT YCOMPANY(LLC)"
+                    "llc"
                 ],
                 "fromBlank": false,
                 "fromError": false,
-                "to": "limited liability company"
+                "to": "LLC"
             },
             {
                 "from": [
-                    "SUBCHAPTER S CORPORTAION",
-                    "SUBCHAPTER S CORPORATION"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "subchapter s corporation"
-            },
-            {
-                "from": [
-                    "INDEPENDENT CONTRACTORS Inc.",
-                    "independent contractors"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "independent contractor"
-            },
-            {
-                "from": [
-                    "SOLE PROPRIETORSHIP",
-                    "sole proprietorship",
-                    "OSLE PROPRIETORSHIP"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "sole proprietorship"
-            },
-            {
-                "from": [
-                    "corporation",
-                    "CORPORATION"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "corporation"
-            },
-            {
-                "from": [
-                    "non-profit organization",
-                    "non-profit organization"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "non-profit organization"
-            },
-            {
-                "from": [
-                    "SELF-EMPLOYED INDIVIDUALS"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "self-employed individual"
-            }
-        ],
-        "description": "Mass edit cells in column BusinessType"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "limited liability company",
-                    "LIMITED_LIABILITY_COMPANY(LLC)",
-                    "limited liability company(llc)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "limited liability company"
-            },
-            {
-                "from": [
-                    "CORPORATION",
-                    "corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "corporation"
-            },
-            {
-                "from": [
-                    "sole proprietorship",
-                    "sole proprietorship",
-                    "SOLE PROPRIETORSHIP"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "sole proprietorship"
-            },
-            {
-                "from": [
-                    "INDEPENDENT CONTRACTORS Inc.",
-                    "independent contractors",
-                    "SELF-EMPLOYED INDIVIDUALS"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "independent contractor"
-            },
-            {
-                "from": [
-                    "SUBCHAPTER S CORPORATION",
-                    "subchapter s corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "s corporation"
-            },
-            {
-                "from": [
-                    "non-profit organization"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "non-profit"
-            }
-        ],
-        "description": "Mass edit cells in column BusinessType"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "LIMITED_LIABILITY_COMPANY(LLC)",
-                    "limited liability company(llc)",
-                    "limited liability company"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "limited liability company"
-            },
-            {
-                "from": [
-                    "SELF-EMPLOYED INDIVIDUALS"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "self-employed individuals"
-            },
-            {
-                "from": [
-                    "INDEPENDENT CONTRACTORS Inc."
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "independent contractors"
-            },
-            {
-                "from": [
-                    "SUBCHAPTER S CORPORATION"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "s corporation"
-            },
-            {
-                "from": [
-                    "CORPORATION",
-                    "corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "corporation"
-            },
-            {
-                "from": [
-                    "SOLE PROPRIETORSHIP",
-                    "sole proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "sole proprietorship"
-            },
-            {
-                "from": [
-                    "non-profit organization"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "non-profit"
-            }
-        ],
-        "description": "Mass edit cells in column BusinessType"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "SOLE PROPRIETORSHIP"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietorship"
-            },
-            {
-                "from": [
-                    "sole proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietorship"
-            },
-            {
-                "from": [
-                    "INDEPENDENT CONTRACTORS Inc."
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Independent Contractors"
-            },
-            {
-                "from": [
-                    "corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Corporation"
-            },
-            {
-                "from": [
-                    "limited liability company(llc)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company"
-            },
-            {
-                "from": [
-                    "CORPORATION"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Corporation"
-            },
-            {
-                "from": [
-                    "LIMITED_LIABILITY_COMPANY(LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company"
-            },
-            {
-                "from": [
-                    "independent contractors"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Independent Contractors"
-            },
-            {
-                "from": [
-                    "SELF-EMPLOYED INDIVIDUALS"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Self-Employed Individuals"
-            },
-            {
-                "from": [
-                    "s corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "S Corporation"
-            },
-            {
-                "from": [
-                    "LIMITED_LIABILITY_COMPANY(LLC)"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Limited Liability Company"
-            }
-        ],
-        "description": "Mass edit cells in column BusinessType"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "CORPORATION",
-                    "Corporation",
-                    "Corporation"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Corporation"
-            },
-            {
-                "from": [
-                    "sole proprietorship",
-                    "Sole Proprietorship",
-                    "Sole Proprietorship"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Sole Proprietorship"
-            },
-            {
-                "from": [
-                    "INDEPENDENT CONTRACTORS Inc.",
-                    "independent contractors",
-                    "independent contractors"
+                    "independent contractor"
                 ],
                 "fromBlank": false,
                 "fromError": false,
@@ -369,26 +52,22 @@
             },
             {
                 "from": [
-                    "LIMITED_LIABILITY_COMPANY(LLC)",
-                    "limited liability company(llc)",
-                    "limited liability company",
-                    "limited liability company(llc)"
+                    "corporation"
                 ],
                 "fromBlank": false,
                 "fromError": false,
-                "to": "Limited Liability Company"
+                "to": "Corporation"
             },
             {
                 "from": [
-                    "SELF-EMPLOYED INDIVIDUALS"
+                    "sole proprietorship"
                 ],
                 "fromBlank": false,
                 "fromError": false,
-                "to": "Self-Employed Individual"
+                "to": "Sole Proprietorship"
             },
             {
                 "from": [
-                    "non-profit organization",
                     "non-profit organization"
                 ],
                 "fromBlank": false,
@@ -397,14 +76,55 @@
             },
             {
                 "from": [
-                    "S Corporation",
-                    "SUBCHAPTER S CORPORATION"
+                    "subchapter s corportaion"
                 ],
                 "fromBlank": false,
                 "fromError": false,
-                "to": "S Corporation"
+                "to": "Subchapter S Corporation"
+            },
+            {
+                "from": [
+                    "osle proprietorship"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Sole Proprietorship"
+            },
+            {
+                "from": [
+                    "self-employed individuals"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Self-Employed Individual"
             }
         ],
         "description": "Mass edit cells in column BusinessType"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "BusinessType",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column BusinessType using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "LoanAmount",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
     }
 ]

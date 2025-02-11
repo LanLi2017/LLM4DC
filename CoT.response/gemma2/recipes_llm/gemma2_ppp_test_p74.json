@@ -1,18 +1,5 @@
 [
     {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "LoanAmount",
-        "expression": "value.toNumber()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
-    },
-    {
         "op": "core/mass-edit",
         "engineConfig": {
             "facets": [],
@@ -23,47 +10,11 @@
         "edits": [
             {
                 "from": [
-                    "--female-owned--",
-                    "female-owned"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Female Owned"
-            },
-            {
-                "from": [
-                    "--mlae--",
-                    "__male_owned__",
-                    "__femal__",
-                    "__Maal__",
-                    "__mle__",
-                    "--Feale--",
-                    "--maal--",
-                    "__mle__",
-                    "Mle",
-                    "__Femal__",
                     "--MALE-OWNED--",
-                    "__Feml__"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Male Owned"
-            }
-        ],
-        "description": "Mass edit cells in column Gender"
-    },
-    {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "Gender",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "Male Owned"
+                    "__mle__",
+                    "--mlae--",
+                    "Mle",
+                    "__Maal__"
                 ],
                 "fromBlank": false,
                 "fromError": false,
@@ -71,7 +22,13 @@
             },
             {
                 "from": [
-                    "Female Owned"
+                    "__Feml__",
+                    "__femal__",
+                    "--Feale--",
+                    "--female-owned--",
+                    "female-owned",
+                    "__Femal__",
+                    "__Femal__"
                 ],
                 "fromBlank": false,
                 "fromError": false,
@@ -84,9 +41,46 @@
                 ],
                 "fromBlank": false,
                 "fromError": false,
-                "to": "Non-binary"
+                "to": "Other"
             }
         ],
         "description": "Mass edit cells in column Gender"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "jython:\nimport re\nvalue = value.strip()\nif re.search(r'^[Ff]emale$', value):\n  return 'Female'\nelif re.search(r'^[Mm]ale$', value):\n  return 'Male'\nelse:\n  return 'Other'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Gender using expression jython:\nimport re\nvalue = value.strip()\nif re.search(r'^[Ff]emale$', value):\n  return 'Female'\nelif re.search(r'^[Mm]ale$', value):\n  return 'Male'\nelse:\n  return 'Other'\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Gender",
+        "expression": "value",
+        "edits": [],
+        "description": "Mass edit cells in column Gender"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "LoanAmount",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
     }
 ]

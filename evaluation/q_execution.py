@@ -348,19 +348,25 @@ class QExecute:
         return unique_inspection_count
 
     def pp36_exe(df):
-        failed_inspections_7eleven = df[(df['DBA Name'].str.lower() == '7-eleven'.lower()) & (df['Results'].str.lower() == 'fail')]['Inspection ID'].tolist()
-        return failed_inspections_7eleven
+        try:
+            failed_inspections_7eleven = df[(df['DBA Name'].str.lower() == '7-eleven'.lower()) & (df['Results'].str.lower() == 'fail')]['Inspection ID'].tolist()
+            return failed_inspections_7eleven
+        except:
+            return None
 
     def pp37_exe(df):
-        df['Results'] = df['Results'].astype(str).str.lower()
-        # Group by DBA_Name and calculate the passing rate
-        passing_rate = (
-            df.groupby('DBA Name')
-            .apply(lambda x: (x['Results'] == 'pass').sum() / len(x))
-            .reset_index(name='Passing_Rate')
-        )
-        best_brand_name = passing_rate.sort_values(by='Passing_Rate', ascending=False).iloc[0]['DBA Name']
-        return best_brand_name
+        try:
+            df['Results'] = df['Results'].astype(str).str.lower()
+            # Group by DBA_Name and calculate the passing rate
+            passing_rate = (
+                df.groupby('DBA Name')
+                .apply(lambda x: (x['Results'] == 'pass').sum() / len(x))
+                .reset_index(name='Passing_Rate')
+            )
+            best_brand_name = passing_rate.sort_values(by='Passing_Rate', ascending=False).iloc[0]['DBA Name']
+            return best_brand_name
+        except:
+            return None
 
 
     def pp38_exe(df):
@@ -376,8 +382,11 @@ class QExecute:
         return res 
 
     def pp40_exe(df):
-        most_frequent_risk_by_type = df.groupby('Facility Type')['Risk'].agg(lambda x: x.value_counts().idxmax()).reset_index().to_json()
-        return most_frequent_risk_by_type
+        try:
+            most_frequent_risk_by_type = df.groupby('Facility Type')['Risk'].agg(lambda x: x.value_counts().idxmax()).reset_index().to_json()
+            return most_frequent_risk_by_type
+        except:
+            return None
 
     def pp41_exe(df):
         df['Risk'] = df['Risk'].astype(str)
@@ -833,12 +842,15 @@ class QExecute:
         Determine which races received the highest amount of PPP loans and the corresponding dollar amounts.
         cols: RaceEthinicity, LoanAmount
         """
-        df = df[df['RaceEthnicity'].str.lower() != "unanswered"]
-        race_loan_totals = df.groupby('RaceEthnicity').agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
+        try:
+            df = df[df['RaceEthnicity'].str.lower() != "unanswered"]
+            race_loan_totals = df.groupby('RaceEthnicity').agg(TotalLoanAmount=('LoanAmount', 'sum')).reset_index()
 
-        # Sort by Total Loan Amount in descending order
-        highest_race = race_loan_totals.sort_values(by='TotalLoanAmount', ascending=False)
-        return highest_race.iloc[0]['RaceEthnicity']
+            # Sort by Total Loan Amount in descending order
+            highest_race = race_loan_totals.sort_values(by='TotalLoanAmount', ascending=False)
+            return highest_race.iloc[0]['RaceEthnicity']
+        except:
+            return None
     
     def pp81_exe(df):
         """
@@ -1413,11 +1425,13 @@ class QExecute:
         """
         Count the number of hospitals offering emergency services by "acute care hospitals" hospital type.
         """
-        df['HospitalType'] = df['HospitalType'].str.lower()
-        df['EmergencyService'] = df['EmergencyService'].str.lower()
-        emergency_services_count = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')].shape[0]
-        return emergency_services_count
-
+        try:
+            df['HospitalType'] = df['HospitalType'].str.lower()
+            df['EmergencyService'] = df['EmergencyService'].str.lower()
+            emergency_services_count = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyService'] == 'yes')].shape[0]
+            return emergency_services_count
+        except:
+            return None
 
     def pp134_exe(df):
         """
@@ -1439,11 +1453,13 @@ class QExecute:
         """
         Find the number of cities with hospitals owned by voluntary non-profits and offering emergency services.
         """
-        df['EmergencyService'] = df['EmergencyService'].str.lower()
-        df['HospitalOwner'] = df['HospitalOwner'].str.lower()
-        cities_with_voluntary_nonprofits = df[(df['HospitalOwner'] == 'voluntary non-profit - private') & (df['EmergencyService'] == 'yes')]['City'].nunique()
-        return cities_with_voluntary_nonprofits
-
+        try:
+            df['EmergencyService'] = df['EmergencyService'].str.lower()
+            df['HospitalOwner'] = df['HospitalOwner'].str.lower()
+            cities_with_voluntary_nonprofits = df[(df['HospitalOwner'] == 'voluntary non-profit - private') & (df['EmergencyService'] == 'yes')]['City'].nunique()
+            return cities_with_voluntary_nonprofits
+        except:
+            return None
 
     def pp137_exe(df):
         """
@@ -1645,7 +1661,8 @@ if __name__ == '__main__':
     # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
-    model = "gemma2"
+    # model = "gemma2"
+    model = "mistral"
     llm_folder = f"CoT.response/{model}/datasets_llm"
     par_fp = "/projects/bces/lanl2/LLM4DC"
     # par_fp = ".."

@@ -1194,16 +1194,34 @@ class QExecute:
         return df['flight'].value_counts().idxmax()
 
 
+    # def pp116_exe(df):
+    #     """
+    #     Count flights scheduled to arrive after 6:00 PM.
+    #     cols: sched_arr_time
+    #     """
+    #     try:
+    #         count_after_6pm = df[df['sched_arr_time'].str.contains("T18:|T19:|T20:|T21:|T22:|T23:", regex=True, na=False)].shape[0]
+    #         return int(count_after_6pm)
+    #     except:
+    #         return None
     def pp116_exe(df):
         """
-        Count flights scheduled to arrive after 6:00 PM.
+        Return a list of sched_arr_time for flights scheduled to arrive after 6:00 PM.
         cols: sched_arr_time
         """
         try:
-            count_after_6pm = df[df['sched_arr_time'].str.contains("T18:|T19:|T20:|T21:|T22:|T23:", regex=True, na=False)].shape[0]
-            return int(count_after_6pm)
-        except:
-            return None
+            # Ensure sched_arr_time is not NaN before applying regex
+            df_cleaned = df.dropna(subset=['sched_arr_time']).copy()
+
+            flights_after_6pm = df_cleaned[df_cleaned['sched_arr_time'].str.contains(
+                r"T18:|T19:|T20:|T21:|T22:|T23:", regex=True, na=False
+            )]
+
+            return flights_after_6pm['sched_arr_time'].dropna().tolist()
+        
+        except Exception as e:
+            return []
+
 
 
     def pp117_exe(df):
@@ -1229,68 +1247,146 @@ class QExecute:
             # Calculate delay only for valid timestamps
             df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
 
-            return int((df['departure_delay'] > 0).sum(skipna=True))
+            # Filter delayed flights (departure_delay > 0)
+            delayed_flights = df[df['departure_delay'] > 0]
+
+            # Extract unique hours from scheduled departure time
+            delayed_hours = sorted(delayed_flights['sched_dep_time'].str[11:13].dropna().unique().tolist())
+
+            return delayed_hours
         except:
-            return None
+            return []
 
 
+    # def pp119_exe(df):
+    #     """
+    #     Count flights that arrived in the AM.
+    #     cols: sched_arr_time
+    #     """
+    #     try:
+    #         am_count = df[df['sched_arr_time'].str.contains("T0[0-9]:|T10:|T11:", regex=True, na=False)].shape[0]
+    #         return int(am_count)
+    #     except:
+    #         return None
     def pp119_exe(df):
         """
-        Count flights that arrived in the AM.
+        Return a list of sched_arr_time for flights scheduled to arrive in the AM.
         cols: sched_arr_time
         """
         try:
-            am_count = df[df['sched_arr_time'].str.contains("T0[0-9]:|T10:|T11:", regex=True, na=False)].shape[0]
-            return int(am_count)
-        except:
-            return None
+            # Ensure sched_arr_time is not NaN before applying regex
+            df_cleaned = df.dropna(subset=['sched_arr_time']).copy()
+
+            flights_in_am = df_cleaned[df_cleaned['sched_arr_time'].str.contains(
+                r"T0[0-9]:|T10:|T11:", regex=True, na=False
+            )]
+
+            return flights_in_am['sched_arr_time'].dropna().tolist()
+        
+        except Exception as e:
+            return []
 
 
+    # def pp120_exe(df):
+    #     """
+    #     Identify the airline carrier with the most delayed flights.
+    #     cols: src, sched_dep_time, act_dep_time
+    #     """
+    #     try:
+    #         df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+    #         df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
+
+    #         df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+    #         delayed_flights = df[df['departure_delay'] > 0]
+
+    #         return delayed_flights['src'].value_counts().idxmax() if not delayed_flights.empty else None
+    #     except:
+    #         return None
     def pp120_exe(df):
         """
-        Identify the airline carrier with the most delayed flights.
+        Return a list of airline carriers (src) that have delayed flights.
         cols: src, sched_dep_time, act_dep_time
         """
         try:
-            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
-            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
+            # Ensure datetime parsing handles NaN values safely
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(lambda x: safe_parse_datetime(x) if pd.notna(x) else pd.NaT)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(lambda x: safe_parse_datetime(x) if pd.notna(x) else pd.NaT)
 
-            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
-            delayed_flights = df[df['departure_delay'] > 0]
+            # Drop rows where either sched_dep_time or act_dep_time is missing
+            df_cleaned = df.dropna(subset=['parsed_sched_dep_time', 'parsed_act_dep_time']).copy()
 
-            return delayed_flights['src'].value_counts().idxmax() if not delayed_flights.empty else None
-        except:
-            return None
+            # Compute departure delay
+            df_cleaned['departure_delay'] = (df_cleaned['parsed_act_dep_time'] - df_cleaned['parsed_sched_dep_time']).dt.total_seconds() / 60
 
+            # Filter flights that were delayed (departure_delay > 0)
+            delayed_flights = df_cleaned[df_cleaned['departure_delay'] > 0]
 
+            # Return a list of unique airline carriers with delayed flights
+            return delayed_flights['src'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
+    # def pp121_exe(df):
+    #     """
+    #     Count flights where the actual departure time is earlier than scheduled.
+    #     cols: sched_dep_time, act_dep_time
+    #     """
+    #     try:
+    #         df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+    #         df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
+
+    #         df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+    #         return int((df['departure_delay'] < 0).sum(skipna=True))
+    #     except:
+    #         return None
+     
     def pp121_exe(df):
         """
-        Count flights where the actual departure time is earlier than scheduled.
+        Return a list of actual departure times (act_dep_time) that are earlier than their scheduled departure times (sched_dep_time).
         cols: sched_dep_time, act_dep_time
         """
         try:
-            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
-            df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
+            # Ensure that datetime parsing handles NaN values safely
+            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(lambda x: safe_parse_datetime(x) if pd.notna(x) else pd.NaT)
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(lambda x: safe_parse_datetime(x) if pd.notna(x) else pd.NaT)
 
-            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
-            return int((df['departure_delay'] < 0).sum(skipna=True))
-        except:
-            return None
+            # Drop rows where either time is NaT (i.e., missing) before calculation
+            df_cleaned = df.dropna(subset=['parsed_sched_dep_time', 'parsed_act_dep_time']).copy()
 
+            # Compute departure delay only on clean data
+            df_cleaned['departure_delay'] = (df_cleaned['parsed_act_dep_time'] - df_cleaned['parsed_sched_dep_time']).dt.total_seconds() / 60
+
+            # Filter flights where actual departure time is earlier than scheduled
+            early_departures = df_cleaned[df_cleaned['departure_delay'] < 0]
+
+            # Return a list of actual departure times
+            return early_departures['act_dep_time'].dropna().tolist()
+        
+        except Exception as e:
+            return []
 
     def pp122_exe(df):
         """
-        Count flights where scheduled arrival time is before departure time.
-        cols: sched_dep_time, sched_arr_time
+        Return a dictionary {act_arr_time: act_dep_time} for flights where actual arrival time is before actual departure time.
+        cols: act_dep_time, act_arr_time
         """
         try:
-            df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
-            df['parsed_sched_arr_time'] = df['sched_arr_time'].apply(safe_parse_datetime)
+            # Ensure datetime parsing handles NaN values safely
+            df['parsed_act_dep_time'] = df['act_dep_time'].apply(lambda x: safe_parse_datetime(x) if pd.notna(x) else pd.NaT)
+            df['parsed_act_arr_time'] = df['act_arr_time'].apply(lambda x: safe_parse_datetime(x) if pd.notna(x) else pd.NaT)
 
-            return int((df['parsed_sched_arr_time'] < df['parsed_sched_dep_time']).sum(skipna=True))
-        except:
-            return None
+            # Drop rows where either actual departure or arrival time is missing
+            df_cleaned = df.dropna(subset=['parsed_act_dep_time', 'parsed_act_arr_time']).copy()
 
+            # Filter flights where actual arrival time is before actual departure time
+            invalid_flights = df_cleaned[df_cleaned['parsed_act_arr_time'] < df_cleaned['parsed_act_dep_time']]
+
+            # Return a dictionary {act_arr_time: act_dep_time}
+            return dict(zip(invalid_flights['act_arr_time'], invalid_flights['act_dep_time']))
+        
+        except Exception as e:
+            return {}
 
     def pp123_exe(df):
         """
@@ -1312,50 +1408,97 @@ class QExecute:
         except Exception as e:
             print(f"Error: {e}")
             return "Error in calculation"
-
+    
     def pp124_exe(df):
         """
-        Identify the hour with the highest number of on-time arrivals.
+        Return a sorted list of unique hours where flights arrived on time.
         cols: sched_arr_time, act_arr_time
         """
         try:
+            # Identify on-time arrivals
             df['on_time'] = df['sched_arr_time'] == df['act_arr_time']
-            best_hour_for_arrivals = df[df['on_time']]['sched_arr_time'].str[11:13].value_counts().idxmax()
-            return int(best_hour_for_arrivals)
-        except:
-            return None
+
+            # Extract unique hours from on-time scheduled arrival times
+            on_time_hours = sorted(df[df['on_time']]['sched_arr_time'].str[11:13].dropna().unique().tolist())
+
+            return on_time_hours
+        
+        except Exception as e:
+            return []
 
 
+    # def pp124_exe(df):
+    #     """
+    #     Identify the hour with the highest number of on-time arrivals.
+    #     cols: sched_arr_time, act_arr_time
+    #     """
+    #     try:
+    #         df['on_time'] = df['sched_arr_time'] == df['act_arr_time']
+    #         best_hour_for_arrivals = df[df['on_time']]['sched_arr_time'].str[11:13].value_counts().idxmax()
+    #         return int(best_hour_for_arrivals)
+    #     except:
+    #         return None
+
+
+    # def pp125_exe(df):
+    #     """
+    #     Identify the airline carrier with the highest average departure delay time.
+    #     cols: src, sched_dep_time, act_dep_time
+    #     """
+    #     try:
+    #         df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
+    #         df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
+
+    #         df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
+    #         avg_delay_by_src = df.groupby('src')['departure_delay'].mean()
+
+    #         if avg_delay_by_src.empty:
+    #             return None  # No valid data available
+
+    #         return str(avg_delay_by_src.idxmax())  # Ensure string output for JSON serialization
+    #     except:
+    #         return None
+     
     def pp125_exe(df):
         """
-        Identify the airline carrier with the highest average departure delay time.
+        Return a list of unique airline carriers (src) where both scheduled and actual departure times are correctly parsed.
         cols: src, sched_dep_time, act_dep_time
         """
         try:
+            # Parse times only if they match ISO 8601 format
             df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
             df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
 
-            df['departure_delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
-            avg_delay_by_src = df.groupby('src')['departure_delay'].mean()
+            # Keep only rows where parsing was successful (i.e., not original values)
+            valid_rows = df[(pd.to_datetime(df['parsed_sched_dep_time'], errors='coerce').notna()) &
+                            (pd.to_datetime(df['parsed_act_dep_time'], errors='coerce').notna())]
 
-            if avg_delay_by_src.empty:
-                return None  # No valid data available
+            # Return a list of unique src values
+            return valid_rows['src'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
 
-            return str(avg_delay_by_src.idxmax())  # Ensure string output for JSON serialization
-        except:
-            return None
 
 
     def pp126_exe(df):
         """
-        Count how many flights have a difference between scheduled and actual arrival time.
+        Return a list of unique arrival times where scheduled arrival time equals actual arrival time.
         cols: sched_arr_time, act_arr_time
         """
         try:
-            count_diff = (df['sched_arr_time'] != df['act_arr_time']).sum()
-            return int(count_diff)
-        except:
-            return None
+            # Drop rows where either sched_arr_time or act_arr_time is missing
+            df_cleaned = df.dropna(subset=['sched_arr_time', 'act_arr_time']).copy()
+
+            # Filter flights where scheduled and actual arrival times differ
+            same_arrival_times = df_cleaned[df_cleaned['sched_arr_time'] == df_cleaned['act_arr_time']]
+
+            # Return a dictionary {sched_arr_time: act_arr_time}
+            return same_arrival_times['sched_arr_time'].dropna().unique().tolist()
+                    
+        except Exception as e:
+            return {}
+
 
     def pp127_exe(df):
         """
@@ -1622,29 +1765,80 @@ class QExecute:
             df['HospitalOwner'].str.contains('voluntary non-profit - private', case=False, na=False)
         ]['City'].unique().tolist()
         return cities_with_voluntary_nonprofit_hospitals
-    
+
     def pp152_exe(df):
         """
-        Identify number of cities where government-owned hospitals dominate the hospital landscape.
+        Return a list of city names where government-owned hospitals dominate.
+        cols: HospitalOwner, City
         """
-        df['HospitalOwner'] = df['HospitalOwner'].str.lower()
-        government_dominant_cities = df[df['HospitalOwner'].str.contains('government')].groupby('City').size()
-        return len(government_dominant_cities)
+        try:
+            # Ensure HospitalOwner is in lowercase for standardization
+            df['HospitalOwner'] = df['HospitalOwner'].str.lower()
 
+            # Filter hospitals that are government-owned
+            government_hospitals = df[df['HospitalOwner'].str.contains('government', na=False)]
+
+            # Identify cities where government-owned hospitals exist
+            dominant_cities = government_hospitals['City'].dropna().unique().tolist()
+
+            return dominant_cities
+        
+        except Exception as e:
+            return []
+
+    
+    # def pp152_exe(df):
+    #     """
+    #     Identify number of cities where government-owned hospitals dominate the hospital landscape.
+    #     """
+    #     df['HospitalOwner'] = df['HospitalOwner'].str.lower()
+    #     government_dominant_cities = df[df['HospitalOwner'].str.contains('government')].groupby('City').size()
+    #     return len(government_dominant_cities)
+
+    # def pp153_exe(df):
+    #     """
+    #     Determine the number of hospitals offering emergency services.
+    #     """
+    #     df['EmergencyService'] = df['EmergencyService'].str.lower()
+    #     emergency_service_count = (df['EmergencyService'] == 'yes').sum()
+    #     return int(emergency_service_count)
     def pp153_exe(df):
         """
-        Determine the number of hospitals offering emergency services.
+        Return a list of unique zip codes for hospitals offering emergency services.
+        cols: EmergencyService, Zipcode
         """
-        df['EmergencyService'] = df['EmergencyService'].str.lower()
-        emergency_service_count = (df['EmergencyService'] == 'yes').sum()
-        return int(emergency_service_count)
+        try:
+            # Ensure EmergencyService column is in lowercase to standardize comparison
+            df['EmergencyService'] = df['EmergencyService'].str.lower()
 
+            # Filter hospitals that offer emergency services
+            emergency_idx = df[df['EmergencyService'] == 'yes'].index
+
+            # Return a list of unique zip codes
+            return df.loc[emergency_idx, 'ZipCode'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
+
+    # def pp154_exe(df):
+    #     """
+    #     return number of hospital owner.
+    #     """
+    #     hospital_owner_count = df['HospitalOwner'].nunique()
+    #     return hospital_owner_count
     def pp154_exe(df):
         """
-        return number of hospital owner.
+        Return a list of unique hospital owners.
+        cols: HospitalOwner
         """
-        hospital_owner_count = df['HospitalOwner'].nunique()
-        return hospital_owner_count
+        try:
+            # Extract unique hospital owners and return as a list
+            return df['HospitalOwner'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
 
 
 if __name__ == '__main__':

@@ -437,7 +437,7 @@ def wf_gen(project_id, log_data, model, logging, purpose):
                 print(f'Applied operation history: {functions_list}')
                 # if 'trim' in functions_list:
                 #     ops_pool = [op_name for op_name in ops_pool if op_name!='trim']
-            col_str = gen_table_str(df, num_rows=15, tg_col=sel_col) # only keep first 15 rows for operation selection
+            col_str = gen_table_str(df, num_rows=num_rows, tg_col=sel_col) # only keep first 15 rows for operation selection
             # TBD: how many rows we will show here?
             tb_str = gen_table_str(sel_cols_df, num_rows=30)
 
@@ -450,7 +450,7 @@ def wf_gen(project_id, log_data, model, logging, purpose):
 \n\n Based on table contents and Purpose provided as following, select a proper Operation from the {ops_pool} and output the operation name in ``` ```.\n"""\
                              +f"""\
 /*
-{tb_str}
+{col_str}
 */
 Purpose: {purpose}
 Target column: {sel_col}
@@ -665,9 +665,9 @@ def test_main():
 
     # pp_f = 'purposes/queries.csv'
     # pp_f = 'purposes/all_purposes.csv'
-    # pp_f = 'purposes/pp_rerun.csv'
+    pp_f = 'purposes/pp_rerun.csv'
     # pp_f = 'purposes/ppp_dish_rerun.csv'
-    pp_f = 'purposes/dish_recheck.csv'
+    # pp_f = 'purposes/dish_recheck.csv'
     # pp_f = 'purposes/flights_recheck.csv'
     pp_df = pd.read_csv(pp_f)
 
@@ -688,7 +688,7 @@ def test_main():
     # 【26,27,54,57,59,60】25-27 53,54 56-57 58-60
     # 34-36, 37-39, 52-53, 54-55, 57-59 [35, 36, 38,39,53,55,58,59]
 
-    for index, row in pp_df.iloc[7:8].iterrows():
+    for index, row in pp_df.iloc[46:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

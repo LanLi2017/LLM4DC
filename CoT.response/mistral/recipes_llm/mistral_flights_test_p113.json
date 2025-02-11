@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "src",
-        "expression": "jython:value = value.upper()\nreturn value",
+        "columnName": "sched_dep_time",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:value = value.upper()\nreturn value"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -18,12 +18,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "src",
-        "expression": "value.toUppercase()",
+        "columnName": "sched_dep_time",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression value.toUppercase()"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -31,11 +31,63 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "src",
-        "expression": "jython:import re\n   return re.sub(r'-', '', value)\nreturn value",
+        "columnName": "flight",
+        "expression": "python:import re\n\n# Define a dictionary mapping abbreviations to full names\nairlines = {'AA': 'American Airlines', 'UA': 'United Airlines', 'CO': 'Frontier Airlines'}\n\ndef normalize_flight(flight):\n    # Split the flight code and destination by hyphen\n    flight_code, *destinations = flight.split('-')\n\n    # Normalize the flight code\n    normalized_flight_code = re.sub(r'[^A-Z]', '', flight_code).upper()\n\n    # If the normalized flight code is in our dictionary, replace it with the full name\n    if normalized_flight_code in airlines:\n        normalized_flight_code = airlines[normalized_flight_code]\n\n    return normalized_flight_code, destinations\n\n# Apply the function to each flight and store the results in a list\nflights = [normalize_flight(flight) for flight in flights]\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:import re\n   return re.sub(r'-', '', value)\nreturn value"
+        "description": "Text transform on cells in column flight using expression python:import re\n\n# Define a dictionary mapping abbreviations to full names\nairlines = {'AA': 'American Airlines', 'UA': 'United Airlines', 'CO': 'Frontier Airlines'}\n\ndef normalize_flight(flight):\n    # Split the flight code and destination by hyphen\n    flight_code, *destinations = flight.split('-')\n\n    # Normalize the flight code\n    normalized_flight_code = re.sub(r'[^A-Z]', '', flight_code).upper()\n\n    # If the normalized flight code is in our dictionary, replace it with the full name\n    if normalized_flight_code in airlines:\n        normalized_flight_code = airlines[normalized_flight_code]\n\n    return normalized_flight_code, destinations\n\n# Apply the function to each flight and store the results in a list\nflights = [normalize_flight(flight) for flight in flights]\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "python:import re\n\ndef standardize_flight_number(flight):\n    # Extract the airline code from the flight number\n    airline_code = flight[:2]\n\n    # Remove the airline code from the flight number for consistency in analysis\n    cleaned_flight_number = re.sub(r'^' + airline_code + r'-', '', flight)\n\n    return airline_code, cleaned_flight_number\n\n# Apply the function to each row of the data\nfor i, flight in enumerate(flights):\n    airline_code, cleaned_flight_number = standardize_flight_number(flight)\n    print(f'Row {i+1}: Airline Code: {airline_code}, Cleaned Flight Number: {cleaned_flight_number}')\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression python:import re\n\ndef standardize_flight_number(flight):\n    # Extract the airline code from the flight number\n    airline_code = flight[:2]\n\n    # Remove the airline code from the flight number for consistency in analysis\n    cleaned_flight_number = re.sub(r'^' + airline_code + r'-', '', flight)\n\n    return airline_code, cleaned_flight_number\n\n# Apply the function to each row of the data\nfor i, flight in enumerate(flights):\n    airline_code, cleaned_flight_number = standardize_flight_number(flight)\n    print(f'Row {i+1}: Airline Code: {airline_code}, Cleaned Flight Number: {cleaned_flight_number}')\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "python:import re\\nflight_numbers = []\\nfor flight in flights:\\n cleaned_flight = re.sub(r'[-A-Z]', '', flight)\\n flight_numbers.append(cleaned_flight)\\nreturn flight_numbers\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression python:import re\\nflight_numbers = []\\nfor flight in flights:\\n cleaned_flight = re.sub(r'[-A-Z]', '', flight)\\n flight_numbers.append(cleaned_flight)\\nreturn flight_numbers\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "python\nimport re\nfrom collections import defaultdict\n\n# Assuming the data is already loaded into a pandas DataFrame called df\nairlines = ['AA', 'UA', 'CO']\nflight_data = {}\n\nfor index, row in df.iterrows():\n    flight_code = re.sub(r'[_-]', '', row['flight'])\n    airline = re.search(r'(AA|UA|CO)', row['flight']).group(0)\n\n    if airline not in airlines:\n        airlines.append(airline)\n\n    if flight_code not in flight_data:\n        flight_data[flight_code] = defaultdict(list)\n\n    flight_data[flight_code][airline].append(row['timestamp'])\n\n# Now you can analyze the on-time performance for each airline by iterating over the consolidated data\nfor flight, airlines in flight_data.items():\n    for airline, timestamps in airlines.items():\n        # Analyze on-time performance based on your criteria here\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression python\nimport re\nfrom collections import defaultdict\n\n# Assuming the data is already loaded into a pandas DataFrame called df\nairlines = ['AA', 'UA', 'CO']\nflight_data = {}\n\nfor index, row in df.iterrows():\n    flight_code = re.sub(r'[_-]', '', row['flight'])\n    airline = re.search(r'(AA|UA|CO)', row['flight']).group(0)\n\n    if airline not in airlines:\n        airlines.append(airline)\n\n    if flight_code not in flight_data:\n        flight_data[flight_code] = defaultdict(list)\n\n    flight_data[flight_code][airline].append(row['timestamp'])\n\n# Now you can analyze the on-time performance for each airline by iterating over the consolidated data\nfor flight, airlines in flight_data.items():\n    for airline, timestamps in airlines.items():\n        # Analyze on-time performance based on your criteria here\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
     }
 ]

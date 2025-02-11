@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "act_dep_time",
-        "expression": "value.toDate()",
+        "expression": "python\nimport re\nimport datetime\n\ndef standardize_date_time(value):\n    # Remove any non-alphanumeric characters except for colons and spaces\n    value = re.sub(r'[^a-zA-Z0-9 :]+', '', value)\n\n    # Split the string into date, time, and AM/PM or Z\n    parts = value.split()\n\n    # If there are less than 3 parts, assume it's in a 24-hour format\n    if len(parts) < 3:\n        date_part, time_part = parts[0], parts[1]\n    else:\n        date_part, time_part, am_pm_or_z = parts\n        # If AM/PM is provided, convert to 24-hour format\n        if am_pm_or_z.lower() in ['am', 'pm']:\n            hour = int(time_part.split(':')[0])\n            if time_part.split(':')[1].endswith(' pm') and hour != 12:\n                hour += 12\n            elif time_part.split(':')[1].endswith(' am'):\n                hour -= 12\n        else:\n            # Assume it's in a 24-hour format if Z is provided\n            pass\n\n    # Convert the date part to datetime object\n    try:\n        date = datetime.datetime.strptime(date_part, '%Y-%m-%d')\n    except ValueError:\n        # If it's not in YYYY-MM-DD format, assume it's MM/DD/YYYY or DD.MM.YYYY\n        if '/' in date_part:\n            date = datetime.datetime.strptime(date_part, '%m/%d/%Y')\n        elif '.' in date_part:\n            date = datetime.datetime.strptime(date_part, '%d.%m.%Y')\n        else:\n            raise ValueError(\"Unable to parse the date part.\")\n\n    # Convert the time part to datetime object\n    try:\n        time = datetime.time.strptime(time_part, '%H:%M:%S')\n    except ValueError:\n        raise ValueError(\"Unable to parse the time part.\")\n\n    # Combine date and time objects to get a single datetime object\n    result = datetime.datetime.combine(date, time)\n\n    return result.strftime('%Y-%m-%d %H:%M:%S')\n\n# Apply the function to each row in the act_dep_time column\ndata['act_dep_time'] = data['act_dep_time'].apply(standardize_date_time)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
+        "description": "Text transform on cells in column act_dep_time using expression python\nimport re\nimport datetime\n\ndef standardize_date_time(value):\n    # Remove any non-alphanumeric characters except for colons and spaces\n    value = re.sub(r'[^a-zA-Z0-9 :]+', '', value)\n\n    # Split the string into date, time, and AM/PM or Z\n    parts = value.split()\n\n    # If there are less than 3 parts, assume it's in a 24-hour format\n    if len(parts) < 3:\n        date_part, time_part = parts[0], parts[1]\n    else:\n        date_part, time_part, am_pm_or_z = parts\n        # If AM/PM is provided, convert to 24-hour format\n        if am_pm_or_z.lower() in ['am', 'pm']:\n            hour = int(time_part.split(':')[0])\n            if time_part.split(':')[1].endswith(' pm') and hour != 12:\n                hour += 12\n            elif time_part.split(':')[1].endswith(' am'):\n                hour -= 12\n        else:\n            # Assume it's in a 24-hour format if Z is provided\n            pass\n\n    # Convert the date part to datetime object\n    try:\n        date = datetime.datetime.strptime(date_part, '%Y-%m-%d')\n    except ValueError:\n        # If it's not in YYYY-MM-DD format, assume it's MM/DD/YYYY or DD.MM.YYYY\n        if '/' in date_part:\n            date = datetime.datetime.strptime(date_part, '%m/%d/%Y')\n        elif '.' in date_part:\n            date = datetime.datetime.strptime(date_part, '%d.%m.%Y')\n        else:\n            raise ValueError(\"Unable to parse the date part.\")\n\n    # Convert the time part to datetime object\n    try:\n        time = datetime.time.strptime(time_part, '%H:%M:%S')\n    except ValueError:\n        raise ValueError(\"Unable to parse the time part.\")\n\n    # Combine date and time objects to get a single datetime object\n    result = datetime.datetime.combine(date, time)\n\n    return result.strftime('%Y-%m-%d %H:%M:%S')\n\n# Apply the function to each row in the act_dep_time column\ndata['act_dep_time'] = data['act_dep_time'].apply(standardize_date_time)\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -18,11 +18,11 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "sched_dep_time",
-        "expression": "value.toDate()",
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\n   return re.sub(r':{2,}', ':', value)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\n   return re.sub(r':{2,}', ':', value)\nreturn value"
     }
 ]

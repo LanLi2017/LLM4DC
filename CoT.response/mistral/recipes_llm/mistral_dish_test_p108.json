@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "highest_price",
-        "expression": "value.toDate()",
+        "expression": "value.toNumber()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column highest_price using expression value.toDate()"
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
     },
     {
         "op": "core/text-transform",
@@ -18,12 +18,25 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "lowest_price",
-        "expression": "value.toDate()",
+        "columnName": "highest_price",
+        "expression": "value.toNumber()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column lowest_price using expression value.toDate()"
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "jython:import statistics\\nmean = statistics.mean([float(value) for value in df['highest_price'] if value != '0.0'])\\nif mean > 0:\\n return \"average price of a given dish\" + str(mean)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression jython:import statistics\\nmean = statistics.mean([float(value) for value in df['highest_price'] if value != '0.0'])\\nif mean > 0:\\n return \"average price of a given dish\" + str(mean)\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -37,57 +50,5 @@
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "lowest_price",
-        "expression": "value.toNumber()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "lowest_price",
-        "expression": "jython:import statistics\n\ndef find_average(column):\n  prices = [float(price) for price in column]\n  return statistics.mean(prices)\n\ndef compare_average(dish_name, column):\n  filtered_column = [row for row in column if dish_name in row]\n  average_price = find_average(filtered_column)\n  return average_price\n\n# Assuming 'dishes' is the name of the DataFrame and 'lowest_price' is the column containing the prices.\ndish_name = \"Pasta Carbonara\"\ncolumn = dishes['lowest_price']\naverage_price = compare_average(dish_name, column)\nreturn average_price\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column lowest_price using expression jython:import statistics\n\ndef find_average(column):\n  prices = [float(price) for price in column]\n  return statistics.mean(prices)\n\ndef compare_average(dish_name, column):\n  filtered_column = [row for row in column if dish_name in row]\n  average_price = find_average(filtered_column)\n  return average_price\n\n# Assuming 'dishes' is the name of the DataFrame and 'lowest_price' is the column containing the prices.\ndish_name = \"Pasta Carbonara\"\ncolumn = dishes['lowest_price']\naverage_price = compare_average(dish_name, column)\nreturn average_price\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "lowest_price",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column lowest_price using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "name",
-        "expression": "jython:import re\n\n# Remove underscores, dashes, extra spaces, and special characters except for hyphens and apostrophes\ndef standardize_name(value):\n    value = re.sub(r'[_-]', ' ', value)  # remove underscores and dashes\n    value = re.sub(r'\\s+', ' ', value)   # remove extra spaces\n    value = re.sub(r'[^\\w\\s']', '', value)  # remove special characters except for hyphens and apostrophes\n    return value\n\n# Lowercase all characters in the standardized name\ndef lowercase_name(value):\n    return value.lower()\n\n# Apply the standardization and lowercasing functions to each name in the table\ntable = [\n    \"__selected_delicacies_from_various_countries__\",\n    \"egg,_tetrazini\",\n    \"__SQUAB_CASSEROLE__\",\n    \"SUNOMONO\",\n    \"__potatoes,_sautees_or_stewed__\",\n    \"__broiled_sweetbreads,_green_peas__\",\n    \"saint-marceaux-very-dry\",\n    \"__bread_and_butter_white__\",\n    \"romaine_and_pineapple_salad\",\n    \"__BEAN_CURD_WITH_CHINESE_MUSHROOMS__\",\n    \"cream_caroline_soup\",\n    \"__thee,_kaffee,_hafercacao__\",\n    \"__macedoine_de_fruits_au_marasquin__\",\n    \"--CALIFORNIA-FRESH-FRUIT-SALAD,-WITH-COTTAGE-CHEESE,-SOUR-CREAM--\",\n    \"__individual_wedding_cakes_for_everybody__\",\n    \"--frecciarossa--\",\n    \"--FRESH-HOME=MADE-RHUBARB-PIE--\",\n    \"__malteser_reis-creme__\",\n    \"pouding-a-l'imperatrix\",\n    \"__2_eggs,_any_style,_served_with_hashbrowns_&_hot_buttered_toast__\"\n]\n\nstandardized_table = [standardize_name(name) for name in table]\nlowercased_table = [lowercase_name(name) for name in standardized_table]\n\n# Now you can compare the average price of dishes with the same name\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression jython:import re\n\n# Remove underscores, dashes, extra spaces, and special characters except for hyphens and apostrophes\ndef standardize_name(value):\n    value = re.sub(r'[_-]', ' ', value)  # remove underscores and dashes\n    value = re.sub(r'\\s+', ' ', value)   # remove extra spaces\n    value = re.sub(r'[^\\w\\s']', '', value)  # remove special characters except for hyphens and apostrophes\n    return value\n\n# Lowercase all characters in the standardized name\ndef lowercase_name(value):\n    return value.lower()\n\n# Apply the standardization and lowercasing functions to each name in the table\ntable = [\n    \"__selected_delicacies_from_various_countries__\",\n    \"egg,_tetrazini\",\n    \"__SQUAB_CASSEROLE__\",\n    \"SUNOMONO\",\n    \"__potatoes,_sautees_or_stewed__\",\n    \"__broiled_sweetbreads,_green_peas__\",\n    \"saint-marceaux-very-dry\",\n    \"__bread_and_butter_white__\",\n    \"romaine_and_pineapple_salad\",\n    \"__BEAN_CURD_WITH_CHINESE_MUSHROOMS__\",\n    \"cream_caroline_soup\",\n    \"__thee,_kaffee,_hafercacao__\",\n    \"__macedoine_de_fruits_au_marasquin__\",\n    \"--CALIFORNIA-FRESH-FRUIT-SALAD,-WITH-COTTAGE-CHEESE,-SOUR-CREAM--\",\n    \"__individual_wedding_cakes_for_everybody__\",\n    \"--frecciarossa--\",\n    \"--FRESH-HOME=MADE-RHUBARB-PIE--\",\n    \"__malteser_reis-creme__\",\n    \"pouding-a-l'imperatrix\",\n    \"__2_eggs,_any_style,_served_with_hashbrowns_&_hot_buttered_toast__\"\n]\n\nstandardized_table = [standardize_name(name) for name in table]\nlowercased_table = [lowercase_name(name) for name in standardized_table]\n\n# Now you can compare the average price of dishes with the same name\nreturn value"
     }
 ]

@@ -6,63 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "act_dep_time",
-        "expression": "value.toDate()",
+        "expression": "python\nimport re\nfrom datetime import datetime\n\ndef standardize_date_format(value):\n    # Remove any non-alphanumeric characters except for slashes and colons\n    value = re.sub(r'[^a-zA-Z0-9/\\s]', '', value)\n\n    # Split the string into date and time parts\n    parts = value.split('T')\n    date_part = parts[0].replace('/', '-')\n    time_part = parts[1] if 'T' in value else ''\n\n    # Convert the date part to datetime object\n    try:\n        dt = datetime.strptime(date_part + ' 00:00:00', '%Y-%m-%d %H:%M:%S')\n    except ValueError:\n        print(f\"Invalid date format for {value}\")\n        return None\n\n    # If time part is provided, adjust the datetime object accordingly\n    if time_part:\n        try:\n            dt = dt.replace(hour=int(time_part.split(':')[0]), minute=int(time_part.split(':')[1]), second=int(time_part.split(':')[2]))\n        except ValueError:\n            print(f\"Invalid time format for {value}\")\n            return None\n\n    # Return the standardized datetime object as a string in YYYY-MM-DDTHH:MM:SSZ format\n    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')\n\n# Test the function with your table data\ndata = [\n    'Mar 31, 1900 08:26',\n    '1900-03-31t09:16:00z',\n    '1900-03-31T07:05:00Z',\n    '1900-03-31T23:08:00Z',\n    '1900-03-31t12:10:00z',\n    '31-03-1900 14:48:00',\n    '1900-03-31t14:26:00z',\n    '1900-03-31t06:02:00z',\n    # ... add more rows from your table here\n]\n\nfor value in data:\n    standardized_value = standardize_date_format(value)\n    if standardized_value is not None:\n        print(standardized_value)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
+        "description": "Text transform on cells in column act_dep_time using expression python\nimport re\nfrom datetime import datetime\n\ndef standardize_date_format(value):\n    # Remove any non-alphanumeric characters except for slashes and colons\n    value = re.sub(r'[^a-zA-Z0-9/\\s]', '', value)\n\n    # Split the string into date and time parts\n    parts = value.split('T')\n    date_part = parts[0].replace('/', '-')\n    time_part = parts[1] if 'T' in value else ''\n\n    # Convert the date part to datetime object\n    try:\n        dt = datetime.strptime(date_part + ' 00:00:00', '%Y-%m-%d %H:%M:%S')\n    except ValueError:\n        print(f\"Invalid date format for {value}\")\n        return None\n\n    # If time part is provided, adjust the datetime object accordingly\n    if time_part:\n        try:\n            dt = dt.replace(hour=int(time_part.split(':')[0]), minute=int(time_part.split(':')[1]), second=int(time_part.split(':')[2]))\n        except ValueError:\n            print(f\"Invalid time format for {value}\")\n            return None\n\n    # Return the standardized datetime object as a string in YYYY-MM-DDTHH:MM:SSZ format\n    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')\n\n# Test the function with your table data\ndata = [\n    'Mar 31, 1900 08:26',\n    '1900-03-31t09:16:00z',\n    '1900-03-31T07:05:00Z',\n    '1900-03-31T23:08:00Z',\n    '1900-03-31t12:10:00z',\n    '31-03-1900 14:48:00',\n    '1900-03-31t14:26:00z',\n    '1900-03-31t06:02:00z',\n    # ... add more rows from your table here\n]\n\nfor value in data:\n    standardized_value = standardize_date_format(value)\n    if standardized_value is not None:\n        print(standardized_value)\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -84,11 +32,55 @@
             "mode": "row-based"
         },
         "columnName": "sched_dep_time",
-        "expression": "value.toNumber()",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression value.toNumber()"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [],
+                "fromBlank": false,
+                "fromError": false,
+                "to": null
+            }
+        ],
+        "description": "Mass edit cells in column sched_dep_time"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "python:import pandas as pd\\n# Assuming df is your DataFrame\\ndf = df.drop('sched_dep_time', axis=1)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_dep_time using expression python:import pandas as pd\\n# Assuming df is your DataFrame\\ndf = df.drop('sched_dep_time', axis=1)\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -97,10 +89,10 @@
             "mode": "row-based"
         },
         "columnName": "src",
-        "expression": "jython:import re\n\ndef regexr_transform(column):\n    expression = \"\"\"\\nimport re\\nreturn re.sub(r'[^a-zA-Z0-9]+', '', value).lower()\"\"\"\n    return eval(expression)\n\n# Apply the function to the 'src' column\ndf['src'] = regexr_transform(df['src'])\nreturn value",
+        "expression": "jython:import re\n\n # Remove underscores, dashes, spaces, colons, and periods\n cleaned_src = re.sub(r'[_- ]|:\\.|:', '', value).upper()\n return cleaned_src\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:import re\n\ndef regexr_transform(column):\n    expression = \"\"\"\\nimport re\\nreturn re.sub(r'[^a-zA-Z0-9]+', '', value).lower()\"\"\"\n    return eval(expression)\n\n# Apply the function to the 'src' column\ndf['src'] = regexr_transform(df['src'])\nreturn value"
+        "description": "Text transform on cells in column src using expression jython:import re\n\n # Remove underscores, dashes, spaces, colons, and periods\n cleaned_src = re.sub(r'[_- ]|:\\.|:', '', value).upper()\n return cleaned_src\nreturn value"
     }
 ]

@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "name",
-        "expression": "value.toNumber()",
+        "expression": "python\nimport re\ndef preprocess(row):\n    # Remove underscores and dashes\n    cleaned_name = re.sub(r'[_-]', '', row['name'])\n\n    # Split the name by comma or double quotes, if present\n    names = [name.strip() for name in re.split(r'\\s*,\\s*|\"\\s*|\\s*\"', cleaned_name)]\n\n    # Remove empty strings and duplicates from the list\n    unique_names = list(set(filter(None, names)))\n\n    return {'name': ','.join(unique_names)}\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression value.toNumber()"
+        "description": "Text transform on cells in column name using expression python\nimport re\ndef preprocess(row):\n    # Remove underscores and dashes\n    cleaned_name = re.sub(r'[_-]', '', row['name'])\n\n    # Split the name by comma or double quotes, if present\n    names = [name.strip() for name in re.split(r'\\s*,\\s*|\"\\s*|\\s*\"', cleaned_name)]\n\n    # Remove empty strings and duplicates from the list\n    unique_names = list(set(filter(None, names)))\n\n    return {'name': ','.join(unique_names)}\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -18,11 +18,37 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "menus_appeared",
-        "expression": "value.toNumber()",
+        "columnName": "name",
+        "expression": "jython:import re\n   cleaned_names = []\n   for name in column['name']:\n       # Remove any non-alphabetic characters\n       name = re.sub(r'\\W+', '', name)\n       # Convert to lowercase\n       name = name.lower()\n       cleaned_names.append(name)\n   return cleaned_names\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column menus_appeared using expression value.toNumber()"
+        "description": "Text transform on cells in column name using expression jython:import re\n   cleaned_names = []\n   for name in column['name']:\n       # Remove any non-alphabetic characters\n       name = re.sub(r'\\W+', '', name)\n       # Convert to lowercase\n       name = name.lower()\n       cleaned_names.append(name)\n   return cleaned_names\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   return re.sub(r'\\s+', ' ', value).title()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   return re.sub(r'\\s+', ' ', value).title()\nreturn value"
     }
 ]

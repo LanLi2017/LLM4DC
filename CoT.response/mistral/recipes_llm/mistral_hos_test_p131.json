@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalOwner",
-        "expression": "jython:import re\n\n # Remove spaces, hyphens, underscores, and convert to lowercase\n expression = r'(\\s|-|\\_)+|([a-z])([A-Z])'\n value = value.lower()\n value = re.sub(expression, lambda x: x.group(2) if x.group(1) else x.group(0), value)\n\n # Group similar ownership types together\n expression = r'(government|voluntary non-profit|proprietary)'\n value = re.sub(expression, lambda x: 'GOVERNMENT' if x == 'government' else (\n                                        'VOLUNTARY NON-PROFIT' if x in ['voluntary non-profit', 'voluntary', 'non-profit'] else\n                                        'PROPRIETARY'), value)\n\n # Remove unnecessary words and punctuation\n expression = r'\\b(the|and|a|an|or|of|for)\\b'\n value = re.sub(expression, '', value)\n\n output: GOVERNMENT | VOLUNTARY NON-PROFIT | PROPRIETARY\nreturn value",
+        "expression": "jython:import re\n   return value.title().replace('_', ' ').replace('-', ' ')\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Remove spaces, hyphens, underscores, and convert to lowercase\n expression = r'(\\s|-|\\_)+|([a-z])([A-Z])'\n value = value.lower()\n value = re.sub(expression, lambda x: x.group(2) if x.group(1) else x.group(0), value)\n\n # Group similar ownership types together\n expression = r'(government|voluntary non-profit|proprietary)'\n value = re.sub(expression, lambda x: 'GOVERNMENT' if x == 'government' else (\n                                        'VOLUNTARY NON-PROFIT' if x in ['voluntary non-profit', 'voluntary', 'non-profit'] else\n                                        'PROPRIETARY'), value)\n\n # Remove unnecessary words and punctuation\n expression = r'\\b(the|and|a|an|or|of|for)\\b'\n value = re.sub(expression, '', value)\n\n output: GOVERNMENT | VOLUNTARY NON-PROFIT | PROPRIETARY\nreturn value"
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n   return value.title().replace('_', ' ').replace('-', ' ')\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -19,11 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalOwner",
-        "expression": "jython:import re\n\n # Remove underscores, dashes, spaces, and convert to lowercase\n cleaned_value = re.sub(r'[_- ]+', ' ', value).lower()\n\n # Replace special cases (e.g., \"GOVERNMENT - STATE\" becomes \"GOVERNMENT_STATE\")\n if cleaned_value == \"government - state\":\n     cleaned_value = \"GOVERNMENT_STATE\"\n elif cleaned_value == \"voluntary non-profit - church\":\n     cleaned_value = \"VOLUNTARY_NON-PROFIT_CHURCH\"\n elif cleaned_value == \"voluntary non-profit - other\":\n     cleaned_value = \"VOLUNTARY_NON-PROFIT_OTHER\"\n elif cleaned_value == \"voluntary non-profit - private\":\n     cleaned_value = \"VOLUNTARY_NON-PROFIT_PRIVATE\"\n\n # Return the standardized hospital ownership type\n cleaned_value\nreturn value",
+        "expression": "jython:import re\n   return re.sub(r'\\s+', ' ', value).title()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Remove underscores, dashes, spaces, and convert to lowercase\n cleaned_value = re.sub(r'[_- ]+', ' ', value).lower()\n\n # Replace special cases (e.g., \"GOVERNMENT - STATE\" becomes \"GOVERNMENT_STATE\")\n if cleaned_value == \"government - state\":\n     cleaned_value = \"GOVERNMENT_STATE\"\n elif cleaned_value == \"voluntary non-profit - church\":\n     cleaned_value = \"VOLUNTARY_NON-PROFIT_CHURCH\"\n elif cleaned_value == \"voluntary non-profit - other\":\n     cleaned_value = \"VOLUNTARY_NON-PROFIT_OTHER\"\n elif cleaned_value == \"voluntary non-profit - private\":\n     cleaned_value = \"VOLUNTARY_NON-PROFIT_PRIVATE\"\n\n # Return the standardized hospital ownership type\n cleaned_value\nreturn value"
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n   return re.sub(r'\\s+', ' ', value).title()\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -32,11 +32,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalOwner",
-        "expression": "jython:import re\n\n# Define a pattern to match common variations of hospital ownership types\npattern = r'(voluntary|government|proprietary|church|private|other) (non-profit|- non-profit| - private| - church| - other)'\n\ndef standardize_hospital_ownership(value):\n    # Use re.sub to replace the matched pattern with a consistent spelling and capitalization\n    return re.sub(pattern, lambda x: x.group(1).title(), value)\n\n# Apply the function to each row in the HospitalOwner column\ndata = [\n    'voluntary non-profit - private',\n    'PROPRIETARY',\n    'proprietary',\n    'GOVERNMENT_-_HOSPITAL_DISTRICT_OR_AUTHORITY',\n    'GOVERNMENT_-_HOSPITAL_DISTRICT_OR_AUTHORITY',\n    'VOLUNTARY_NON-PROFIT_-_CHURCH',\n    'proprietary',\n    'VOLUNTARY NON-PROFIT - PRIVATE',\n    'PROPRIETARY',\n    'PROPRIETARY',\n    'VOLUNTARY NON-PROFIT Z CHURCH',\n    'VOLUNTARY NON-PROFIT - OTHER',\n    'GOVERNMENT - STATE',\n    'GOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY',\n    'PROPRIESARY',\n    'GOVERNMENT - FEDERAL',\n    'voluntary non-profit - other',\n    'PROPRIETARY',\n    'VOLUNTARY NON-PROFIT - PRILATE',\n    'voluntary non-profit - church'\n]\n\nstandardized_data = [standardize_hospital_ownership(row) for row in data]\nreturn value",
+        "expression": "jython:import re\n\ndef standardize_hospital_owner(value):\n    # Remove underscores, dashes, spaces, and convert to uppercase\n    value = re.sub(r'[_- ]+', ' ', value).strip().upper()\n    return value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Define a pattern to match common variations of hospital ownership types\npattern = r'(voluntary|government|proprietary|church|private|other) (non-profit|- non-profit| - private| - church| - other)'\n\ndef standardize_hospital_ownership(value):\n    # Use re.sub to replace the matched pattern with a consistent spelling and capitalization\n    return re.sub(pattern, lambda x: x.group(1).title(), value)\n\n# Apply the function to each row in the HospitalOwner column\ndata = [\n    'voluntary non-profit - private',\n    'PROPRIETARY',\n    'proprietary',\n    'GOVERNMENT_-_HOSPITAL_DISTRICT_OR_AUTHORITY',\n    'GOVERNMENT_-_HOSPITAL_DISTRICT_OR_AUTHORITY',\n    'VOLUNTARY_NON-PROFIT_-_CHURCH',\n    'proprietary',\n    'VOLUNTARY NON-PROFIT - PRIVATE',\n    'PROPRIETARY',\n    'PROPRIETARY',\n    'VOLUNTARY NON-PROFIT Z CHURCH',\n    'VOLUNTARY NON-PROFIT - OTHER',\n    'GOVERNMENT - STATE',\n    'GOVERNMENT - HOSPITAL DISTRICT OR AUTHORITY',\n    'PROPRIESARY',\n    'GOVERNMENT - FEDERAL',\n    'voluntary non-profit - other',\n    'PROPRIETARY',\n    'VOLUNTARY NON-PROFIT - PRILATE',\n    'voluntary non-profit - church'\n]\n\nstandardized_data = [standardize_hospital_ownership(row) for row in data]\nreturn value"
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\ndef standardize_hospital_owner(value):\n    # Remove underscores, dashes, spaces, and convert to uppercase\n    value = re.sub(r'[_- ]+', ' ', value).strip().upper()\n    return value\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -45,11 +45,24 @@
             "mode": "row-based"
         },
         "columnName": "HospitalOwner",
-        "expression": "value.trim()",
+        "expression": "jython:import re\n\n # Remove extra spaces and special characters\n value = re.sub(r'\\s+', ' ', value).strip().lower()\n\n # Standardize the spelling of hospital ownership values\n value = re.sub(r'voluntary non-profit', 'voluntary_non-profit', value)\n value = re.sub(r'government -', 'government', value)\n value = re.sub(r'proprietary', 'proprietary', value)\n value = re.sub(r'prilate', 'private', value)  # Assuming this is a typo for 'private'\n value = re.sub(r'z church', 'church', value)\n\n # Ensure uniformity by converting to lowercase and removing hyphens\n value = re.sub(r'-', '', value)\n value = value.lower()\n\n # Return the cleaned hospital ownership type\n return value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression value.trim()"
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Remove extra spaces and special characters\n value = re.sub(r'\\s+', ' ', value).strip().lower()\n\n # Standardize the spelling of hospital ownership values\n value = re.sub(r'voluntary non-profit', 'voluntary_non-profit', value)\n value = re.sub(r'government -', 'government', value)\n value = re.sub(r'proprietary', 'proprietary', value)\n value = re.sub(r'prilate', 'private', value)  # Assuming this is a typo for 'private'\n value = re.sub(r'z church', 'church', value)\n\n # Ensure uniformity by converting to lowercase and removing hyphens\n value = re.sub(r'-', '', value)\n value = value.lower()\n\n # Return the cleaned hospital ownership type\n return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n   return value.title()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n   return value.title()\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -63,18 +76,5 @@
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column HospitalOwner using expression value.toUppercase()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalOwner",
-        "expression": "jython:import re\n\n # Remove spaces, hyphens, and underscores before analysis\n value = re.sub(r'\\s+', '', value).lower()\n\n # Standardize the representation of hospital ownership types for consistency\n if 'government' in value:\n     return 'Government'\n elif 'voluntary non-profit' in value:\n     return 'Voluntary Non-Profit'\n elif 'private' in value:\n     return 'Private'\n elif 'church' in value:\n     return 'Church'\n else:\n     return 'Proprietary'\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Remove spaces, hyphens, and underscores before analysis\n value = re.sub(r'\\s+', '', value).lower()\n\n # Standardize the representation of hospital ownership types for consistency\n if 'government' in value:\n     return 'Government'\n elif 'voluntary non-profit' in value:\n     return 'Voluntary Non-Profit'\n elif 'private' in value:\n     return 'Private'\n elif 'church' in value:\n     return 'Church'\n else:\n     return 'Proprietary'\nreturn value"
     }
 ]

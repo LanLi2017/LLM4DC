@@ -5,12 +5,25 @@
             "facets": [],
             "mode": "row-based"
         },
+        "columnName": "sched_arr_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_arr_time using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
         "columnName": "act_arr_time",
-        "expression": "value.toDate()",
+        "expression": "\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_arr_time using expression value.toDate()"
+        "description": "Text transform on cells in column act_arr_time using expression \nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -18,12 +31,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "sched_arr_time",
-        "expression": "value.toDate()",
+        "columnName": "act_arr_time",
+        "expression": "jython:from collections import defaultdict\\nhourly_data = defaultdict(int)\\nfor value in column['act_arr_time']:\\n   hour = int(value[:2])\\n   hourly_data[hour] += 1\\nmax_hour, max_count = max((k, v) for k, v in hourly_data.items())\\nreturn max_hour\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_arr_time using expression value.toDate()"
+        "description": "Text transform on cells in column act_arr_time using expression jython:from collections import defaultdict\\nhourly_data = defaultdict(int)\\nfor value in column['act_arr_time']:\\n   hour = int(value[:2])\\n   hourly_data[hour] += 1\\nmax_hour, max_count = max((k, v) for k, v in hourly_data.items())\\nreturn max_hour\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -31,12 +44,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "sched_arr_time",
-        "expression": "value.toDate()",
+        "columnName": "act_arr_time",
+        "expression": "jython:import datetime\\nfrom dateutil.parser import parse\\ndef regexr_transform(column):\\n    transformed = []\\n    for value in column:\\n        try:\\n            dt = parse(value)\\n            formatted_time = dt.strftime('%H')\\n            transformed.append(formatted_time)\\n        except ValueError as e:\\n            transformed.append(value)\\n    return transformed\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_arr_time using expression value.toDate()"
+        "description": "Text transform on cells in column act_arr_time using expression jython:import datetime\\nfrom dateutil.parser import parse\\ndef regexr_transform(column):\\n    transformed = []\\n    for value in column:\\n        try:\\n            dt = parse(value)\\n            formatted_time = dt.strftime('%H')\\n            transformed.append(formatted_time)\\n        except ValueError as e:\\n            transformed.append(value)\\n    return transformed\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -44,11 +57,11 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "sched_arr_time",
-        "expression": "python\nimport pandas as pd\nfrom collections import Counter\n\n# Assuming the data is already loaded into a DataFrame named df\ndf['hour'] = pd.to_datetime(df['sched_arr_time']).dt.hour\n\n# Define on-time arrival (within 15 minutes of scheduled time)\non_time = lambda x: abs(x - df['hour']) <= 15\n\n# Count the number of on-time arrivals for each hour\non_time_counts = Counter(df['hour'][on_time(df['sched_arr_time'])])\n\n# Find the hour with the highest number of on-time arrivals\nmax_hour = max(on_time_counts, key=on_time_counts.get)\nprint(f\"The hour with the highest number of on-time arrivals is {max_hour}.\")\nreturn value",
+        "columnName": "act_arr_time",
+        "expression": "jython:from datetime import datetime\n\n def convert_time_to_numeric(value):\n     try:\n         return int(datetime.strptime(value, \"%Y-%m-%d %H:%M:%S\").strftime(\"%H\"))\n     except ValueError:\n         return None\n\n # Assuming the column is named 'act_arr_time'\n grouped = df['act_arr_time'].apply(convert_time_to_numeric).groupby(level=0).max()\n\n # To get the hour with the highest number of on-time arrivals\n max_hour = grouped[grouped == grouped.max()].index[0]\n return max_hour\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_arr_time using expression python\nimport pandas as pd\nfrom collections import Counter\n\n# Assuming the data is already loaded into a DataFrame named df\ndf['hour'] = pd.to_datetime(df['sched_arr_time']).dt.hour\n\n# Define on-time arrival (within 15 minutes of scheduled time)\non_time = lambda x: abs(x - df['hour']) <= 15\n\n# Count the number of on-time arrivals for each hour\non_time_counts = Counter(df['hour'][on_time(df['sched_arr_time'])])\n\n# Find the hour with the highest number of on-time arrivals\nmax_hour = max(on_time_counts, key=on_time_counts.get)\nprint(f\"The hour with the highest number of on-time arrivals is {max_hour}.\")\nreturn value"
+        "description": "Text transform on cells in column act_arr_time using expression jython:from datetime import datetime\n\n def convert_time_to_numeric(value):\n     try:\n         return int(datetime.strptime(value, \"%Y-%m-%d %H:%M:%S\").strftime(\"%H\"))\n     except ValueError:\n         return None\n\n # Assuming the column is named 'act_arr_time'\n grouped = df['act_arr_time'].apply(convert_time_to_numeric).groupby(level=0).max()\n\n # To get the hour with the highest number of on-time arrivals\n max_hour = grouped[grouped == grouped.max()].index[0]\n return max_hour\nreturn value"
     }
 ]

@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n    value = value.lower()\n    if re.search(r'acute care hospitals', value) or re.search(r'acute care hospital', value) or re.search(r'acute care hospitals', value) or re.search(r'acute care hospitel', value):\n        return 'Acute Care Hospitals'\n    elif re.search(r'acute care hospitals', value) or re.search(r'acute care hospital', value) or re.search(r'acute care hospitals', value) or re.search(r'acute care hospitel', value):\n        return 'Acute Care Hospitals'\n    else:\n        return value\n\ndata = [\n    'ACUTE_CARE_HOSPITALS',\n    'acute care hospitals',\n    'ACUTE_CARE_HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE_CARE_HOSPITALS',\n    'acute care hospitals',\n    'ACUgE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'acute care hospitals',\n    'acute care hospitals',\n    'ACUTE CASE HOSPITALS',\n    'ACUTE_CARE_HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITXLS',\n    'acute care hospitals',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS'\n]\n\nstandardized_data = [standardize_hospital_type(row) for row in data]\nprint(standardized_data)\n\n\nThis expression standardizes the spelling and capitalization of \"Acute Care Hospitals\" in the data, making it easier to perform further analysis. The output will be a list containing the standardized versions of each hospital type:\n\n\n['Acute Care Hospitals', 'acute care hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'acute care hospitals', 'ACUgE CARE HOSPITALS', 'Acute Care Hospitals', 'acute care hospitals', 'acute care hospitals', 'Acute Case Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'acute care hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals']",
+        "columnName": "CountyName",
+        "expression": "value.trim()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n    value = value.lower()\n    if re.search(r'acute care hospitals', value) or re.search(r'acute care hospital', value) or re.search(r'acute care hospitals', value) or re.search(r'acute care hospitel', value):\n        return 'Acute Care Hospitals'\n    elif re.search(r'acute care hospitals', value) or re.search(r'acute care hospital', value) or re.search(r'acute care hospitals', value) or re.search(r'acute care hospitel', value):\n        return 'Acute Care Hospitals'\n    else:\n        return value\n\ndata = [\n    'ACUTE_CARE_HOSPITALS',\n    'acute care hospitals',\n    'ACUTE_CARE_HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE_CARE_HOSPITALS',\n    'acute care hospitals',\n    'ACUgE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'acute care hospitals',\n    'acute care hospitals',\n    'ACUTE CASE HOSPITALS',\n    'ACUTE_CARE_HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITXLS',\n    'acute care hospitals',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS',\n    'ACUTE CARE HOSPITALS'\n]\n\nstandardized_data = [standardize_hospital_type(row) for row in data]\nprint(standardized_data)\n\n\nThis expression standardizes the spelling and capitalization of \"Acute Care Hospitals\" in the data, making it easier to perform further analysis. The output will be a list containing the standardized versions of each hospital type:\n\n\n['Acute Care Hospitals', 'acute care hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'acute care hospitals', 'ACUgE CARE HOSPITALS', 'Acute Care Hospitals', 'acute care hospitals', 'acute care hospitals', 'Acute Case Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'acute care hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals', 'Acute Care Hospitals']"
+        "description": "Text transform on cells in column CountyName using expression value.trim()"
     },
     {
         "op": "core/text-transform",
@@ -19,11 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n   return value.lower().replace(\" acute care hospitals\", \"acute care hospital\").replace(\" acute care hospital\", \"acute care hospital\").replace(\"acute care hospitals\", \"acute care hospital\")\n\nThis expression will standardize the spelling and capitalization of \"Acute Care Hospitals\" across all rows in the HospitalType column for improved conciseness. The `lower()` function converts the entire string to lowercase, making it easier to replace inconsistent casing. The `replace()` functions are then used to standardize the spelling and capitalization of \"Acute Care Hospitals\" across all rows.",
+        "expression": "jython:import re\n\n # Standardize the spelling and formatting of hospital types\n value = re.sub(r'[^A-Za-z0-9 ]+', '', value).title()\n\n # Extract city information if available (assuming it is the last word in the value)\n match = re.search(r'\\b\\w+\\b$', value)\n if match:\n   city = match.group(0)\n else:\n   city = None\n\n # Update the value to include city information if available\n if city:\n   value += ', ' + city\n\n return value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n   return value.lower().replace(\" acute care hospitals\", \"acute care hospital\").replace(\" acute care hospital\", \"acute care hospital\").replace(\"acute care hospitals\", \"acute care hospital\")\n\nThis expression will standardize the spelling and capitalization of \"Acute Care Hospitals\" across all rows in the HospitalType column for improved conciseness. The `lower()` function converts the entire string to lowercase, making it easier to replace inconsistent casing. The `replace()` functions are then used to standardize the spelling and capitalization of \"Acute Care Hospitals\" across all rows."
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\n # Standardize the spelling and formatting of hospital types\n value = re.sub(r'[^A-Za-z0-9 ]+', '', value).title()\n\n # Extract city information if available (assuming it is the last word in the value)\n match = re.search(r'\\b\\w+\\b$', value)\n if match:\n   city = match.group(0)\n else:\n   city = None\n\n # Update the value to include city information if available\n if city:\n   value += ', ' + city\n\n return value\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -31,12 +31,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n\npattern = r'|(?i)acute care hospitals|acute care hospitals|acute care hospital|acute care hospitals|acute care hospitxls|acug\\.e care hospitals|acute case hospitals'\n\ndef standardize_hospital(value):\n\n    return re.sub(pattern, 'Acute Care Hospital', value)\n\ncleaned_hospitals = [standardize_hospital(hospital) for hospital in hospitals]",
+        "columnName": "City",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\npattern = r'|(?i)acute care hospitals|acute care hospitals|acute care hospital|acute care hospitals|acute care hospitxls|acug\\.e care hospitals|acute case hospitals'\n\ndef standardize_hospital(value):\n\n    return re.sub(pattern, 'Acute Care Hospital', value)\n\ncleaned_hospitals = [standardize_hospital(hospital) for hospital in hospitals]"
+        "description": "Text transform on cells in column City using expression value.toUppercase()"
     },
     {
         "op": "core/text-transform",
@@ -44,12 +44,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n\ndef regexr_transform(column):\n    if column == 'HospitalType':\n        return_list = []\n        for value in column:\n\n            cleaned_value = re.sub(r'\\s+', ' ', value).strip().upper()\n\n            if 'ACUTE' in cleaned_value and 'HOSPITALS' in cleaned_value:\n                return_list.append(cleaned_value)\n            else:\n                return_list.append('Missing')\n        return return_list\n\n\nThis expression will clean the HospitalType column by removing extra spaces, special characters, and converting to uppercase. It then checks if the value contains \"ACUTE\" and \"HOSPITALS\". If it does, it adds the cleaned value to a list; otherwise, it adds 'Missing'. This list can be used for further analysis to determine the top 3 cities with the highest ratio of acute care hospitals to total hospitals.",
+        "columnName": "City",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef regexr_transform(column):\n    if column == 'HospitalType':\n        return_list = []\n        for value in column:\n\n            cleaned_value = re.sub(r'\\s+', ' ', value).strip().upper()\n\n            if 'ACUTE' in cleaned_value and 'HOSPITALS' in cleaned_value:\n                return_list.append(cleaned_value)\n            else:\n                return_list.append('Missing')\n        return return_list\n\n\nThis expression will clean the HospitalType column by removing extra spaces, special characters, and converting to uppercase. It then checks if the value contains \"ACUTE\" and \"HOSPITALS\". If it does, it adds the cleaned value to a list; otherwise, it adds 'Missing'. This list can be used for further analysis to determine the top 3 cities with the highest ratio of acute care hospitals to total hospitals."
+        "description": "Text transform on cells in column City using expression value.toUppercase()"
     },
     {
         "op": "core/text-transform",
@@ -57,25 +57,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n\n    value = value.lower()\n\n    value = re.sub(r'\\W+', '', value)\n\n    value = re.sub(r'acute care hospitals|acute case hospital|acuge care hospital|acute care hospitals|acute care hqhospitals|acute_care_hospitals', 'acute care hospital', value)\n\n    return value\n\ndata['HospitalType'] = data['HospitalType'].apply(standardize_hospital_type)\n\n\nThis expression will standardize the spelling and formatting of \"Acute Care Hospitals\" in the HospitalType column, making it easier to analyze the data and determine the top 3 cities with the highest ratio of acute care hospitals to total hospitals.",
+        "columnName": "City",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n\n    value = value.lower()\n\n    value = re.sub(r'\\W+', '', value)\n\n    value = re.sub(r'acute care hospitals|acute case hospital|acuge care hospital|acute care hospitals|acute care hqhospitals|acute_care_hospitals', 'acute care hospital', value)\n\n    return value\n\ndata['HospitalType'] = data['HospitalType'].apply(standardize_hospital_type)\n\n\nThis expression will standardize the spelling and formatting of \"Acute Care Hospitals\" in the HospitalType column, making it easier to analyze the data and determine the top 3 cities with the highest ratio of acute care hospitals to total hospitals."
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[^a-z0-9 ]+', '', value)\n    value = re.sub(r' acute care hospitals$', 'acute care hospital', value)\n    return value\n\ndef count_hospitals(city, data):\n    acute_care_count = sum([1 if standardize_hospital_type(row['HospitalType']) == 'acute care hospital' and row['City'] == city else 0 for index, row in enumerate(data)])\n    total_hospitals_count = sum([1 for row in data if row['City'] == city])\n    return acute_care_count, total_hospitals_count\n\ndef find_top_cities(data):\n    cities = set([row['City'] for row in data])\n    city_ratios = [(city, count_hospitals(city, data)[0] / count_hospitals(city, data)[1]) for city in cities]\n    city_ratios.sort(key=lambda x: x[1], reverse=True)\n    return city_ratios[:3]\n\ndata = [{'City': row[0], 'HospitalType': row[1]} for row in [row.split('|') for row in open('hospitals.txt').readlines()]]\n\nstandardized_data = [{'City': city, 'HospitalType': standardize_hospital_type(hospital_type)} for city, hospital_type in data]\ntop_cities = find_top_cities(standardized_data)\n\nfor city, ratio in top_cities:\n    print(f'City: {city}, Ratio: {ratio}')\n\n\nThis Python expression standardizes the spelling and formatting for \"Acute Care Hospitals\" across all rows, counts the number of Acute Care Hospitals and total hospitals for each city, finds the top 3 cities with the highest ratio of Acute Care Hospitals to Total Hospitals, and prints the results.",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\ndef standardize_hospital_type(value):\n    value = value.lower()\n    value = re.sub(r'\\s+', ' ', value)\n    value = re.sub(r'[^a-z0-9 ]+', '', value)\n    value = re.sub(r' acute care hospitals$', 'acute care hospital', value)\n    return value\n\ndef count_hospitals(city, data):\n    acute_care_count = sum([1 if standardize_hospital_type(row['HospitalType']) == 'acute care hospital' and row['City'] == city else 0 for index, row in enumerate(data)])\n    total_hospitals_count = sum([1 for row in data if row['City'] == city])\n    return acute_care_count, total_hospitals_count\n\ndef find_top_cities(data):\n    cities = set([row['City'] for row in data])\n    city_ratios = [(city, count_hospitals(city, data)[0] / count_hospitals(city, data)[1]) for city in cities]\n    city_ratios.sort(key=lambda x: x[1], reverse=True)\n    return city_ratios[:3]\n\ndata = [{'City': row[0], 'HospitalType': row[1]} for row in [row.split('|') for row in open('hospitals.txt').readlines()]]\n\nstandardized_data = [{'City': city, 'HospitalType': standardize_hospital_type(hospital_type)} for city, hospital_type in data]\ntop_cities = find_top_cities(standardized_data)\n\nfor city, ratio in top_cities:\n    print(f'City: {city}, Ratio: {ratio}')\n\n\nThis Python expression standardizes the spelling and formatting for \"Acute Care Hospitals\" across all rows, counts the number of Acute Care Hospitals and total hospitals for each city, finds the top 3 cities with the highest ratio of Acute Care Hospitals to Total Hospitals, and prints the results."
+        "description": "Text transform on cells in column City using expression value.toUppercase()"
     },
     {
         "op": "core/text-transform",
@@ -89,18 +76,5 @@
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column City using expression value.trim()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "CountyName",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column CountyName using expression value.toUppercase()"
     }
 ]

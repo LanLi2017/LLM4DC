@@ -5,38 +5,25 @@
             "facets": [],
             "mode": "row-based"
         },
+        "columnName": "HospitalType",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
         "columnName": "ZipCode",
-        "expression": "python\nimport pandas as pd\n\n# Assuming df is your DataFrame\ndf = pd.DataFrame({\n    'ZipCode': [35660, 35901, 35150, 35570, 36049, 36323, 35640, 36784, 35976, 35957, 35640, 36033, 35901, 36330, 35058, 35570, 35653, 36323, 36801, 36278],\n    'Hospital Ownership': ['Government', 'Private', 'Government', 'Private', 'Government', 'Private', 'Government', 'Government', 'Private', 'Government', 'Government', 'Government', 'Government', 'Government', 'Private', 'Government', 'Private', 'Government', 'Government', 'Government'],\n    'Hospital Type': ['General Hospital', 'Specialty Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'General Hospital', 'General Hospital', 'General Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'General Hospital', 'General Hospital']\n})\n\n# Filter for government-owned hospitals with multiple hospital types\nmultiple_hospital_types = df[(df['Hospital Ownership'] == 'Government') & (df['Hospital Type'].nunique() > 1)]\nreturn value",
+        "expression": "python\nimport pandas as pd\n\n# Assuming df is your DataFrame and it contains columns 'Hospital Type', 'Owner', 'ZipCode'\ndf = pd.DataFrame({\n    'Hospital Type': ['Hospital1', 'Hospital2', 'Hospital3'],\n    'Owner': ['Government', 'Private', 'Government'],\n    'ZipCode': [36801, 36033, 36330]\n})\n\n# Drop the ZipCode column from the DataFrame\ndf_filtered = df.drop('ZipCode', axis=1)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column ZipCode using expression python\nimport pandas as pd\n\n# Assuming df is your DataFrame\ndf = pd.DataFrame({\n    'ZipCode': [35660, 35901, 35150, 35570, 36049, 36323, 35640, 36784, 35976, 35957, 35640, 36033, 35901, 36330, 35058, 35570, 35653, 36323, 36801, 36278],\n    'Hospital Ownership': ['Government', 'Private', 'Government', 'Private', 'Government', 'Private', 'Government', 'Government', 'Private', 'Government', 'Government', 'Government', 'Government', 'Government', 'Private', 'Government', 'Private', 'Government', 'Government', 'Government'],\n    'Hospital Type': ['General Hospital', 'Specialty Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'General Hospital', 'General Hospital', 'General Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'Specialty Hospital', 'General Hospital', 'General Hospital', 'General Hospital']\n})\n\n# Filter for government-owned hospitals with multiple hospital types\nmultiple_hospital_types = df[(df['Hospital Ownership'] == 'Government') & (df['Hospital Type'].nunique() > 1)]\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\n\ndef standardize_hospital_type(value):\n    # Convert to lowercase\n    value = value.lower()\n\n    # Remove non-alphabetic characters\n    value = re.sub(r'[^a-z\\s]', '', value)\n\n    # Replace multiple spaces with a single space\n    value = re.sub(r'\\s+', ' ', value)\n\n    return value\n\n# Apply the function to each cell in the HospitalType column\nregexr_transform('HospitalType', 'jython:standardize_hospital_type(value)')\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\ndef standardize_hospital_type(value):\n    # Convert to lowercase\n    value = value.lower()\n\n    # Remove non-alphabetic characters\n    value = re.sub(r'[^a-z\\s]', '', value)\n\n    # Replace multiple spaces with a single space\n    value = re.sub(r'\\s+', ' ', value)\n\n    return value\n\n# Apply the function to each cell in the HospitalType column\nregexr_transform('HospitalType', 'jython:standardize_hospital_type(value)')\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\n\n # Assuming you have a separate dataset with ZIP codes and number of hospital types per ZIP code\n zip_data = {...}  # Load your data here\n\n def get_hospital_types(zip_code):\n     if zip_code in zip_data:\n         return zip_data[zip_code]\n     else:\n         return \"Unknown\"\n\n # Assuming HospitalType column contains hospital names separated by commas\n def filter_government_hospitals(value):\n     hospitals = value.split(\",\")\n     government_hospitals = [hospital for hospital in hospitals if re.search(r'Government', hospital)]\n\n     zip_code = re.search(r'\\d{5}', value).group(0)  # Extract ZIP code from the HospitalType column\n\n     if len(government_hospitals) > 1 and get_hospital_types(zip_code) > 1:\n         return \"Government hospital (Multiple hospital types in the same ZIP code)\"\n     elif len(government_hospitals) > 0:\n         return \"Government hospital\"\n     else:\n         return value\n\n # Apply the filter to the HospitalType column\n filtered_HospitalType = [filter_government_hospitals(hospital) for hospital in HospitalType]\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\n # Assuming you have a separate dataset with ZIP codes and number of hospital types per ZIP code\n zip_data = {...}  # Load your data here\n\n def get_hospital_types(zip_code):\n     if zip_code in zip_data:\n         return zip_data[zip_code]\n     else:\n         return \"Unknown\"\n\n # Assuming HospitalType column contains hospital names separated by commas\n def filter_government_hospitals(value):\n     hospitals = value.split(\",\")\n     government_hospitals = [hospital for hospital in hospitals if re.search(r'Government', hospital)]\n\n     zip_code = re.search(r'\\d{5}', value).group(0)  # Extract ZIP code from the HospitalType column\n\n     if len(government_hospitals) > 1 and get_hospital_types(zip_code) > 1:\n         return \"Government hospital (Multiple hospital types in the same ZIP code)\"\n     elif len(government_hospitals) > 0:\n         return \"Government hospital\"\n     else:\n         return value\n\n # Apply the filter to the HospitalType column\n filtered_HospitalType = [filter_government_hospitals(hospital) for hospital in HospitalType]\nreturn value"
+        "description": "Text transform on cells in column ZipCode using expression python\nimport pandas as pd\n\n# Assuming df is your DataFrame and it contains columns 'Hospital Type', 'Owner', 'ZipCode'\ndf = pd.DataFrame({\n    'Hospital Type': ['Hospital1', 'Hospital2', 'Hospital3'],\n    'Owner': ['Government', 'Private', 'Government'],\n    'ZipCode': [36801, 36033, 36330]\n})\n\n# Drop the ZipCode column from the DataFrame\ndf_filtered = df.drop('ZipCode', axis=1)\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -45,10 +32,36 @@
             "mode": "row-based"
         },
         "columnName": "HospitalOwner",
-        "expression": "jython:import re\n\n # Standardize the representation of \"Voluntary Non-Profit\" and \"Government\"\n def standardize_hospital_owner(value):\n     if 'voluntary' in value.lower():\n         return 'Voluntary Non-Profit'.title()\n     elif 'government' in value.lower():\n         return 'Government'.title()\n     else:\n         return value\n\n # Remove extra spaces and special characters\n def clean_hospital_owner(value):\n     return re.sub(r'\\s+', ' ', value).strip().lower()\n\n # Apply the standardization and cleaning functions to the HospitalOwner column\n cleaned_hospital_owners = [clean_hospital_owner(hospital_owner) for hospital_owner in HospitalOwner]\n standardized_hospitals = [standardize_hospital_owner(hospital_owner) for hospital_owner in cleaned_hospital_owners]\n\n # Filter for hospitals owned by governments that are located in ZIP codes with multiple hospital types\n government_hospitals = []\n for i, hospital in enumerate(standardized_hospitals):\n     if hospital == 'Government' and 'government' in cleaned_hospital_owners[i]:\n         government_hospitals.append(cleaned_hospital_owners[i])\nreturn value",
+        "expression": "jython:import re\n\n # Remove spaces, hyphens, underscores, and convert to lowercase\n cleaned_value = re.sub(r'\\s|-|_', '', value.lower())\n\n return cleaned_value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Standardize the representation of \"Voluntary Non-Profit\" and \"Government\"\n def standardize_hospital_owner(value):\n     if 'voluntary' in value.lower():\n         return 'Voluntary Non-Profit'.title()\n     elif 'government' in value.lower():\n         return 'Government'.title()\n     else:\n         return value\n\n # Remove extra spaces and special characters\n def clean_hospital_owner(value):\n     return re.sub(r'\\s+', ' ', value).strip().lower()\n\n # Apply the standardization and cleaning functions to the HospitalOwner column\n cleaned_hospital_owners = [clean_hospital_owner(hospital_owner) for hospital_owner in HospitalOwner]\n standardized_hospitals = [standardize_hospital_owner(hospital_owner) for hospital_owner in cleaned_hospital_owners]\n\n # Filter for hospitals owned by governments that are located in ZIP codes with multiple hospital types\n government_hospitals = []\n for i, hospital in enumerate(standardized_hospitals):\n     if hospital == 'Government' and 'government' in cleaned_hospital_owners[i]:\n         government_hospitals.append(cleaned_hospital_owners[i])\nreturn value"
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Remove spaces, hyphens, underscores, and convert to lowercase\n cleaned_value = re.sub(r'\\s|-|_', '', value.lower())\n\n return cleaned_value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n# Standardize the spelling and formatting of the HospitalOwner column\nexpression = \"\"\"\\njython:\\nimport re\\n\\n# Remove extra spaces, hyphens, and uppercase the first letter of each word\\nvalue = re.sub(r'\\\\s+', ' ', value).strip().lower()\\nvalue = value.capitalize()\\n\\n# Replace non-standard abbreviations with standard ones\\nvalue = value.replace('voluntary non-profit', 'non-profit')\\nvalue = value.replace('proprietary', 'private for-profit')\\nvalue = value.replace('government - ', 'government')\\n\\n# Remove unnecessary punctuation and special characters\\nvalue = re.sub(r'[^\\w\\s]', '', value)\\n\\n# Return the standardized HospitalOwner value\\nreturn value\"\"\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Standardize the spelling and formatting of the HospitalOwner column\nexpression = \"\"\"\\njython:\\nimport re\\n\\n# Remove extra spaces, hyphens, and uppercase the first letter of each word\\nvalue = re.sub(r'\\\\s+', ' ', value).strip().lower()\\nvalue = value.capitalize()\\n\\n# Replace non-standard abbreviations with standard ones\\nvalue = value.replace('voluntary non-profit', 'non-profit')\\nvalue = value.replace('proprietary', 'private for-profit')\\nvalue = value.replace('government - ', 'government')\\n\\n# Remove unnecessary punctuation and special characters\\nvalue = re.sub(r'[^\\w\\s]', '', value)\\n\\n# Return the standardized HospitalOwner value\\nreturn value\"\"\"\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n # Standardize the spelling and formatting of the HospitalOwner column\n def standardize_hospital_owner(value):\n     # Remove hyphens, underscores, spaces, and convert to lowercase\n     value = re.sub(r'[_- ]+', ' ', value).lower()\n\n     # Replace non-standard abbreviations with their standard counterparts\n     value = value.replace('gov', 'government')\n     value = value.replace('proprietary', 'private')\n     value = value.replace('voluntary non-profit - private', 'non-profit - private')\n     value = value.replace('voluntary non-profit - other', 'non-profit - other')\n     value = value.replace('government - hospital district or authority', 'government - hospital district')\n\n     return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Standardize the spelling and formatting of the HospitalOwner column\n def standardize_hospital_owner(value):\n     # Remove hyphens, underscores, spaces, and convert to lowercase\n     value = re.sub(r'[_- ]+', ' ', value).lower()\n\n     # Replace non-standard abbreviations with their standard counterparts\n     value = value.replace('gov', 'government')\n     value = value.replace('proprietary', 'private')\n     value = value.replace('voluntary non-profit - private', 'non-profit - private')\n     value = value.replace('voluntary non-profit - other', 'non-profit - other')\n     value = value.replace('government - hospital district or authority', 'government - hospital district')\n\n     return value\nreturn value"
     }
 ]

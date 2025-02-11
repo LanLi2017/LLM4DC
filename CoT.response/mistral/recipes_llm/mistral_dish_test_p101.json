@@ -6,24 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "name",
-        "expression": "value.toDate()",
+        "expression": "jython:import re\n\n# Remove underscores and spaces before or after hyphens, commas, colons, semicolons, and periods\nvalue = re.sub(r'[_ ,]+([-.,:;])', r'\\1', value)\n\n# Remove multiple consecutive hyphens, commas, colons, semicolons, and periods\nvalue = re.sub(r'(-|,|:|;|.){2,}', r'\\g<1>', value)\n\n# Remove leading or trailing hyphens, commas, colons, semicolons, and periods\nvalue = re.sub(r'^[-.,:;.]|[-.,:;.]$', '', value)\n\n# Split the cleaned string into a list of items using spaces as delimiter\nitems = value.split()\n\n# Remove duplicates from the list of items\nitems = list(set(items))\n\n# Join the list of items back into a single string, separated by spaces\nvalue = ' '.join(items)\n\n# Remove any remaining underscores and convert the first letter of each word to uppercase\nvalue = re.sub(r'_', '', value).title()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "name",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column name using expression value.toDate()"
+        "description": "Text transform on cells in column name using expression jython:import re\n\n# Remove underscores and spaces before or after hyphens, commas, colons, semicolons, and periods\nvalue = re.sub(r'[_ ,]+([-.,:;])', r'\\1', value)\n\n# Remove multiple consecutive hyphens, commas, colons, semicolons, and periods\nvalue = re.sub(r'(-|,|:|;|.){2,}', r'\\g<1>', value)\n\n# Remove leading or trailing hyphens, commas, colons, semicolons, and periods\nvalue = re.sub(r'^[-.,:;.]|[-.,:;.]$', '', value)\n\n# Split the cleaned string into a list of items using spaces as delimiter\nitems = value.split()\n\n# Remove duplicates from the list of items\nitems = list(set(items))\n\n# Join the list of items back into a single string, separated by spaces\nvalue = ' '.join(items)\n\n# Remove any remaining underscores and convert the first letter of each word to uppercase\nvalue = re.sub(r'_', '', value).title()\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -32,10 +19,221 @@
             "mode": "row-based"
         },
         "columnName": "first_appeared",
-        "expression": "python\nimport pandas as pd\n\n# Assuming df is your DataFrame and 'Competition' is the column containing dish names\nfirst_dishes = df['Competition'].min()  # This will return the first competition (dish) in the list\nreturn value",
+        "expression": "python:import datetime\\nimport pandas as pd\\n# Assuming df is your DataFrame\\ndf['first_date'] = pd.to_datetime(df['first_appeared'])\ndf['first_year'] = df['first_date'].dt.year\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column first_appeared using expression python\nimport pandas as pd\n\n# Assuming df is your DataFrame and 'Competition' is the column containing dish names\nfirst_dishes = df['Competition'].min()  # This will return the first competition (dish) in the list\nreturn value"
+        "description": "Text transform on cells in column first_appeared using expression python:import datetime\\nimport pandas as pd\\n# Assuming df is your DataFrame\\ndf['first_date'] = pd.to_datetime(df['first_appeared'])\ndf['first_year'] = df['first_date'].dt.year\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "python\n# Remove the \"first_appeared\" column since it is irrelevant to the table's content\nimport pandas as pd\n\n# Assuming df is your DataFrame\ndf = pd.DataFrame({...})  # ... represents the rest of your data\n\n# Drop the first_appeared column\ndf.drop('first_appeared', axis=1, inplace=True)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column first_appeared using expression python\n# Remove the \"first_appeared\" column since it is irrelevant to the table's content\nimport pandas as pd\n\n# Assuming df is your DataFrame\ndf = pd.DataFrame({...})  # ... represents the rest of your data\n\n# Drop the first_appeared column\ndf.drop('first_appeared', axis=1, inplace=True)\nreturn value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "1900-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish1"
+            },
+            {
+                "from": [
+                    "1914-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish2"
+            },
+            {
+                "from": [
+                    "1901-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish3"
+            },
+            {
+                "from": [
+                    "1958-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish4"
+            },
+            {
+                "from": [
+                    "1935-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish5"
+            },
+            {
+                "from": [
+                    "1943-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish6"
+            },
+            {
+                "from": [
+                    "1901-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish7"
+            },
+            {
+                "from": [
+                    "1901-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish8"
+            },
+            {
+                "from": [
+                    "1927-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish9"
+            },
+            {
+                "from": [
+                    "1980-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish10"
+            },
+            {
+                "from": [
+                    "1931-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish11"
+            },
+            {
+                "from": [
+                    "1962-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish12"
+            },
+            {
+                "from": [
+                    "1963-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish13"
+            },
+            {
+                "from": [
+                    "1971-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish14"
+            },
+            {
+                "from": [
+                    "1913-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish15"
+            },
+            {
+                "from": [
+                    "1962-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish16"
+            },
+            {
+                "from": [
+                    "1916-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish17"
+            },
+            {
+                "from": [
+                    "1966-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish18"
+            },
+            {
+                "from": [
+                    "1905-01-01t00:00:00z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish19"
+            },
+            {
+                "from": [
+                    "1961-01-01T00:00:00Z"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Dish20"
+            }
+        ],
+        "description": "Mass edit cells in column first_appeared"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "python\nimport pandas as pd\n# Assuming the DataFrame is named df\ndf = pd.DataFrame({'first_appeared': [...], 'Dish': [...]})\ndf = df.drop('first_appeared', axis=1)  # Remove the column\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column first_appeared using expression python\nimport pandas as pd\n# Assuming the DataFrame is named df\ndf = pd.DataFrame({'first_appeared': [...], 'Dish': [...]})\ndf = df.drop('first_appeared', axis=1)  # Remove the column\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "first_appeared",
+        "expression": "jython:import datetime\\nfrom collections import OrderedDict\\n# Assuming 'Dish' and 'Date' are your columns\\nmenu_data = pd.DataFrame(sorted(OrderedDict((dish, [date]) for dish, date in zip(df['Dish'], df['Date'])).items(), key=lambda x: x[1][0]))\\n# Add a new column indicating the order of appearance for each dish\\nmenu_data['first_appeared'] = menu_data.index + 1\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column first_appeared using expression jython:import datetime\\nfrom collections import OrderedDict\\n# Assuming 'Dish' and 'Date' are your columns\\nmenu_data = pd.DataFrame(sorted(OrderedDict((dish, [date]) for dish, date in zip(df['Dish'], df['Date'])).items(), key=lambda x: x[1][0]))\\n# Add a new column indicating the order of appearance for each dish\\nmenu_data['first_appeared'] = menu_data.index + 1\nreturn value"
     }
 ]

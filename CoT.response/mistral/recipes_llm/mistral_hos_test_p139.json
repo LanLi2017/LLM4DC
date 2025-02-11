@@ -5,25 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "HospitalOwner",
-        "expression": "jython:import re\njython:import re\n\n cleaned_hospital_owner = value.replace(\"-\", \"\").replace(\" \", \"\").upper()\n\n return cleaned_hospital_owner\n\nThis expression will remove any hyphens, spaces, and convert the text to uppercase, ensuring consistent formatting for the 'HospitalOwner' column. This will help in further analysis or counting of ZIP codes based on the diversity of hospital types and ownerships.",
+        "columnName": "HospitalType",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\njython:import re\n\n cleaned_hospital_owner = value.replace(\"-\", \"\").replace(\" \", \"\").upper()\n\n return cleaned_hospital_owner\n\nThis expression will remove any hyphens, spaces, and convert the text to uppercase, ensuring consistent formatting for the 'HospitalOwner' column. This will help in further analysis or counting of ZIP codes based on the diversity of hospital types and ownerships."
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalOwner",
-        "expression": "value.trim()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalOwner using expression value.trim()"
+        "description": "Text transform on cells in column HospitalType using expression value.toUppercase()"
     },
     {
         "op": "core/text-transform",
@@ -32,11 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalType",
-        "expression": "jython:import re\njython:import re\n\n   pattern = r'\\s|[a-z]|_'\n\n   value = re.sub(pattern, '', value).upper()\n\n   return value\n\nThis expression will remove any whitespace, lowercase letters, or underscores from the HospitalType column and convert the remaining characters to uppercase. This ensures consistent categorization for accurate ZIP code analysis based on hospital diversity.",
+        "expression": "jython:import re\n\n   # Remove extra spaces, underscores, and convert to lowercase\n   return re.sub(r'\\s+|_', ' ', value).lower().strip()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:import re\n\n   pattern = r'\\s|[a-z]|_'\n\n   value = re.sub(pattern, '', value).upper()\n\n   return value\n\nThis expression will remove any whitespace, lowercase letters, or underscores from the HospitalType column and convert the remaining characters to uppercase. This ensures consistent categorization for accurate ZIP code analysis based on hospital diversity."
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\n   # Remove extra spaces, underscores, and convert to lowercase\n   return re.sub(r'\\s+|_', ' ', value).lower().strip()\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -45,11 +32,11 @@
             "mode": "row-based"
         },
         "columnName": "HospitalType",
-        "expression": "value.trim()",
+        "expression": "jython:value = value.upper() # Convert all values to uppercase for consistency\n                                          return value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression value.trim()"
+        "description": "Text transform on cells in column HospitalType using expression jython:value = value.upper() # Convert all values to uppercase for consistency\n                                          return value\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -71,10 +58,36 @@
             "mode": "row-based"
         },
         "columnName": "HospitalType",
-        "expression": "jython:import re\njython:value = value.upper()\\nif 'HOSPITALS' in value:\\n   return value\n\nThis expression will convert the text to uppercase and check if the string \"HOSPITALS\" is present. If it is, it will return the original string (as it already meets the requirement). This way, all instances of \"ACUTE CARE HOSPITALS\", regardless of capitalization, will be standardized to \"ACUTE CARE HOSPITALS\".",
+        "expression": "jython:import re\n   return value.title()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\njython:value = value.upper()\\nif 'HOSPITALS' in value:\\n   return value\n\nThis expression will convert the text to uppercase and check if the string \"HOSPITALS\" is present. If it is, it will return the original string (as it already meets the requirement). This way, all instances of \"ACUTE CARE HOSPITALS\", regardless of capitalization, will be standardized to \"ACUTE CARE HOSPITALS\"."
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n   return value.title()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\ndef regexr_transform(column):\n    return_list = []\n\n    for value in column:\n        # Standardize the representation of \"private\"\n        if 'GOVERNMENT' in value or 'VOLUNTARY NON-PROFIT' in value:\n            if re.search(r'[-_]private', value):\n                value = re.sub(r'[-_]private', 'Private', value)\n            elif re.search(r'[-_]priwate', value):\n                value = re.sub(r'[-_]priwate', 'Private', value)\n            elif re.search(r'[-_]privat', value):\n                value = re.sub(r'[-_]privat', 'Private', value)\n        # Standardize the representation of \"church\"\n        if 'VOLUNTARY NON-PROFIT - CHURCH' in value:\n            if re.search(r'[-_]church', value):\n                value = re.sub(r'[-_]church', 'Church', value)\n\n        return_list.append(value)\n\n    # Count ZIP codes based on the diversity of hospital types and ownerships\n    unique_hospitals = set([hospital.split()[0] for hospital in return_list])\n    zip_count = len({hospital.split()[1] for hospital in return_list})\n\n    return f'Hospital Types: {len(unique_hospitals)}, ZIP Codes: {zip_count}'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\ndef regexr_transform(column):\n    return_list = []\n\n    for value in column:\n        # Standardize the representation of \"private\"\n        if 'GOVERNMENT' in value or 'VOLUNTARY NON-PROFIT' in value:\n            if re.search(r'[-_]private', value):\n                value = re.sub(r'[-_]private', 'Private', value)\n            elif re.search(r'[-_]priwate', value):\n                value = re.sub(r'[-_]priwate', 'Private', value)\n            elif re.search(r'[-_]privat', value):\n                value = re.sub(r'[-_]privat', 'Private', value)\n        # Standardize the representation of \"church\"\n        if 'VOLUNTARY NON-PROFIT - CHURCH' in value:\n            if re.search(r'[-_]church', value):\n                value = re.sub(r'[-_]church', 'Church', value)\n\n        return_list.append(value)\n\n    # Count ZIP codes based on the diversity of hospital types and ownerships\n    unique_hospitals = set([hospital.split()[0] for hospital in return_list])\n    zip_count = len({hospital.split()[1] for hospital in return_list})\n\n    return f'Hospital Types: {len(unique_hospitals)}, ZIP Codes: {zip_count}'\nreturn value"
     }
 ]

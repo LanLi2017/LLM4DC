@@ -1,74 +1,15 @@
 [
     {
-        "op": "core/mass-edit",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "venue",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "PROF;.",
-                    "SOC;"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Professional"
-            },
-            {
-                "from": [
-                    "COM",
-                    "COMM"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Commercial"
-            },
-            {
-                "from": [
-                    "RAILROAD"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Railroad"
-            },
-            {
-                "from": [
-                    "GOV;"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "Government"
-            }
-        ],
-        "description": "Mass edit cells in column venue"
-    },
-    {
         "op": "core/text-transform",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
         "columnName": "venue",
-        "expression": "jython:import re\ndef standardize_venue(value):\n    value = re.sub(r'[.;,!?]', '', value).lower()\n    if len(value) > 3:\n        return value.strip()\n    else:\n        return None\n\ndata = [\n    \"RESTAURANT\",\n    \"COMMERCIAL\",\n    \"PATR;\",\n    \"Commercial\",\n    \"RESTAURANT\",\n    \"SOC;.?\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"POL;\",\n    \"SS; FOR\",\n    \"Professional\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"RESTAURANT.?\"\n]\n\nvenues = [standardize_venue(value) for value in data if value is not None]\npage_counts = {venue: data.count(venue) for venue in venues}\n\nexceeding_venues = [venue for venue, count in page_counts.items() if count > 10]\nprint(exceeding_venues)\n\nOutput: []",
+        "expression": "jython:import re\n   import string\n\n   # Remove punctuation, convert to lowercase, and remove extra spaces\n   value = re.sub(r'[{}]'.format(re.escape(string.punctuation)), '', value).lower().strip()\n\n   # Check if the venue name contains 'educational', 'social', or 'restaurant'\n   if 'educational' in value or 'social' in value or 'restaurant' in value:\n       return value\n\n   # If the venue name does not contain any of the specified keywords, check if it has a numeric value that represents page count\n   match = re.search(r'\\d+', value)\n   if match:\n       page_count = int(match.group(0))\n       if page_count > 10:\n           return value + ' (Page Count Exceeds 10)'\n   else:\n       return value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column venue using expression jython:import re\ndef standardize_venue(value):\n    value = re.sub(r'[.;,!?]', '', value).lower()\n    if len(value) > 3:\n        return value.strip()\n    else:\n        return None\n\ndata = [\n    \"RESTAURANT\",\n    \"COMMERCIAL\",\n    \"PATR;\",\n    \"Commercial\",\n    \"RESTAURANT\",\n    \"SOC;.?\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"POL;\",\n    \"SS; FOR\",\n    \"Professional\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"COMMERCIAL\",\n    \"RESTAURANT.?\"\n]\n\nvenues = [standardize_venue(value) for value in data if value is not None]\npage_counts = {venue: data.count(venue) for venue in venues}\n\nexceeding_venues = [venue for venue, count in page_counts.items() if count > 10]\nprint(exceeding_venues)\n\nOutput: []"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "venue",
-        "expression": "jython:import re\ndef standardize_venue(value):\n    value = re.sub(r'[.;,]', '', value)\n    value = value.lower()\n    return value\n\nvenues = [\"COMMERCIAL.?\", \"COMMERCIAL\", \"PROF;.?\", \"Railroad\", \"Commercial\", \"COMMERCIAL.?\", \"GOVT;.?\", \"COMMERCIAL\", \"COMMERCIAL\", \"COMMERCIAL\", \"COMMERCIAL\", \"PATR;\", \"SOCIAL\", \"Railroad\"]\nvenues_count = {standardize_venue(v): venues.count(v) for v in set(map(standardize_venue, venues))}\nexceeds_10 = {k: v > 10 for k, v in venues_count.items()}\noutput = \", \".join([k for k, v in exceeds_10.items() if v])\n\nOutput: COMMERCIAL   (Assuming that the venue names with periods or semicolons are considered as the same)",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column venue using expression jython:import re\ndef standardize_venue(value):\n    value = re.sub(r'[.;,]', '', value)\n    value = value.lower()\n    return value\n\nvenues = [\"COMMERCIAL.?\", \"COMMERCIAL\", \"PROF;.?\", \"Railroad\", \"Commercial\", \"COMMERCIAL.?\", \"GOVT;.?\", \"COMMERCIAL\", \"COMMERCIAL\", \"COMMERCIAL\", \"COMMERCIAL\", \"PATR;\", \"SOCIAL\", \"Railroad\"]\nvenues_count = {standardize_venue(v): venues.count(v) for v in set(map(standardize_venue, venues))}\nexceeds_10 = {k: v > 10 for k, v in venues_count.items()}\noutput = \", \".join([k for k, v in exceeds_10.items() if v])\n\nOutput: COMMERCIAL   (Assuming that the venue names with periods or semicolons are considered as the same)"
+        "description": "Text transform on cells in column venue using expression jython:import re\n   import string\n\n   # Remove punctuation, convert to lowercase, and remove extra spaces\n   value = re.sub(r'[{}]'.format(re.escape(string.punctuation)), '', value).lower().strip()\n\n   # Check if the venue name contains 'educational', 'social', or 'restaurant'\n   if 'educational' in value or 'social' in value or 'restaurant' in value:\n       return value\n\n   # If the venue name does not contain any of the specified keywords, check if it has a numeric value that represents page count\n   match = re.search(r'\\d+', value)\n   if match:\n       page_count = int(match.group(0))\n       if page_count > 10:\n           return value + ' (Page Count Exceeds 10)'\n   else:\n       return value\nreturn value"
     }
 ]

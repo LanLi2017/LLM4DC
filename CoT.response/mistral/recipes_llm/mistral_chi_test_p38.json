@@ -6,6 +6,19 @@
             "mode": "row-based"
         },
         "columnName": "Facility Type",
+        "expression": "jython:value = value.title()  # Convert the string to title case\n                                          return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression jython:value = value.title()  # Convert the string to title case\n                                          return value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Facility Type",
         "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
@@ -18,37 +31,76 @@
             "facets": [],
             "mode": "row-based"
         },
+        "columnName": "Facility Type",
+        "expression": "jython:import re\n\n # Filter out the Facility Types that are not Risk 3 (Low)\n filtered_facilities = [row for row in facilities if 'Risk 3' in row]\n\n # Define a regular expression pattern to match the inspection rating or score\n pattern = re.compile(r'\\d{1,2}\\s*[a-zA-Z%]*')\n\n # Iterate through each filtered facility and apply the pattern to extract the inspection rating or score\n for facility in filtered_facilities:\n   match = pattern.search(facility)\n   if match:\n     # If a match is found, update the facility with the extracted rating or score\n     updated_facility = match.group(0) + ' ' + facility\n     print(updated_facility)\n   else:\n     print(facility)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression jython:import re\n\n # Filter out the Facility Types that are not Risk 3 (Low)\n filtered_facilities = [row for row in facilities if 'Risk 3' in row]\n\n # Define a regular expression pattern to match the inspection rating or score\n pattern = re.compile(r'\\d{1,2}\\s*[a-zA-Z%]*')\n\n # Iterate through each filtered facility and apply the pattern to extract the inspection rating or score\n for facility in filtered_facilities:\n   match = pattern.search(facility)\n   if match:\n     # If a match is found, update the facility with the extracted rating or score\n     updated_facility = match.group(0) + ' ' + facility\n     print(updated_facility)\n   else:\n     print(facility)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Facility Type",
+        "expression": "jython:import re\n\n# Standardize inconsistent representations of facility types\ndef standardize_facility_type(value):\n    if value == \"GROCERY-STORE\":\n        return \"Grocery Store\"\n    elif value == \"GRO STORE\":\n        return \"Grocery Store\"\n    else:\n        return value\n\n# Create a new column for inspection ratings or risk levels\ndef create_inspection_rating(value):\n    if value == \"Risk 3 (Low)\":\n        return \"Risk 3\"\n    else:\n        return None\n\n# Apply the standardization and rating functions to each row in the Facility Type column\ndata = [[\"SCHOOL\", \"Risk 3 (Low)\"], [\"SCHOOL\", \"Risk 3 (Low)\"], [\"SCHOOL\", \"Risk 3 (Low)\"], [\"SCHOOL\", None], [\"MOBILE FOOD DISPENSER\", None], [\"GROCERYST.\", None], [\"MFD TRUCK\", None], [\"GRO STORE\", None], [\"Grocery-STORE\", None], [\"RESTAURANT\", \"Risk 3 (Low)\"]]\n\nfor row in data:\n    facility_type = standardize_facility_type(row[0])\n    inspection_rating = create_inspection_rating(row[1])\n    print(f\"Facility Type: {facility_type}, Inspection Rating: {inspection_rating}\")\n\n# List the facilities with the best (Risk 3) inspection ratings\nbest_facilities = [facility for facility, rating in data if rating == \"Risk 3\"]\nprint(\"Best Facilities: \", best_facilities)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression jython:import re\n\n# Standardize inconsistent representations of facility types\ndef standardize_facility_type(value):\n    if value == \"GROCERY-STORE\":\n        return \"Grocery Store\"\n    elif value == \"GRO STORE\":\n        return \"Grocery Store\"\n    else:\n        return value\n\n# Create a new column for inspection ratings or risk levels\ndef create_inspection_rating(value):\n    if value == \"Risk 3 (Low)\":\n        return \"Risk 3\"\n    else:\n        return None\n\n# Apply the standardization and rating functions to each row in the Facility Type column\ndata = [[\"SCHOOL\", \"Risk 3 (Low)\"], [\"SCHOOL\", \"Risk 3 (Low)\"], [\"SCHOOL\", \"Risk 3 (Low)\"], [\"SCHOOL\", None], [\"MOBILE FOOD DISPENSER\", None], [\"GROCERYST.\", None], [\"MFD TRUCK\", None], [\"GRO STORE\", None], [\"Grocery-STORE\", None], [\"RESTAURANT\", \"Risk 3 (Low)\"]]\n\nfor row in data:\n    facility_type = standardize_facility_type(row[0])\n    inspection_rating = create_inspection_rating(row[1])\n    print(f\"Facility Type: {facility_type}, Inspection Rating: {inspection_rating}\")\n\n# List the facilities with the best (Risk 3) inspection ratings\nbest_facilities = [facility for facility, rating in data if rating == \"Risk 3\"]\nprint(\"Best Facilities: \", best_facilities)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Facility Type",
+        "expression": "jython:import re\n\n# Assuming that the inspection_rating column is already added and filled with appropriate values.\ndef get_low_risk_facilities():\n    return \"| \".join([row for row in facilities if facilities[row]['inspection_rating'] == 'Risk 3'])\n\nfacilities = {\n    'RESTAURANT': {'inspection_rating': 'Risk 1'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'GROCERYST.': {'inspection_rating': 'Risk 3'},\n    'MFD TRUCK': {'inspection_rating': 'Risk 1'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'MOBILE FOOD DISPENSER': {'inspection_rating': 'Risk 3'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'GRO STORE': {'inspection_rating': 'Risk 1'},\n    'GROCERY-STORE': {'inspection_rating': 'Risk 2'}\n}\n\noutput = get_low_risk_facilities()\nprint(output)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression jython:import re\n\n# Assuming that the inspection_rating column is already added and filled with appropriate values.\ndef get_low_risk_facilities():\n    return \"| \".join([row for row in facilities if facilities[row]['inspection_rating'] == 'Risk 3'])\n\nfacilities = {\n    'RESTAURANT': {'inspection_rating': 'Risk 1'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'GROCERYST.': {'inspection_rating': 'Risk 3'},\n    'MFD TRUCK': {'inspection_rating': 'Risk 1'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'MOBILE FOOD DISPENSER': {'inspection_rating': 'Risk 3'},\n    'SCHOOL': {'inspection_rating': 'Risk 2'},\n    'GRO STORE': {'inspection_rating': 'Risk 1'},\n    'GROCERY-STORE': {'inspection_rating': 'Risk 2'}\n}\n\noutput = get_low_risk_facilities()\nprint(output)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Facility Type",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "DBA Name",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column DBA Name using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
         "columnName": "Risk",
-        "expression": "jython:import re\ndef standardize_risk(value):\n    value = re.sub(r'\\s', '', value)\n    value = re.sub(r'[()]', '', value)\n    return value.upper()\n\ndata = [\"Risk 3 (LOW)\", \"Risk 3   (Low)\", \"Risk 3-(Low)\", \"Risk 1 (High)\", \"Risk 1 (High)\", \"Risk 1 (High)\", \"Risk 3 (LOW);\", \"Risk 2 (Medium)\", \"Risk 3  (Low)\", \"Risk 1 (High)\"]\nfacilities = [standardize_risk(value) for value in data if standardize_risk(value).startswith(\"RISK 3\")]\nprint(facilities)",
+        "expression": "jython:import re\n\ndef standardize_risk(value):\n    if value.startswith(\"Risk\"):\n        match = re.search(r'\\(([A-Za-z]+)\\)', value)\n        if match:\n            return \"Risk 3 - \" + match.group(1).capitalize()\n        else:\n            return \"Risk 3 - Invalid\"\n    else:\n        return \"Invalid\"\n\n# Apply the function to each row in the column\ndata = [\n    \"Risk 3-(Low)\",\n    \"Risk 3   (Low)\",\n    \"Risk 1 (High)\",\n    \"Risk 1 (High)\",\n    \"Risk 1 (High)\",\n    \"Risk 2 (Medium)\",\n    \"Risk 1 (High)\",\n    \"Risk 3  (Low)\",\n    \"Risk 3 (LOW)\",\n    \"Risk 3 (LOW);\"\n]\n\nfor row in data:\n    print(standardize_risk(row))\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column Risk using expression jython:import re\ndef standardize_risk(value):\n    value = re.sub(r'\\s', '', value)\n    value = re.sub(r'[()]', '', value)\n    return value.upper()\n\ndata = [\"Risk 3 (LOW)\", \"Risk 3   (Low)\", \"Risk 3-(Low)\", \"Risk 1 (High)\", \"Risk 1 (High)\", \"Risk 1 (High)\", \"Risk 3 (LOW);\", \"Risk 2 (Medium)\", \"Risk 3  (Low)\", \"Risk 1 (High)\"]\nfacilities = [standardize_risk(value) for value in data if standardize_risk(value).startswith(\"RISK 3\")]\nprint(facilities)"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "DBA Name",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column DBA Name using expression value.toUppercase()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "DBA Name",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column DBA Name using expression value.toUppercase()"
+        "description": "Text transform on cells in column Risk using expression jython:import re\n\ndef standardize_risk(value):\n    if value.startswith(\"Risk\"):\n        match = re.search(r'\\(([A-Za-z]+)\\)', value)\n        if match:\n            return \"Risk 3 - \" + match.group(1).capitalize()\n        else:\n            return \"Risk 3 - Invalid\"\n    else:\n        return \"Invalid\"\n\n# Apply the function to each row in the column\ndata = [\n    \"Risk 3-(Low)\",\n    \"Risk 3   (Low)\",\n    \"Risk 1 (High)\",\n    \"Risk 1 (High)\",\n    \"Risk 1 (High)\",\n    \"Risk 2 (Medium)\",\n    \"Risk 1 (High)\",\n    \"Risk 3  (Low)\",\n    \"Risk 3 (LOW)\",\n    \"Risk 3 (LOW);\"\n]\n\nfor row in data:\n    print(standardize_risk(row))\nreturn value"
     }
 ]

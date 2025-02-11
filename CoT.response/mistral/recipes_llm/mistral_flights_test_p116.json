@@ -5,38 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "act_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
         "columnName": "flight",
-        "expression": "python\nimport datetime\n\n# Assuming df is your DataFrame and it has 'departure_time' and 'arrival_time' columns\ndf['Time'] = pd.to_datetime(df['arrival_time'])  # Convert the arrival time to datetime format\ndf['Hour'] = df['Time'].dt.hour  # Extract hour from the datetime object\nevening_flights = df[df['Hour'] >= 18]  # Filter flights that arrive after 6 PM (18:00)\nnumber_of_evening_flights = len(evening_flights)  # Count the number of evening flights\nprint(number_of_evening_flights)\nreturn value",
+        "expression": "python:import re\n\n# Define a regular expression pattern to match flights with hyphens\nhyphenated_pattern = r'(\\w+-\\d+)'\n\n# Iterate through each flight and remove the hyphens if present\nflights = [row.split('-') for row in flight_data]\ncleaned_flights = []\nfor flight in flights:\n    cleaned_flight = ''\n    for part in flight:\n        if len(part) > 0:\n            cleaned_flight += part + '-'\n    # Remove the last hyphen since it is unnecessary after standardization\n    cleaned_flight = cleaned_flight[:-1]\n    cleaned_flights.append(cleaned_flight)\n\n# Define a regular expression pattern to match flights arriving in the evening (after 6 PM)\nevening_pattern = r'(\\w+-\\d+)-([A-Z]{3}-[A-Z]{2})(\\s\\d{1,2}:\\d{2}-\\d{2}:\\d{2})$'\nevening_flights = [row for row in cleaned_flights if re.search(evening_pattern, row)]\n\n# Print the number of evening flights\nprint(len(evening_flights))\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression python\nimport datetime\n\n# Assuming df is your DataFrame and it has 'departure_time' and 'arrival_time' columns\ndf['Time'] = pd.to_datetime(df['arrival_time'])  # Convert the arrival time to datetime format\ndf['Hour'] = df['Time'].dt.hour  # Extract hour from the datetime object\nevening_flights = df[df['Hour'] >= 18]  # Filter flights that arrive after 6 PM (18:00)\nnumber_of_evening_flights = len(evening_flights)  # Count the number of evening flights\nprint(number_of_evening_flights)\nreturn value"
+        "description": "Text transform on cells in column flight using expression python:import re\n\n# Define a regular expression pattern to match flights with hyphens\nhyphenated_pattern = r'(\\w+-\\d+)'\n\n# Iterate through each flight and remove the hyphens if present\nflights = [row.split('-') for row in flight_data]\ncleaned_flights = []\nfor flight in flights:\n    cleaned_flight = ''\n    for part in flight:\n        if len(part) > 0:\n            cleaned_flight += part + '-'\n    # Remove the last hyphen since it is unnecessary after standardization\n    cleaned_flight = cleaned_flight[:-1]\n    cleaned_flights.append(cleaned_flight)\n\n# Define a regular expression pattern to match flights arriving in the evening (after 6 PM)\nevening_pattern = r'(\\w+-\\d+)-([A-Z]{3}-[A-Z]{2})(\\s\\d{1,2}:\\d{2}-\\d{2}:\\d{2})$'\nevening_flights = [row for row in cleaned_flights if re.search(evening_pattern, row)]\n\n# Print the number of evening flights\nprint(len(evening_flights))\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -44,11 +18,50 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "flight",
-        "expression": "python\nimport datetime\n\n# Assuming you have two columns: 'Flight Number' and 'Departure Time' in another dataset\nflights_data = [('ABC123', '2023-03-01 18:30'), ('DEF456', '2023-03-02 09:00')]\n\ndef flight_hour(row):\n    departure_time = row[1]\n    time = datetime.datetime.strptime(departure_time, '%Y-%m-%d %H:%M')\n    return int(time.hour) if time.hour >= 18 else None\n\n# Apply the function to the flights_data and create a new column with flight hours\nflights_data = [(flight, flight_hour((flight, departure_time))) for flight, departure_time in flights_data]\nreturn value",
+        "columnName": "act_arr_time",
+        "expression": "python\nimport pandas as pd\nfrom datetime import datetime\n\n# Assuming df is your DataFrame\ndf['act_arr_time'] = pd.to_datetime(df['act_arr_time'])\nevening_flights = df[df['act_arr_time'].dt.hour > 18]\nprint(len(evening_flights))\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression python\nimport datetime\n\n# Assuming you have two columns: 'Flight Number' and 'Departure Time' in another dataset\nflights_data = [('ABC123', '2023-03-01 18:30'), ('DEF456', '2023-03-02 09:00')]\n\ndef flight_hour(row):\n    departure_time = row[1]\n    time = datetime.datetime.strptime(departure_time, '%Y-%m-%d %H:%M')\n    return int(time.hour) if time.hour >= 18 else None\n\n# Apply the function to the flights_data and create a new column with flight hours\nflights_data = [(flight, flight_hour((flight, departure_time))) for flight, departure_time in flights_data]\nreturn value"
+        "description": "Text transform on cells in column act_arr_time using expression python\nimport pandas as pd\nfrom datetime import datetime\n\n# Assuming df is your DataFrame\ndf['act_arr_time'] = pd.to_datetime(df['act_arr_time'])\nevening_flights = df[df['act_arr_time'].dt.hour > 18]\nprint(len(evening_flights))\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "jython:import datetime\nfrom datetime import datetime\n\ndef extract_time(value):\n    dt = datetime.strptime(value, \"%Y-%m-%d %H:%M:%S\")\n    return dt.time.strftime(\"%H:%M\")\n\nreturn extract_time(value)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression jython:import datetime\nfrom datetime import datetime\n\ndef extract_time(value):\n    dt = datetime.strptime(value, \"%Y-%m-%d %H:%M:%S\")\n    return dt.time.strftime(\"%H:%M\")\n\nreturn extract_time(value)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "python\nimport datetime\ndef is_evening(value):\n    dt = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')\n    if dt.hour >= 18: # 6 PM in 24-hour format\n        return True\n    else:\n        return False\n\n# Assuming the data is stored in a list of strings called flight_times\nevening_flights = [time for time in flight_times if is_evening(time)]\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression python\nimport datetime\ndef is_evening(value):\n    dt = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')\n    if dt.hour >= 18: # 6 PM in 24-hour format\n        return True\n    else:\n        return False\n\n# Assuming the data is stored in a list of strings called flight_times\nevening_flights = [time for time in flight_times if is_evening(time)]\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import datetime\\nfrom dateutil.relativedelta import relativedelta\\ndef standardize_time(value):\\n    try:\\n        time = datetime.datetime.strptime(value, '%H:%M')\\n        if time.hour >= 18:\\n            return value\\n        else:\\n            return time + relativedelta(hours=18)\\n    except ValueError:\\n        return None\\nreturn standardize_time(value)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import datetime\\nfrom dateutil.relativedelta import relativedelta\\ndef standardize_time(value):\\n    try:\\n        time = datetime.datetime.strptime(value, '%H:%M')\\n        if time.hour >= 18:\\n            return value\\n        else:\\n            return time + relativedelta(hours=18)\\n    except ValueError:\\n        return None\\nreturn standardize_time(value)\nreturn value"
     }
 ]

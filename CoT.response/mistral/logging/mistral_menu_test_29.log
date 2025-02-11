@@ -6358,3 +6358,980 @@ INFO:root:#TASK III: generate mass_edit arguments:
 INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project mistral_menu_test_p29 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['Column', 'id', 'name', 'sponsor', 'event', 'venue', 'place', 'physical_description', 'occasion', 'notes', 'call_number', 'keywords', 'language', 'date', 'location', 'location_type', 'currency', 'currency_symbol', 'status', 'page_count', 'dish_count'], 'table_column_priority': [['Column', '0', '1', '2'], ['id', '12579', '25121', '21960'], ['name', '', '', ''], ['sponsor', 'TRUSTEES OF THE MISSOURI BOTANICAL GARDEN', 'HOLLAND HOUSE', '[battery park hotel]'], ['event', 'banquet', 'LUNCHEON', 'CHRISTMAS DINNER'], ['venue', 'PROF;.?', 'COMMERCIAL.?', 'COMMERCIAL'], ['place', 'SOUTHERN HOTEL,ST. LOUIS,MO.', '', 'ASHVILLE, NC'], ['physical_description', 'BROADSIDE; ILLUS; 5.5 X 8.75;', 'card;6x8.75;', 'booklet; illus; col; 6 x 8;'], ['occasion', 'ANNUAL', 'DAILY;', 'RELIGIOUS HOLIDAY'], ['notes', 'WINES LISTED FOR EACH COURSE;', 'ENGLISH ON ONE SIDE,FRENCH ON ONE SIDE;', 'PRINTED ON PARCHMENT-LIKE PAPER; RED LION; DRAWING OF HOTEL; TIED WITH TWINE AND SEALING WAX; MOST OF BOOKLET CONSISTS OF INFORMATION AND PRAISE ABOUT THE HOTEL;'], ['call_number', '1900-2627', '1900-517', '1898-432'], ['keywords', '', '', ''], ['language', '', '', ''], ['date', '1900-03-31', '1900.01.25', '1898-12-25'], ['location', 'Trustees Of The Missouri Botanical Garden', 'Holland House', 'Battery Park Hotel'], ['location_type', '', '', ''], ['currency', '', 'Dollars', ''], ['currency_symbol', '', '$', ''], ['status', 'complete', 'complete', 'complete'], ['page_count', '2.0 pages', '2.0', '16.0 pages'], ['dish_count', '22.0 dishes', '546.0', '28.0 dishes']]}
+*/
+Purpose: Filter menus where the occasion column contains 'DAILY'.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ["occasion"]
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: occasion
+row 1: DINNER
+row 2: DINNER
+row 3: DAILY;
+row 4: RELIGIOUS HOLIDAY
+row 5: ANNUAL
+row 6: DAILY
+row 7: ANNIVERSARYERSARY
+row 8: DAILY;
+row 9: [SOC?]
+row 10: ?
+row 11: COMPLIMENTARY/TESTIMONIAL
+row 12: OTHER (ANNIV)
+row 13: ANNIVERSARY;
+row 14: DAILY;
+row 15: SECULAR HOLIDAY
+row 16: ANNUAL
+row 17: OTHER, [SOC?];
+row 18: OTHER (DAILY);
+row 19: COMPLIMENTARY/TESTIMONIAL
+row 20: COMPLIMENTARY/TESTIMONIAL
+row 21: OTHER (DAILY MENU)
+row 22: COMPLIMENTARY/TESTIMONIAL
+row 23: COMPLIMENTARY/TESTIMONIAL
+row 24: COMPLIMENTARY/TESTIMONIAL
+row 25: SECULAR HOLIDAY
+row 26: COMPLIMENTARY/TESTIMONIAL
+row 27: ANNIVERSARY;
+*/
+Purpose: Filter menus where the occasion column contains 'DAILY'.
+Target column: occasion
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: occasion
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+ `mass_edit` (The operation will replace all instances of "DAILY" in the column with a consistent format.)
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. Summary: The data quality assessment for the occasion column is True in terms of Accuracy, Relevance, and Completeness, but False for Conciseness due to inconsistent representations of 'DAILY' with and without semicolons.
+
+2. Data Cleaning Objective: To ensure consistency in the representation of 'DAILY', remove semicolons from instances where they appear and standardize the representation of this value during the next data cleaning operation.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+  [
+        {'from': ['DAILY;'], 'to': 'DAILY'},
+        {'from': ['DAILY'], 'to': 'DAILY'}
+    ]
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project mistral_menu_test_p29 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['Column', 'id', 'name', 'sponsor', 'event', 'venue', 'place', 'physical_description', 'occasion', 'notes', 'call_number', 'keywords', 'language', 'date', 'location', 'location_type', 'currency', 'currency_symbol', 'status', 'page_count', 'dish_count'], 'table_column_priority': [['Column', '0', '1', '2'], ['id', '12579', '25121', '21960'], ['name', '', '', ''], ['sponsor', 'TRUSTEES OF THE MISSOURI BOTANICAL GARDEN', 'HOLLAND HOUSE', '[battery park hotel]'], ['event', 'banquet', 'LUNCHEON', 'CHRISTMAS DINNER'], ['venue', 'PROF;.?', 'COMMERCIAL.?', 'COMMERCIAL'], ['place', 'SOUTHERN HOTEL,ST. LOUIS,MO.', '', 'ASHVILLE, NC'], ['physical_description', 'BROADSIDE; ILLUS; 5.5 X 8.75;', 'card;6x8.75;', 'booklet; illus; col; 6 x 8;'], ['occasion', 'ANNUAL', 'DAILY;', 'RELIGIOUS HOLIDAY'], ['notes', 'WINES LISTED FOR EACH COURSE;', 'ENGLISH ON ONE SIDE,FRENCH ON ONE SIDE;', 'PRINTED ON PARCHMENT-LIKE PAPER; RED LION; DRAWING OF HOTEL; TIED WITH TWINE AND SEALING WAX; MOST OF BOOKLET CONSISTS OF INFORMATION AND PRAISE ABOUT THE HOTEL;'], ['call_number', '1900-2627', '1900-517', '1898-432'], ['keywords', '', '', ''], ['language', '', '', ''], ['date', '1900-03-31', '1900.01.25', '1898-12-25'], ['location', 'Trustees Of The Missouri Botanical Garden', 'Holland House', 'Battery Park Hotel'], ['location_type', '', '', ''], ['currency', '', 'Dollars', ''], ['currency_symbol', '', '$', ''], ['status', 'complete', 'complete', 'complete'], ['page_count', '2.0 pages', '2.0', '16.0 pages'], ['dish_count', '22.0 dishes', '546.0', '28.0 dishes']]}
+*/
+Purpose: Filter menus where the occasion column contains 'DAILY'.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ["occasion"]
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: occasion
+row 1: DINNER
+row 2: DAILY;
+row 3: DAILY;
+row 4: ANNIVERSARYERSARY
+row 5: SECULAR HOLIDAY
+row 6: OTHER (DAILY MENU)
+row 7: COMPLIMENTARY/TESTIMONIAL
+row 8: OTHER, [SOC?];
+row 9: ANNIVERSARY;
+row 10: ANNUAL
+row 11: [SOC?]
+row 12: ?
+row 13: OTHER (DAILY);
+row 14: OTHER (ANNIV)
+row 15: ANNIVERSARY;
+row 16: COMPLIMENTARY/TESTIMONIAL
+row 17: COMPLIMENTARY/TESTIMONIAL
+row 18: DAILY
+row 19: COMPLIMENTARY/TESTIMONIAL
+row 20: SECULAR HOLIDAY
+row 21: ANNUAL
+row 22: COMPLIMENTARY/TESTIMONIAL
+row 23: COMPLIMENTARY/TESTIMONIAL
+row 24: COMPLIMENTARY/TESTIMONIAL
+row 25: DINNER
+row 26: DAILY;
+row 27: RELIGIOUS HOLIDAY
+*/
+Purpose: Filter menus where the occasion column contains 'DAILY'.
+Target column: occasion
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: occasion
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+ `mass_edit` (The operation will be used to modify the strings in the 'occasion' column to ensure they are consistent and easily filterable. In this case, we want to remove any unnecessary spaces or special characters, and standardize the capitalization of the word "DAILY".)
+
+Output: `mass_edit`
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. The data quality issue identified is inconsistent representations of 'DAILY' in the occasion column, making it non-concise.
+   2. The objective for the next operation should be to clean and standardize the representation of 'DAILY' in the occasion column to improve conciseness.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+  [
+        {'from': ['DAILY;'], 'to': 'Daily'},
+        {'from': ['DAILY'], 'to': 'Daily'},
+        {'from': ['DAILY'], 'to': 'Daily'},
+        {'from': [], 'to': ''},
+        {'from': [], 'to': ''},
+        {'from': ['COMPLIMENTARY/TESTIMONIAL'], 'to': 'Complimentary/Testimonial'},
+        {'from': ['DAILY'], 'to': 'Daily'},
+        {'from': ['SECULAR HOLIDAY'], 'to': 'Secular Holiday'},
+        {'from': ['?'], 'to': ''},
+        {'from': ['RELIGIOUS HOLIDAY'], 'to': 'Religious Holiday'},
+        {'from': ['COMPLIMENTARY/TESTIMONIAL'], 'to': 'Complimentary/Testimonial'},
+        {'from': ['DINNER'], 'to': 'Dinner'},
+        {'from': ['COMPLIMENTARY/TESTIMONIAL'], 'to': 'Complimentary/Testimonial'},
+        {'from': ['ANNIVERSARY;'], 'to': 'Anniversary'},
+        {'from': ['OTHER (DAILY)'], 'to': 'Other (Daily)'},
+        {'from': ['SECULAR HOLIDAY'], 'to': 'Secular Holiday'},
+        {'from': ['COMPLIMENTARY/TESTIMONIAL'], 'to': 'Complimentary/Testimonial'},
+        {'from': ['OTHER (DAILY MENU)'], 'to': 'Other (Daily Menu)'},
+        {'from': ['ANNUAL'], 'to': 'Annual'},
+        {'from': ['DINNER'], 'to': 'Dinner'},
+        {'from': ['COMPLIMENTARY/TESTIMONIAL'], 'to': 'Complimentary/Testimonial'},
+        {'from': ['OTHER, [SOC?]'], 'to': 'Other, [SOC?]'},
+        {'from': ['COMPLIMENTARY/TESTIMONIAL'], 'to': 'Complimentary/Testimonial'}
+    ]
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project mistral_menu_test_p29 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['Column', 'id', 'name', 'sponsor', 'event', 'venue', 'place', 'physical_description', 'occasion', 'notes', 'call_number', 'keywords', 'language', 'date', 'location', 'location_type', 'currency', 'currency_symbol', 'status', 'page_count', 'dish_count'], 'table_column_priority': [['Column', '0', '1', '2'], ['id', '12579', '25121', '21960'], ['name', '', '', ''], ['sponsor', 'TRUSTEES OF THE MISSOURI BOTANICAL GARDEN', 'HOLLAND HOUSE', '[battery park hotel]'], ['event', 'banquet', 'LUNCHEON', 'CHRISTMAS DINNER'], ['venue', 'PROF;.?', 'COMMERCIAL.?', 'COMMERCIAL'], ['place', 'SOUTHERN HOTEL,ST. LOUIS,MO.', '', 'ASHVILLE, NC'], ['physical_description', 'BROADSIDE; ILLUS; 5.5 X 8.75;', 'card;6x8.75;', 'booklet; illus; col; 6 x 8;'], ['occasion', 'ANNUAL', 'DAILY;', 'RELIGIOUS HOLIDAY'], ['notes', 'WINES LISTED FOR EACH COURSE;', 'ENGLISH ON ONE SIDE,FRENCH ON ONE SIDE;', 'PRINTED ON PARCHMENT-LIKE PAPER; RED LION; DRAWING OF HOTEL; TIED WITH TWINE AND SEALING WAX; MOST OF BOOKLET CONSISTS OF INFORMATION AND PRAISE ABOUT THE HOTEL;'], ['call_number', '1900-2627', '1900-517', '1898-432'], ['keywords', '', '', ''], ['language', '', '', ''], ['date', '1900-03-31', '1900.01.25', '1898-12-25'], ['location', 'Trustees Of The Missouri Botanical Garden', 'Holland House', 'Battery Park Hotel'], ['location_type', '', '', ''], ['currency', '', 'Dollars', ''], ['currency_symbol', '', '$', ''], ['status', 'complete', 'complete', 'complete'], ['page_count', '2.0 pages', '2.0', '16.0 pages'], ['dish_count', '22.0 dishes', '546.0', '28.0 dishes']]}
+*/
+Purpose: Filter menus where the occasion column contains 'DAILY'.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ["occasion"]
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+2. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+6. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: occasion
+row 1: DAILY;
+row 2: ANNUAL
+row 3: OTHER, [SOC?];
+row 4: ANNUAL
+row 5: OTHER (ANNIV)
+row 6: DAILY;
+row 7: COMPLIMENTARY/TESTIMONIAL
+row 8: DAILY;
+row 9: DINNER
+row 10: COMPLIMENTARY/TESTIMONIAL
+row 11: OTHER (DAILY);
+row 12: ANNIVERSARY;
+row 13: ?
+row 14: [SOC?]
+row 15: RELIGIOUS HOLIDAY
+row 16: ANNIVERSARYERSARY
+row 17: SECULAR HOLIDAY
+row 18: COMPLIMENTARY/TESTIMONIAL
+row 19: COMPLIMENTARY/TESTIMONIAL
+row 20: COMPLIMENTARY/TESTIMONIAL
+row 21: COMPLIMENTARY/TESTIMONIAL
+row 22: ANNIVERSARY;
+row 23: DINNER
+row 24: COMPLIMENTARY/TESTIMONIAL
+row 25: SECULAR HOLIDAY
+row 26: OTHER (DAILY MENU)
+row 27: DAILY
+*/
+Purpose: Filter menus where the occasion column contains 'DAILY'.
+Target column: occasion
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: occasion
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+ `mass_edit` (The operation will be used to filter out all rows containing "DAILY" in the occasion column.)
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. Summary: The profiling results from four dimensions show that while the Accuracy and Relevance are True, Conciseness is False due to inconsistencies in the representation of 'DAILY'.
+
+2. Data Cleaning Objective: To rectify the inconsistencies in the occasion column by standardizing the representation of 'DAILY' (either with or without semicolons) and correcting other inconsistencies like "ANNIVERSARYERSARY". This will improve the Conciseness dimension.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate mass_edit arguments: 
+
+  [
+        {'from': ['DAILY;'], 'to': 'DAILY'},
+        {'from': ['DAILY'], 'to': 'DAILY'},
+        {'from': ['ANNIVERSARYERSARY'], 'to': 'ANNIVERSARY'}
+    ]
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"

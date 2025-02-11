@@ -5,32 +5,6 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "HospitalType",
-        "expression": "jython:import re\n\ndef standardize_hospital_type(value):\n    # Remove underscores, dashes, spaces and special characters\n    value = re.sub(r'[_-]', ' ', value)\n    value = re.sub(r'\\W+', ' ', value)\n    value = value.strip()\n\n    # Convert to lowercase\n    value = value.lower()\n\n    return value\n\n# Apply the function to each row in the HospitalType column\ncleaned_hospital_type = df['HospitalType'].apply(standardize_hospital_type)\n\n# Filter for rows where the standardized hospital type is 'acute care hospitals'\nfiltered_df = df[cleaned_hospital_type == 'acute care hospitals']\n\n# Count the number of occurrences in each county\ncounty_counts = filtered_df['County'].value_counts()[:3]\n\n# Print the top 3 counties and their counts\nprint(county_counts)\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import re\n\ndef standardize_hospital_type(value):\n    # Remove underscores, dashes, spaces and special characters\n    value = re.sub(r'[_-]', ' ', value)\n    value = re.sub(r'\\W+', ' ', value)\n    value = value.strip()\n\n    # Convert to lowercase\n    value = value.lower()\n\n    return value\n\n# Apply the function to each row in the HospitalType column\ncleaned_hospital_type = df['HospitalType'].apply(standardize_hospital_type)\n\n# Filter for rows where the standardized hospital type is 'acute care hospitals'\nfiltered_df = df[cleaned_hospital_type == 'acute care hospitals']\n\n# Count the number of occurrences in each county\ncounty_counts = filtered_df['County'].value_counts()[:3]\n\n# Print the top 3 counties and their counts\nprint(county_counts)\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "HospitalType",
-        "expression": "jython:import pandas as pd\n\n # Assuming you have a DataFrame df with columns 'County' and 'HospitalType'\n if 'acute care hospitals' not in df['HospitalType'].values:\n     # Adding dummy data for demonstration purposes. Replace this with actual data.\n     new_data = {'County': ['Applicable County 1', 'Applicable County 2', 'Applicable County 3'],\n                'HospitalType': ['acute care hospitals', 'acute care hospitals', 'acute care hospitals']}\n     df = pd.concat([df, pd.DataFrame(new_data)])\n\n # Now filter the dataframe for 'acute care hospitals' offering emergency services\n filtered_df = df[df['HospitalType'].str.contains('acute care hospitals')]\n\n # Count the top 3 counties based on their frequency\n top_counties = filtered_df['County'].value_counts().head(3)\n\n return top_counties.to_string(index=False, header=False)\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column HospitalType using expression jython:import pandas as pd\n\n # Assuming you have a DataFrame df with columns 'County' and 'HospitalType'\n if 'acute care hospitals' not in df['HospitalType'].values:\n     # Adding dummy data for demonstration purposes. Replace this with actual data.\n     new_data = {'County': ['Applicable County 1', 'Applicable County 2', 'Applicable County 3'],\n                'HospitalType': ['acute care hospitals', 'acute care hospitals', 'acute care hospitals']}\n     df = pd.concat([df, pd.DataFrame(new_data)])\n\n # Now filter the dataframe for 'acute care hospitals' offering emergency services\n filtered_df = df[df['HospitalType'].str.contains('acute care hospitals')]\n\n # Count the top 3 counties based on their frequency\n top_counties = filtered_df['County'].value_counts().head(3)\n\n return top_counties.to_string(index=False, header=False)\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
         "columnName": "CountyName",
         "expression": "value.toUppercase()",
         "onError": "set-to-blank",
@@ -45,11 +19,24 @@
             "mode": "row-based"
         },
         "columnName": "CountyName",
-        "expression": "jython:import pandas as pd # Assuming that you have a separate table with hospital data\n\n# Load the hospital data into a DataFrame\nhospitals = pd.read_csv('hospital_data.csv')\n\n# Join the hospital data to the original DataFrame based on CountyName\ndf = df.merge(hospitals, left_on='CountyName', right_on='CountyName', how='left')\n\n# Filter rows where HospitalType is 'acute care hospitals' and EmergencyServices is True\nfiltered_rows = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyServices'])]\n\n# Sort the filtered rows by the number of emergency services offered in descending order\nsorted_rows = filtered_rows.sort_values(by='EmergencyServices', ascending=False)\n\n# Select the top 3 counties\ntop_counties = sorted_rows.head(3)['CountyName']\n\n# Return the top 3 counties as a list\nreturn top_counties.tolist()\nreturn value",
+        "expression": "jython:import pandas as pd\\n# Assuming the DataFrame is named df\\ndf = df.drop_duplicates(subset='CountyName')\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column CountyName using expression jython:import pandas as pd # Assuming that you have a separate table with hospital data\n\n# Load the hospital data into a DataFrame\nhospitals = pd.read_csv('hospital_data.csv')\n\n# Join the hospital data to the original DataFrame based on CountyName\ndf = df.merge(hospitals, left_on='CountyName', right_on='CountyName', how='left')\n\n# Filter rows where HospitalType is 'acute care hospitals' and EmergencyServices is True\nfiltered_rows = df[(df['HospitalType'] == 'acute care hospitals') & (df['EmergencyServices'])]\n\n# Sort the filtered rows by the number of emergency services offered in descending order\nsorted_rows = filtered_rows.sort_values(by='EmergencyServices', ascending=False)\n\n# Select the top 3 counties\ntop_counties = sorted_rows.head(3)['CountyName']\n\n# Return the top 3 counties as a list\nreturn top_counties.tolist()\nreturn value"
+        "description": "Text transform on cells in column CountyName using expression jython:import pandas as pd\\n# Assuming the DataFrame is named df\\ndf = df.drop_duplicates(subset='CountyName')\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "jython:value = value.upper()\\nif value == 'YES':\\n    return 'Yes'\\nelif value == 'NO':\\n    return 'No'\\nelse:\\n    return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression jython:value = value.upper()\\nif value == 'YES':\\n    return 'Yes'\\nelif value == 'NO':\\n    return 'No'\\nelse:\\n    return value\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -63,5 +50,31 @@
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column EmergencyService using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "jython:import re\n   return value.lower().replace(\" \", \"\").replace(\"-\", \"\").replace(\"_\", \"\")\n   if value.lower() == \"acute care hospitals\":\n       return 1\n   else:\n       return 0\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression jython:import re\n   return value.lower().replace(\" \", \"\").replace(\"-\", \"\").replace(\"_\", \"\")\n   if value.lower() == \"acute care hospitals\":\n       return 1\n   else:\n       return 0\nreturn value"
     }
 ]

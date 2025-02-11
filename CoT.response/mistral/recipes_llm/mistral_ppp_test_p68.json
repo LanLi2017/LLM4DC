@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "BusinessType",
-        "expression": "jython:import re\n\n   # Define a pattern to match all possible variations of business types\n   pattern = r'|'.join([r'\\b(sole_proprietorship|limited-liability-company|corporation|subchapter_s_corporation|non-profit_organization|independent_contractors)\\b',\n                      r'\\b(self-employed-individuals-inc|limited-liability-company\\(llc\\)|limited-liability-company\\(LLC\\))\\b'])\n\n   # Use the pattern to standardize the business type names\n   def clean_business_type(value):\n       match = re.search(pattern, value)\n       if match:\n           return match.group(0).lower()\n       else:\n           return value\n\n   # Apply the function to each row in the BusinessType column\n   cleaned_data = [clean_business_type(row['BusinessType']) for index, row in data.iterrows()]\nreturn value",
+        "expression": "jython:import re\n\n   # Remove underscores, dashes, spaces, and convert to lowercase\n   return re.sub(r'[_- ]+', ' ', value).lower()\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column BusinessType using expression jython:import re\n\n   # Define a pattern to match all possible variations of business types\n   pattern = r'|'.join([r'\\b(sole_proprietorship|limited-liability-company|corporation|subchapter_s_corporation|non-profit_organization|independent_contractors)\\b',\n                      r'\\b(self-employed-individuals-inc|limited-liability-company\\(llc\\)|limited-liability-company\\(LLC\\))\\b'])\n\n   # Use the pattern to standardize the business type names\n   def clean_business_type(value):\n       match = re.search(pattern, value)\n       if match:\n           return match.group(0).lower()\n       else:\n           return value\n\n   # Apply the function to each row in the BusinessType column\n   cleaned_data = [clean_business_type(row['BusinessType']) for index, row in data.iterrows()]\nreturn value"
+        "description": "Text transform on cells in column BusinessType using expression jython:import re\n\n   # Remove underscores, dashes, spaces, and convert to lowercase\n   return re.sub(r'[_- ]+', ' ', value).lower()\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -19,23 +19,10 @@
             "mode": "row-based"
         },
         "columnName": "BusinessType",
-        "expression": "jython:import re\n\n# Standardize the capitalization and remove unnecessary spaces and special characters\ndef clean_business_type(value):\n    value = value.strip().lower()\n    value = re.sub(r'[^a-z0-9\\s]', '', value)\n    value = ' '.join(word.capitalize() for word in value.split())\n    return value\n\n# Apply the clean_business_type function to each cell in the BusinessType column\ndef regexr_transform(column):\n    return [clean_business_type(value) for value in column]\n\n# Assuming that the data is stored in a pandas DataFrame as df, and the BusinessType column is at index 0\ndf['BusinessType'] = regexr_transform(df['BusinessType'])\nreturn value",
+        "expression": "jython:import re\n\n# Standardize capitalization\ndef standardize_capitalization(value):\n  return value.lower().title()\n\n# Remove special characters and spaces\ndef remove_special_characters_and_spaces(value):\n  return re.sub(r'[^\\w\\s]', '', value).strip()\n\n# Combine the functions to clean the BusinessType column\ndef clean_business_type(value):\n  cleaned_capitalization = standardize_capitalization(value)\n  cleaned_special_characters = remove_special_characters_and_spaces(cleaned_capitalization)\n  return cleaned_special_characters\n\n# Apply the clean function to each row in the BusinessType column\nBusinessType_cleaned = [clean_business_type(row['BusinessType']) for index, row in df.iterrows()]\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column BusinessType using expression jython:import re\n\n# Standardize the capitalization and remove unnecessary spaces and special characters\ndef clean_business_type(value):\n    value = value.strip().lower()\n    value = re.sub(r'[^a-z0-9\\s]', '', value)\n    value = ' '.join(word.capitalize() for word in value.split())\n    return value\n\n# Apply the clean_business_type function to each cell in the BusinessType column\ndef regexr_transform(column):\n    return [clean_business_type(value) for value in column]\n\n# Assuming that the data is stored in a pandas DataFrame as df, and the BusinessType column is at index 0\ndf['BusinessType'] = regexr_transform(df['BusinessType'])\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "BusinessType",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column BusinessType using expression value.toUppercase()"
+        "description": "Text transform on cells in column BusinessType using expression jython:import re\n\n# Standardize capitalization\ndef standardize_capitalization(value):\n  return value.lower().title()\n\n# Remove special characters and spaces\ndef remove_special_characters_and_spaces(value):\n  return re.sub(r'[^\\w\\s]', '', value).strip()\n\n# Combine the functions to clean the BusinessType column\ndef clean_business_type(value):\n  cleaned_capitalization = standardize_capitalization(value)\n  cleaned_special_characters = remove_special_characters_and_spaces(cleaned_capitalization)\n  return cleaned_special_characters\n\n# Apply the clean function to each row in the BusinessType column\nBusinessType_cleaned = [clean_business_type(row['BusinessType']) for index, row in df.iterrows()]\nreturn value"
     }
 ]

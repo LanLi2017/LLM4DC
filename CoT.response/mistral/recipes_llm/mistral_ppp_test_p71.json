@@ -6,37 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "Lender",
-        "expression": "jython:import re\nvalue = value.strip() # remove leading/trailing spaces\nvalue = re.sub(r'\\s+', ' ', value) # replace multiple spaces with a single space\nvalue = re.sub(r'\\(.*\\)', '', value) # remove any text within parentheses\nvalue = re.sub(r'[.,:;!?]', '', value) # remove punctuation except for periods\nvalue = value.title() # standardize to title case\nreturn value\nreturn value",
+        "expression": "jython:import re\nimport pandas as pd\n\n# Assuming df is your DataFrame and 'Address' is the column containing full addresses\ndf['Zip Code'] = df['Address'].apply(lambda x: re.findall(r'\\b\\d{5}\\b', x))\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column Lender using expression jython:import re\nvalue = value.strip() # remove leading/trailing spaces\nvalue = re.sub(r'\\s+', ' ', value) # replace multiple spaces with a single space\nvalue = re.sub(r'\\(.*\\)', '', value) # remove any text within parentheses\nvalue = re.sub(r'[.,:;!?]', '', value) # remove punctuation except for periods\nvalue = value.title() # standardize to title case\nreturn value\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "Lender",
-        "expression": "jython:import collections\\nfrom collections import OrderedDict\\nresult = OrderedDict()\\nfor lender in df['Lender']:\\n if lender not in result:\\n result[lender] = 1\\n else:\\n result[lender] += 1\\noutput_list = []\\nfor key, value in result.items():\\n if value > 1:\\n output_list.append(key)\nreturn output_list\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column Lender using expression jython:import collections\\nfrom collections import OrderedDict\\nresult = OrderedDict()\\nfor lender in df['Lender']:\\n if lender not in result:\\n result[lender] = 1\\n else:\\n result[lender] += 1\\noutput_list = []\\nfor key, value in result.items():\\n if value > 1:\\n output_list.append(key)\nreturn output_list\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "Lender",
-        "expression": "jython:import re\n\n# Extract zip codes from Lender column using regex pattern for 5-digit numbers\npattern = r'\\b\\d{5}\\b'\nmatch = re.findall(pattern, ' '.join(value))\n\nif len(match) > 1:  # if multiple matches found, assume they are zip codes\n    unique_zipcodes = list(set(match))  # remove duplicates and convert to set for faster comparison\n\n    if len(unique_zipcodes) > 1:  # if more than one unique zip code is found, check for multiple loans\n        return True  # return True if multiple loans were made to distinct companies sharing the same Zip code\nelse:\n    return False  # return False if no multiple loans were made to distinct companies sharing the same Zip code\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column Lender using expression jython:import re\n\n# Extract zip codes from Lender column using regex pattern for 5-digit numbers\npattern = r'\\b\\d{5}\\b'\nmatch = re.findall(pattern, ' '.join(value))\n\nif len(match) > 1:  # if multiple matches found, assume they are zip codes\n    unique_zipcodes = list(set(match))  # remove duplicates and convert to set for faster comparison\n\n    if len(unique_zipcodes) > 1:  # if more than one unique zip code is found, check for multiple loans\n        return True  # return True if multiple loans were made to distinct companies sharing the same Zip code\nelse:\n    return False  # return False if no multiple loans were made to distinct companies sharing the same Zip code\nreturn value"
+        "description": "Text transform on cells in column Lender using expression jython:import re\nimport pandas as pd\n\n# Assuming df is your DataFrame and 'Address' is the column containing full addresses\ndf['Zip Code'] = df['Address'].apply(lambda x: re.findall(r'\\b\\d{5}\\b', x))\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -45,23 +19,10 @@
             "mode": "row-based"
         },
         "columnName": "Zip",
-        "expression": "value.trim()",
+        "expression": "jython:import re\n\ndef regexr_transform(column):\n    expression = \"return re.sub(r'[.\\-]', '', value)\"\n    return eval(expression)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column Zip using expression value.trim()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "Zip",
-        "expression": "value.trim()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column Zip using expression value.trim()"
+        "description": "Text transform on cells in column Zip using expression jython:import re\n\ndef regexr_transform(column):\n    expression = \"return re.sub(r'[.\\-]', '', value)\"\n    return eval(expression)\nreturn value"
     }
 ]

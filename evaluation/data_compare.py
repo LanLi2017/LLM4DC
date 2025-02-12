@@ -56,12 +56,12 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
     average_ratio = sum(match_ratios) / len(target_columns)
     return average_ratio
 
-tg_cols = 'src, sched_dep_time, act_dep_time'
-gd_df = pd.read_csv("../datasets/flights/cleaned_tables/flights_data_p113.csv")
-# pred_df = pd.read_csv("../datasets/flights/cleaned_tables/flights_data_p126.csv")
-pred_df = pd.read_csv ("../CoT.response/llama3.1/datasets_llm/llama3.1_flights_test_p113.csv")
-dirty_df = pd.read_csv("../datasets/flights/flights_data_p113.csv")
-print(f"llama column ratio on purpose 113: {average_match_ratio(gd_df, pred_df, tg_cols)}")
+# tg_cols = 'src'
+# gd_df = pd.read_csv("../datasets/flights/cleaned_tables/flights_data_p114.csv")
+# # pred_df = pd.read_csv("../datasets/flights/cleaned_tables/flights_data_p126.csv")
+# pred_df = pd.read_csv ("../CoT.response/mistral/datasets_llm/mistral_flights_test_p114.csv")
+# dirty_df = pd.read_csv("../datasets/flights/flights_data_p114.csv")
+# print(f"mistral column ratio on purpose 114: {average_match_ratio(gd_df, pred_df, tg_cols)}")
 # print(f"dirty column ration on purpose 125: {average_match_ratio(gd_df, dirty_df, tg_cols)}")
 # def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: str) -> float:
 #     match_ratios = []

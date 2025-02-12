@@ -95,7 +95,7 @@ def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     num_rows = min(num_rows, len(df))
     df = df.sample(n=num_rows)
     dropna=True
-    max_length = 15
+    max_length = 20
 
     # If no target column is specified, generate the full table
     if not tg_col:
@@ -667,9 +667,9 @@ def test_main():
     os.makedirs(log_dir, exist_ok=True)
 
     # pp_f = 'purposes/queries.csv'
-    # pp_f = 'purposes/all_purposes.csv'
+    pp_f = 'purposes/all_purposes.csv'
     # pp_f = 'purposes/m_pp.csv'
-    pp_f = 'purposes/pp_rerun.csv'
+    # pp_f = 'purposes/pp_rerun.csv'
     # pp_f = "purposes/ppp_dish_rerun.csv"
     # pp_f = 'purposes/dish_recheck.csv'
     # pp_f = 'purposes/flights_recheck.csv'
@@ -690,7 +690,7 @@ def test_main():
     # ds_file = "datasets/menu_data.csv"
     # ds_name = "menu_test"
     # 25-27 53,54 56-57 58-60 rerun date...
-    for index, row in pp_df.iloc[:3].iterrows():
+    for index, row in pp_df.iloc[98:114].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

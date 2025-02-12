@@ -1932,9 +1932,9 @@ if __name__ == '__main__':
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
     # model = 'dirty'
     # load results by LLMs
-    model = "llama3.1"
+    # model = "llama3.1"
     # model = "gemma2"
-    # model = "mistral"
+    model = "mistral"
     llm_folder = f"CoT.response/{model}/datasets_llm"
     par_fp = "/projects/bces/lanl2/LLM4DC"
     # par_fp = ".."

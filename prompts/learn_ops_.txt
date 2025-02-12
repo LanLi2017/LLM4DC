@@ -3,7 +3,75 @@ You can choose from the following Operations Pool: ```upper```， ```trim```, ``
 
 The examples below demonstrate the differences in usage for each operation.
 
-1. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
 
 /*
 col:  | id    | neighbourhood | room_type        | price 
@@ -27,70 +95,13 @@ Explanation: The Publish Date column contains lowercase make date formats invali
 Selected Operation: ```upper```
 Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
 
-2. ```trim```: Removes leading and trailing whitespaces in string data.
-
 /*
-col:  | Book Title            | Year            | First Name
-row 1: |   Against Method.     | Feyerabend,1975 | P.
-row 2: | Changing Order        | Collins,1985    | H.M.
-row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
 */
-Target column: Book Title
-Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
-Selected Operation: ```trim```
-Output: Against Method. | Changing Order | Exceeding Our Grasp
-
-3. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
-
-/*
-col:  | LoanAmount | City      | State | Zip  
-row 1: | 30333     | Hon       | HI    | 96814
-row 2: | 149900    | HONOLULU  | HI    | 96814  
-row 3: | 148100    | Honolulu  | HI    | 96814  
-row 4: | 334444    | CHI       | IL    | 60611  
-row 5: | 120       | urbana    | IL    | 61802  
-row 6: | 100000    | Chicagoo  | IL    |  
-*/
-Target column: City
-Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
-Selected Operation: ```mass_edit```
-Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
-
-4. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
-
-/*
-col:  | Product Code       | Cleaned Code  |
-row 1: | --ABC_123--       | ABC123        |
-row 2: | -XYZ-456-          | XYZ456        |
-row 3: | --LMN_789-000       | LMN789000     |
-*/
-Target column: Product Code
-Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
-Selected Operation: ```regexr_transform```
-Output: ABC123 | XYZ456 | LMN789000
-
-5. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
-
-/*
-col : | code | county | former province | area (km2) | population; census 2009 | capital
-row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
-row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
-row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
-*/
-Target column: population; census 2009
-Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
-Selected Operation: ```numeric```
-Output: 939370 | 649311 | 1109735
-
-6. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
-
-/*
-col :   |ISO/IEC Standard | Publish Date          | WG
-row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
-row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
-row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
-*/
-Target column: Publish Date
-Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
-Selected Operation: ```date```
-Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH

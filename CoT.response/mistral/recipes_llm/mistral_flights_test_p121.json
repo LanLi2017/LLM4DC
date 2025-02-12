@@ -5,63 +5,37 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "sched_dep_time",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "flight",
-        "expression": "python:import re\n\ndef standardize_flight_numbers(data):\n    return [re.sub(r'-', '', flight) if '-' in flight else flight for flight in data]\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression python:import re\n\ndef standardize_flight_numbers(data):\n    return [re.sub(r'-', '', flight) if '-' in flight else flight for flight in data]\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "flight",
-        "expression": "python\nimport pandas as pd\nfrom datetime import datetime\n\n# Assuming the data is already loaded into a DataFrame called df\ndf['Flight Number'] = df['flight'].str.extract(r'(?P<FlightNumber>\\d{6})')  # Extract flight number\ndf['Departure City'] = df['flight'].str.extract(r' ([A-Z]{3})')  # Extract departure city\ndf['Scheduled Departure Time'] = df['Departure City']  # Add a new column for scheduled departure time\n\n# Convert flight number to datetime object and set as actual departure time\ndf['Actual Departure Time'] = pd.to_datetime(df['Flight Number'], format='%Y%m%d')\n\n# Filter rows where the actual departure time is earlier than scheduled departure time\nearly_departures = df[(df['Actual Departure Time'] < df['Scheduled Departure Time'])].reset_index(drop=True)\nreturn value",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression python\nimport pandas as pd\nfrom datetime import datetime\n\n# Assuming the data is already loaded into a DataFrame called df\ndf['Flight Number'] = df['flight'].str.extract(r'(?P<FlightNumber>\\d{6})')  # Extract flight number\ndf['Departure City'] = df['flight'].str.extract(r' ([A-Z]{3})')  # Extract departure city\ndf['Scheduled Departure Time'] = df['Departure City']  # Add a new column for scheduled departure time\n\n# Convert flight number to datetime object and set as actual departure time\ndf['Actual Departure Time'] = pd.to_datetime(df['Flight Number'], format='%Y%m%d')\n\n# Filter rows where the actual departure time is earlier than scheduled departure time\nearly_departures = df[(df['Actual Departure Time'] < df['Scheduled Departure Time'])].reset_index(drop=True)\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "flight",
-        "expression": "value.toDate()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression value.toDate()"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
         "columnName": "act_dep_time",
         "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "jython:import re\n\n # Remove unnecessary hyphens and non-standard characters from the 'flight' column\n def standardize_flight(value):\n     return re.sub(r'[^-0-9A-Za-z]+', '', value)\n\n # Detect flights where the actual departure time is earlier than scheduled\n def detect_earlier_departure(value):\n     flight_number = standardize_flight(value)\n     if len(flight_number.split('-')) < 3:\n         return \"Not a valid flight number\"\n\n     flight_parts = flight_number.split('-')\n     airline_code, departure_city, arrival_city = flight_parts[0], flight_parts[1], flight_parts[2]\n\n     # Assuming that the data for scheduled and actual departure times are available in separate columns\n     scheduled_departure_time, actual_departure_time = get_departure_times(airline_code, departure_city)\n\n     if actual_departure_time < scheduled_departure_time:\n         return f\"Flight {flight_number} has an earlier departure than scheduled.\"\n     else:\n         return \"Flight is on schedule or later.\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import re\n\n # Remove unnecessary hyphens and non-standard characters from the 'flight' column\n def standardize_flight(value):\n     return re.sub(r'[^-0-9A-Za-z]+', '', value)\n\n # Detect flights where the actual departure time is earlier than scheduled\n def detect_earlier_departure(value):\n     flight_number = standardize_flight(value)\n     if len(flight_number.split('-')) < 3:\n         return \"Not a valid flight number\"\n\n     flight_parts = flight_number.split('-')\n     airline_code, departure_city, arrival_city = flight_parts[0], flight_parts[1], flight_parts[2]\n\n     # Assuming that the data for scheduled and actual departure times are available in separate columns\n     scheduled_departure_time, actual_departure_time = get_departure_times(airline_code, departure_city)\n\n     if actual_departure_time < scheduled_departure_time:\n         return f\"Flight {flight_number} has an earlier departure than scheduled.\"\n     else:\n         return \"Flight is on schedule or later.\"\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_dep_time",
+        "expression": "jython:import datetime\\nfrom zoneinfo import ZoneInfo\\nimport pytz\\n\\ndef normalize_datetime(dt):\\n    dt = dt.replace(tzinfo=pytz.utc)\\n    return datetime.datetime.strftime(dt, '%Y-%m-%d %H:%M:%S')\\n\\nreturn normalize_datetime(datetime.datetime.strptime(value, '%F %T%z'))\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_dep_time using expression jython:import datetime\\nfrom zoneinfo import ZoneInfo\\nimport pytz\\n\\ndef normalize_datetime(dt):\\n    dt = dt.replace(tzinfo=pytz.utc)\\n    return datetime.datetime.strftime(dt, '%Y-%m-%d %H:%M:%S')\\n\\nreturn normalize_datetime(datetime.datetime.strptime(value, '%F %T%z'))\nreturn value"
     }
 ]

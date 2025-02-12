@@ -6,23 +6,10 @@
             "mode": "row-based"
         },
         "columnName": "src",
-        "expression": "jython:import collections\\nvalues = set(value.lower() for value in column)\\nreturn len(values)\nreturn value",
+        "expression": "jython:import re\n\n# Define a pattern for airline names, which can be adjusted as needed\nairline_pattern = r'^(HELLOFLIGHT|United Airlines|Delta|American Airlines|Southwest Airlines|Allegiant Air)$'\n\ndef standardize_airlines(value):\n    # Check if the value matches any of the airline names in the pattern\n    match = re.match(airline_pattern, value.lower())\n\n    # If a match is found, return the standardized airline name (case-insensitive)\n    if match:\n        return match.group(0).upper()\n    else:\n        # If no match is found, return the original value unchanged\n        return value\n\n# Apply the function to each row in the 'src' column\ncleaned_src = df['src'].apply(standardize_airlines)\n\n# Count the number of unique airline carriers recorded\nnum_airlines = len(cleaned_src.unique())\n\nprint(\"Number of unique airline carriers:\", num_airlines)\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:import collections\\nvalues = set(value.lower() for value in column)\\nreturn len(values)\nreturn value"
-    },
-    {
-        "op": "core/text-transform",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "src",
-        "expression": "value.toUppercase()",
-        "onError": "set-to-blank",
-        "repeat": false,
-        "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression value.toUppercase()"
+        "description": "Text transform on cells in column src using expression jython:import re\n\n# Define a pattern for airline names, which can be adjusted as needed\nairline_pattern = r'^(HELLOFLIGHT|United Airlines|Delta|American Airlines|Southwest Airlines|Allegiant Air)$'\n\ndef standardize_airlines(value):\n    # Check if the value matches any of the airline names in the pattern\n    match = re.match(airline_pattern, value.lower())\n\n    # If a match is found, return the standardized airline name (case-insensitive)\n    if match:\n        return match.group(0).upper()\n    else:\n        # If no match is found, return the original value unchanged\n        return value\n\n# Apply the function to each row in the 'src' column\ncleaned_src = df['src'].apply(standardize_airlines)\n\n# Count the number of unique airline carriers recorded\nnum_airlines = len(cleaned_src.unique())\n\nprint(\"Number of unique airline carriers:\", num_airlines)\nreturn value"
     }
 ]

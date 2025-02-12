@@ -23986,3 +23986,1598 @@ INFO:root:data cleaning objectives:  **Summary:** The data in the 'airline_sourc
 INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project mistral_flights_test_p121 already exists!
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['tuple_id', 'src', 'flight', 'sched_dep_time', 'act_dep_time', 'sched_arr_time', 'act_arr_time'], 'table_column_priority': [['tuple_id', '1364', '1876', '2166'], ['src', 'orbitz', 'quicktrip', 'gofox'], ['flight', 'UA-248-PHX-ORD', 'UA-3515-IAD-MSP', 'AA-204-LAX-MCO'], ['sched_dep_time', '1900-03-31T12:57:00Z', '1900-03-31t08:15:00z', '1900-03-31T23:25:00Z'], ['act_dep_time', '1900-03-31t13:32:00z', '1900-03-31T08:12:00Z', '1900-03-31T23:25:00Z'], ['sched_arr_time', '1900-03-31T17:15:00Z', '1900-03-31T10:06:00Z', '1900-03-31T06:55:00Z'], ['act_arr_time', '1900-03-31T17:34:00Z', '1900-03-31T09:56:00Z', '1900-03-31T06:55:00Z']]}
+*/
+Purpose: Detect flights where the actual departure time is earlier than scheduled.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['flight', 'sched_dep_time', 'act_dep_time']
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: act_dep_time
+row 1: 1900-03-31t08:51:00z
+row 2: 1900-03-31T15:27:00Z
+row 3: 1900-03-31t14:44:00z
+row 4: 1900-03-31t16:29:00z
+row 5: 1900-03-31t06:02:00z
+row 6: 1900-03-31T14:44:00Z
+row 7: 1900-03-31T23:08:00Z
+row 8: 1900-03-31T00:41:00Z
+row 9: 1900-03-31T11:56:00Z
+row 10: 1900-03-31T16:29:00Z
+row 11: 1900-03-31T07:27:00Z
+row 12: 1900-03-31T10:19:00Z
+row 13: 1900-03-31T16:00:00Z
+row 14: 31-03-1900 11:05:00
+row 15: 1900-03-31t07:16:00z
+*/
+Purpose: Detect flights where the actual departure time is earlier than scheduled.
+Target column: act_dep_time
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: act_dep_time
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+1. `date` (to convert all values into a consistent date format)
+    2. `regexr_transform` (to handle the mixed case and timezone issues in some rows)
+
+The operation sequence would be as follows:
+
+```
+1. regexr_transform(s/[tTzZ]/T/g) - to ensure consistent use of 'T' and remove any 't', 'T', 'z', or 'Z' characters
+2. date(format:'YYYY-MM-dd HH:mm:ss') - to convert all values into a consistent date format
+```
+
+Output:
+
+```
+date(format:'YYYY-MM-dd HH:mm:ss', regexr_transform(s/[tTzZ]/T/g))
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. Summary: The act_dep_time column in the dataset is accurate, relevant, complete, but has mixed conciseness due to varying time representations.
+   2. Data Cleaning Objective: Standardize the time representation in the act_dep_time column for improved data consistency.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: flight
+row 1: AA-1522-SFO-ORD
+row 2: AA-518-MIA-JFK
+row 3: AA-466-IAH-MIA
+row 4: AA-4307-ORD-DTW
+row 5: AA-3859-IAH-ORD
+row 6: CO-1694-LAX-IAH
+row 7: AA-1733-ORD-PHX
+row 8: UA-248-PHX-ORD
+row 9: UA-233-LAX-JFK
+row 10: UA-2726-FLL-PHL
+row 11: CO-47-IAH-LAX
+row 12: AA-2312-DFW-DTW
+row 13: AA-2050-ORD-MIA
+row 14: AA-3804-PHL-ORD
+row 15: UA-6273-YYC-SFO
+*/
+Purpose: Detect flights where the actual departure time is earlier than scheduled.
+Target column: flight
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: flight
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+ `regexr_transform`
+
+Explanation: To extract the scheduled and actual flight times from the 'flight' column, we need a regular expression transformation. The operation will help us to parse the flight number and city pairs, and then separate the scheduled time (if available) from the flight number for comparison purposes.
+
+Here is an example of how the regexr_transform could look like:
+
+```
+regexr_transform(flight, r'(\w{2}-\d{3}-\w{3}-\w{3})(?:-(\d{4}))?')
+```
+
+This regular expression will match flight numbers in the format `airline-number-departure-arrival`, optionally followed by a scheduled time in the 4-digit year format. The output will be a list with two elements: [flight_number, scheduled_time]. If no scheduled time is present, the second element will be null or an empty string.
+
+After applying this transformation, you can perform further operations to compare the actual departure time (which might not be provided in the dataset) with the scheduled time and identify flights where the actual departure time is earlier than scheduled.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. The data quality issue is related to the conciseness of flight numbers as they contain unnecessary hyphens and letters that are not standardized.
+
+2. The objective for the next operation should be: Standardize the flight number format by removing unnecessary hyphens and non-standard characters from the 'flight' column, ensuring conciseness in data representation.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate regexr arguments: 
+
+ jython:import re
+
+ # Remove unnecessary hyphens and non-standard characters from the 'flight' column
+ def standardize_flight(value):
+     return re.sub(r'[^-0-9A-Za-z]+', '', value)
+
+ # Detect flights where the actual departure time is earlier than scheduled
+ def detect_earlier_departure(value):
+     flight_number = standardize_flight(value)
+     if len(flight_number.split('-')) < 3:
+         return "Not a valid flight number"
+
+     flight_parts = flight_number.split('-')
+     airline_code, departure_city, arrival_city = flight_parts[0], flight_parts[1], flight_parts[2]
+
+     # Assuming that the data for scheduled and actual departure times are available in separate columns
+     scheduled_departure_time, actual_departure_time = get_departure_times(airline_code, departure_city)
+
+     if actual_departure_time < scheduled_departure_time:
+         return f"Flight {flight_number} has an earlier departure than scheduled."
+     else:
+         return "Flight is on schedule or later."
+return value
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: sched_dep_time
+row 1: 1900-03-31t23:55:00z
+row 2: 03-31-1900 07:10:00
+row 3: 1900-03-31T16:25:00Z
+row 4: mar 31, 1900 23:25
+row 5: 1900-03-31T00:00:00Z
+row 6: Mar 31, 1900 11:50
+row 7: 1900-03-31T08:29:00Z
+row 8: 1900-03-31T11:50:00Z
+row 9: 1900-03-31t06:00:00z
+row 10: 31-03-1900 16:00:00
+row 11: 1900.03.31 14:55
+row 12: 1900-03-31T12:57:00Z
+row 13: 1900-03-31t20:00:00z
+row 14: March 31, 1900 16:15
+row 15: 1900-03-31t19:45:00z
+*/
+Purpose: Detect flights where the actual departure time is earlier than scheduled.
+Target column: sched_dep_time
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: sched_dep_time
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+1. `regexr_transform` (to ensure all dates are in a consistent format)
+    2. `date` (to convert the strings into datetime objects for comparison purposes)
+
+The output would be:
+```
+regexr_transform | date
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1- Summary: The data in the sched_dep_time column is valid and complete, but there are inconsistent date and time formats, making it difficult for easy comparison.
+
+2- Data Cleaning Objective: Normalize or standardize the date and time formats in the sched_dep_time column to ensure consistency.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate regexr arguments: 
+
+ jython:import datetime\nfrom zoneinfo import ZoneInfo\nimport pytz\n\ndef normalize_datetime(dt):\n    dt = dt.replace(tzinfo=pytz.utc)\n    return datetime.datetime.strftime(dt, '%Y-%m-%d %H:%M:%S')\n\nreturn normalize_datetime(datetime.datetime.strptime(value, '%F %T%z'))
+return value
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project mistral_flights_test_p122 creation finished.
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['tuple_id', 'src', 'flight', 'sched_dep_time', 'act_dep_time', 'sched_arr_time', 'act_arr_time'], 'table_column_priority': [['tuple_id', '403', '320', '1323'], ['src', 'airtravelcenter', 'weather', 'myrateplan'], ['flight', 'AA-2312-DFW-DTW', 'AA-2268-PHX-ORD', 'AA-222-LAX-BOS'], ['sched_dep_time', '1900-03-31T20:25:00Z', '1900-03-31T07:15:00Z', '1900-03-31T07:10:00Z'], ['act_dep_time', 'Mar 31, 1900 20:25', '', '1900-03-31T07:31:00Z'], ['sched_arr_time', '1900-03-31T23:50:00Z', '1900-03-31T11:35:00Z', '1900-03-31T15:30:00Z'], ['act_arr_time', '03/31/1900 23:50:00', '', '']]}
+*/
+Purpose: Identify flights with unrealistic durations (e.g., arrival time before departure time).
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ["flight", "act_dep_time", "act_arr_time"]
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: flight
+row 1: AA-643-MIA-ORD
+row 2: AA-1640-MIA-MCO
+row 3: AA-1664-MIA-ATL
+row 4: AA-222-LAX-BOS
+row 5: CO-52-IAH-LAX
+row 6: AA-1221-MCO-ORD
+row 7: UA-1500-IAH-GUA
+row 8: CO-50-CLE-EWR
+row 9: AA-3468-CVG-MIA
+row 10: UA-233-LAX-JFK
+row 11: UA-2726-FLL-PHL
+row 12: AA-4344-ORD-DTW
+row 13: AA-616-DFW-DTW
+row 14: UA-843-LAX-ORD
+row 15: AA-446-DFW-PHL
+*/
+Purpose: Identify flights with unrealistic durations (e.g., arrival time before departure time).
+Target column: flight
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: flight
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+ `regexr_transform`
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives:  Summary: The data is well-structured with no apparent issues that would hinder analysis of flight durations, but it lacks departure and arrival times to identify flights with unrealistic durations.
+
+   Data Cleaning Objective: Incorporate columns for departure and arrival times in the dataset to enable identification of flights with unrealistic durations.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK III: generate regexr arguments: 
+
+ python
+import pandas as pd
+
+data = {
+    'flight': ['AA-3823-LAX-DEN', 'AA-484-DFW-MIA', 'AA-2312-DFW-DTW', 'AA-4344-ORD-DTW',
+              'UA-2726-FLL-PHL', 'AA-85-JFK-SFO', 'AA-2268-PHX-ORD', 'CO-1694-LAX-IAH',
+              'UA-3515-IAD-MSP', 'CO-62-IAH-EWR', 'AA-3859-IAH-ORD', 'AA-1640-MIA-MCO',
+              'CO-1694-LAX-IAH', 'AA-2268-PHX-ORD'],
+    'departure_time': ['10:30', '12:00', '15:00', '17:00', '09:00', '08:00', '14:00', '16:00',
+                      '10:00', '11:00', '13:00', '15:00', '16:00', '14:00'],
+    'arrival_time': ['15:00', '14:00', '17:00', '18:00', '12:00', '13:00', '16:00', '19:00',
+                    '12:00', '12:30', '15:00', '17:00', '18:00', '16:00']
+}
+
+df = pd.DataFrame(data)
+return value
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: act_arr_time
+row 1: 03-31-1900 14:10:00
+row 2: 1900-03-31t16:23:00z
+row 3: 1900-03-31T21:53:00Z
+row 4: 1900-03-31t12:50:00z
+row 5: 1900-03-31T19:10:00Z
+row 6: 1900-03-31T13:40:00Z
+row 7: Mar 31, 1900 07:40
+row 8: 1900-03-31t14:46:00z
+row 9: 1900-03-31 19:39:00
+row 10: 1900-03-31T19:58:00Z
+row 11: 1900-03-31t09:31:00z
+row 12: 1900-03-31t09:13:00z
+row 13: 1900-03-31T09:45:00Z
+row 14: 1900-03-31T09:32:00Z
+row 15: 1900-03-31t16:56:00z
+*/
+Purpose: Identify flights with unrealistic durations (e.g., arrival time before departure time).
+Target column: act_arr_time
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: act_arr_time
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+1. `date` - This operation will help in converting all the date and time values into a standard format which can be easily compared for analysis. It will also ensure that the data type is consistent across the column, making it easier to identify any anomalies such as unrealistic durations.
+
+Output: ```date```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. Summary: The data quality assessment for the act_arr_time column indicates true accuracy, relevance, and completeness but false conciseness due to inconsistent representations of date and time.
+
+2. Data Cleaning Objective: Standardize the date and time format in the act_arr_time column for consistency before further analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:#TASK II: select operations: 
+
+ Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the differences in usage for each operation.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+Target column: Book Title
+Explanation: Some book titles have leading/trailing spaces, affecting format accuracy. trim removes these spaces without altering the content.
+Selected Operation: ```trim```
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+Target column: City
+Explanation:Different representations (Hon, HONOLULU, Honolulu) need standardization. Similarly, CHI should be converted to Chicago.
+Selected Operation: ```mass_edit```
+Output: Honolulu | Honolulu | Honolulu | Chicago | Urbana | Chicago
+
+3. ```regexr_transform```: Uses regular expressions (regex) to extract, replace, or transform text data based on patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+Target column: Product Code
+Explanation: The Product Code column contains underscores (_) and dashes (-), which should be removed for consistency. Using regexr_transform, we apply the regex pattern: jython:import re\nreturn re.sub(r'[_-]', '', value) This operation removes underscores and dashes, ensuring a clean format.
+Selected Operation: ```regexr_transform```
+Output: ABC123 | XYZ456 | LMN789000
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+Target column: population; census 2009
+Explanation: The population values are stored as floats (e.g., 939370.0). The numeric operation converts them into proper integers.
+Selected Operation: ```numeric```
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains mixed date formats (YYYY.MM.DD, MM/DD/YYYY, YYYY-MM-DD). Applying date ensures uniform ISO format. The 'T' and 'Z' must be uppercase first and ensure no spaces.
+Selected Operation: ```date```
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+Target column: neighbourhood
+Explanation: The column contains mixed capitalization (Ohare, OHARE, ohare). Applying upper ensures all values are consistent.
+Selected Operation: ```upper```
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |ISO/IEC Standard | Publish Date           | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+row 2 : |ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+*/
+Target column: Publish Date
+Explanation: The Publish Date column contains lowercase make date formats invalid. Applying upper ensures uniform ISO format.
+Selected Operation: ```upper```
+Output: 2005-10-04T00:02:00Z | 2008-09-14T00:12:00Z | 2009-10-12T00:00:00Z
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+Target column: Which is the most occurred flight?
+Explanation: The flight column contains lowercase and uppercase make data inconsistent.
+Selected Operation: ```upper```
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH
+
+ Based on table contents and Purpose provided as following, select a proper Operation from the ['upper', 'trim', 'mass_edit', 'regexr_transform', 'numeric', 'date'] and output the operation name in ``` ```.
+/*
+col: act_dep_time
+row 1: 1900.03.31 20:23
+row 2: Mar 31, 1900 20:25
+row 3: 1900-03-31t21:00:00z
+row 4: 1900-03-31T16:00:00Z
+row 5: 1900-03-31t08:12:00z
+row 6: 1900-03-31t10:10:00z
+row 7: 1900-03-31t12:13:00z
+row 8: 1900-03-31t15:31:00z
+row 9: 1900-03-31T23:25:00Z
+row 10: 1900-03-31t07:30:00z
+row 11: 1900-03-31t14:26:00z
+row 12: 1900-03-31T12:35:00Z
+row 13: 1900-03-31t17:22:00z
+row 14: 1900-03-31T18:30:00Z
+row 15: 03-31-1900 12:12:00
+*/
+Purpose: Identify flights with unrealistic durations (e.g., arrival time before departure time).
+Target column: act_dep_time
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: act_dep_time
+Selected Operation: 
+                              
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:
+Generated operation description:
+1. `date` - This operation will help in converting and standardizing the date format for better comparison and analysis. It will also ensure that the dates are in a consistent format, making it easier to identify any unrealistic durations (e.g., arrival time before departure time).
+
+Example:
+```python
+act_dep_time = pd.to_datetime(df['act_dep_time'], format='%Y-%m-%d %H:%M:%S')
+```
+Output:
+```
+0    1900-03-31 20:23:00
+1    1900-03-31 20:25:00
+2    1900-03-31 21:00:00
+3    1900-03-31 16:00:00
+4    1900-03-31 08:12:00
+5    1900-03-31 10:10:00
+6    1900-03-31 12:13:00
+7    1900-03-31 15:31:00
+8    1900-03-31 23:25:00
+9    1900-03-31 07:30:00
+10   1900-03-31 14:26:00
+11   1900-03-31 12:35:00
+12   1900-03-31 17:22:00
+13   1900-03-31 18:30:00
+14   1900-03-31 12:12:00
+```
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:data cleaning objectives: 1. Summary: The data in act_dep_time column is accurate, relevant, complete, but has inconsistent date formats.
+   2. Data Cleaning Objective: Standardize the date format across all rows of the act_dep_time column for consistent analysis.
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root:Project mistral_flights_test_p123 creation finished.
+INFO:root:#TASK I: Select target columns:
+
+This task is to learn how to select column based on given purpose. Select target columns from the table based on table contents and purpose. 
+
+The following are the Examples:
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: How many countries are involved?
+Selected columns: ```['country']```
+Explanations:
+similar words link to columns :
+countries -> country
+
+
+/*
+{
+  "table_caption": "south wales derby",
+  "columns": ["competition", "total matches", "cardiff win", "draw", "swansea win"],
+  "table_column_priority": [
+    ["competition", "league", "fa cup", "league cup"],
+    ["total matches", "55", "2", "5"],
+    ["cardiff win", "19", "0", "2"],
+    ["draw", "16", "27", "0"],
+    ["swansea win", "20", "2", "3"]
+  ]
+}
+*/
+Purpose: What cardiff wins have a draw greater than 27?
+Selected columns: ```['cardiff win', 'draw']```
+Explanations: 
+similar words link to columns :
+cardiff wins -> cardiff win
+a draw -> draw
+column value link to columns :
+27 -> draw
+semantic sentence link to columns :
+None
+
+/*
+{
+  "table_caption": "gambrinus liga",
+  "columns": ["season", "champions", "runner - up", "third place", "top goalscorer", "club"],
+  "table_column_priority": [
+    ["season", "1993 - 94", "1994 - 95", "1995 - 96"],
+    ["champions", "sparta prague (1)", "sparta prague (2)", "slavia prague (1)"],
+    ["runner - up", "slavia prague", "slavia prague", "sigma olomouc"],
+    ["third place", "ban\u00edk ostrava", "fc brno", "baumit jablonec"],
+    ["top goalscorer", "horst siegl (20)", "radek drulák (15)", "radek drulák (22)"],
+    ["club", "sparta prague", "drnovice", "drnovice"]
+  ]
+}
+*/
+Purpose: Who was the top goal scorer for the season 2010 - 2011?
+Selected columns: ```['season', 'top goalscorer']```
+Explanations:
+similar words link to columns :
+season 2010 - 2011 -> season
+the top goal scorer -> top goalscorer
+column value link to columns :
+2010 - 2011 -> season
+semantic sentence link to columns :
+the top goal scorer ... -> top goalscorer
+
+
+/*
+{
+  "table_caption": "2007 - 08 boston celtics season",
+  "columns": ["game", "date", "team", "score", "high points", "high rebounds", "high assists", "location attendance", "record"],
+  "table_column_priority": [
+    ["game", "74", "75", "76"],
+    ["date", "april 1", "april 2", "april 5"],
+    ["team", "chicago", "indiana", "charlotte"],
+    ["score", "106 - 92", "92 - 77", "101 - 78"],
+    ["high points", "allen (22)", "garnett (20)", "powe (22)"],
+    ["high rebounds", "perkins (9)", "garnett (11)", "powe (9)"],
+    ["high assists", "rondo (10)", "rondo (6)", "rondo (5)"],
+    ["location attendance", "united center 22225", "td banknorth garden 18624", "charlotte bobcats arena 19403"],
+    ["record", "59 - 15", "60 - 15", "61 - 15"]
+  ]
+}
+*/
+Purpose : Who had the most rebounds and who had the most points in game 74 against chicago?
+Selected columns: ```['game', 'team', 'high points', 'high rebounds']```
+Explanations:
+similar words link to columns :
+the most rebounds -> high rebounds
+the most points -> high points
+in game 74 -> game
+column value link to columns :
+74 -> game
+semantic sentence link to columns :
+2007 - 08 boston celtics season in game 74 against chicago -> team
+the most rebounds -> high rebounds
+the most points -> high points
+
+/*
+{
+  "table_caption": "list of largest airlines in central america & the caribbean",
+  "columns": ["rank", "airline", "country", "fleet size", "remarks"],
+  "table_column_priority": [
+    ["rank", "1", "2", "3"],
+    ["airline", "caribbean airlines", "liat", "cubana de aviaci\u00e3 cubicn"],
+    ["country", "trinidad and tobago", "antigua and barbuda", "cuba"],
+    ["fleet size", "22", "17", "14"],
+    ["remarks", "largest airline in the caribbean", "second largest airline in the caribbean", "operational since 1929"]
+  ]
+}
+*/
+Purpose: What is the remark on airline of dutch antilles express with fleet size over 4?
+Selected columns: ```['airline', 'fleet size', 'remarks']```
+Explanations:
+similar words link to columns :
+the remark -> remarks
+on airline -> airline
+fleet size -> fleet size
+column value link to columns :
+dutch antilles -> country
+4 -> fleet size
+semantic sentence link to columns :
+None
+
+*/
+Purpose: What is the match result that the record was a 10 - 3 (1) score in round 5 with a time of 5:00 minutes?
+Selected columns: ```['res', 'record', 'round', 'time']```
+Explanations:
+similar words link to columns :
+the record of the match was a 10 - 3 (1) score -> record
+the record -> record
+in round -> round
+a time -> time
+column value link to columns :
+10 - 3 (1) -> record
+5 -> round
+5:00 minutes -> time
+semantic sentence link to columns :
+match result -> res
+
+Note: The Selected columns must be a list in ``` ```.
+    
+    
+
+Based on table contents and Purpose provided below, ONLY output Selected columns as a list inside ``` ```. 
+/*
+{'table_caption': 'A mix of simple bibliographic description of the menus', 'columns': ['tuple_id', 'src', 'flight', 'sched_dep_time', 'act_dep_time', 'sched_arr_time', 'act_arr_time'], 'table_column_priority': [['tuple_id', '1015', '843', '1197'], ['src', 'travelocity', 'flights', 'usatoday'], ['flight', 'AA-3979-CVG-ORD', 'AA-1279-DFW-PHX', 'CO-16-LAX-EWR'], ['sched_dep_time', '', '1900-03-31t13:00:00z', '31-03-1900 10:25:00'], ['act_dep_time', '1900-03-31t08:04:00z', '1900-03-31T14:04:00Z', 'March 31, 1900 10:20'], ['sched_arr_time', '1900-03-31T08:00:00Z', '1900-03-31T14:35:00Z', '1900-03-31T18:44:00Z'], ['act_arr_time', '1900-03-31T08:06:00Z', '1900-03-31T15:30:00Z', '1900-03-31T18:34:00Z']]}
+*/
+Purpose: Analyze the trend of delayed departures by hour of the day.
+Selected columns:
+    
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 1: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 2: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 3: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 4: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 5: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 6: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 7: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 8: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 9: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 10: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 11: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 12: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 13: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 14: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 15: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 16: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 17: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 18: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 19: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 20: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 21: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 22: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 23: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 24: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 25: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 26: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 27: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 28: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 29: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 30: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 31: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 32: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 33: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 34: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 35: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 36: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 37: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 38: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 39: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 40: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 41: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+INFO:root: ['hour_of_day', 'delayed_departure_count']
+WARNING:root:Retry 42: Could not extract valid target columns. Regenerating...
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"

@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "flight",
-        "expression": "value.toDate()",
+        "expression": "jython:import re\nimport datetime\n\n# Assuming that the 'Scheduled Departure' and 'Actual Departure' are in the format 'YYYY-MM-DD HH:MM:SS'\nscheduled_departure = re.search(r'\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}', value)\nactual_departure = re.search(r'\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}', value, re.search)\n\nif scheduled_departure and actual_departure:\n    scheduled_time = datetime.datetime.strptime(scheduled_departure.group(), '%Y-%m-%d %H:%M:%S')\n    actual_time = datetime.datetime.strptime(actual_departure.group(), '%Y-%m-%d %H:%M:%S')\n\n    if scheduled_time > actual_time:\n        print('Late Flight')\n    else:\n        print('On Time Flight')\nelse:\n    print('Invalid Departure Time Format')\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column flight using expression value.toDate()"
+        "description": "Text transform on cells in column flight using expression jython:import re\nimport datetime\n\n# Assuming that the 'Scheduled Departure' and 'Actual Departure' are in the format 'YYYY-MM-DD HH:MM:SS'\nscheduled_departure = re.search(r'\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}', value)\nactual_departure = re.search(r'\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}', value, re.search)\n\nif scheduled_departure and actual_departure:\n    scheduled_time = datetime.datetime.strptime(scheduled_departure.group(), '%Y-%m-%d %H:%M:%S')\n    actual_time = datetime.datetime.strptime(actual_departure.group(), '%Y-%m-%d %H:%M:%S')\n\n    if scheduled_time > actual_time:\n        print('Late Flight')\n    else:\n        print('On Time Flight')\nelse:\n    print('Invalid Departure Time Format')\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -24,5 +24,18 @@
         "repeat": false,
         "repeatCount": 10,
         "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
     }
 ]

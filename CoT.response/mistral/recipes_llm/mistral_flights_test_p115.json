@@ -1,32 +1,15 @@
 [
     {
-        "op": "core/mass-edit",
+        "op": "core/text-transform",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
         "columnName": "flight",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [
-                    "UA-",
-                    "ua-"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "UA"
-            },
-            {
-                "from": [
-                    "AA-",
-                    "aa-"
-                ],
-                "fromBlank": false,
-                "fromError": false,
-                "to": "AA"
-            }
-        ],
-        "description": "Mass edit cells in column flight"
+        "expression": "jython:import collections\\nflight_numbers = [re.sub(r'[\\s-]', '', value.upper()) for value in column]\\nmost_frequent = collections.Counter(flight_numbers).most_common()[0][0]\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import collections\\nflight_numbers = [re.sub(r'[\\s-]', '', value.upper()) for value in column]\\nmost_frequent = collections.Counter(flight_numbers).most_common()[0][0]\nreturn value"
     }
 ]

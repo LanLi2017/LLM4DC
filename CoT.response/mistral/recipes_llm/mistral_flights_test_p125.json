@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "act_dep_time",
-        "expression": "python\nimport re\nfrom datetime import datetime\n\ndef standardize_date_format(value):\n    # Remove any non-alphanumeric characters except for slashes and colons\n    value = re.sub(r'[^a-zA-Z0-9/\\s]', '', value)\n\n    # Split the string into date and time parts\n    parts = value.split('T')\n    date_part = parts[0].replace('/', '-')\n    time_part = parts[1] if 'T' in value else ''\n\n    # Convert the date part to datetime object\n    try:\n        dt = datetime.strptime(date_part + ' 00:00:00', '%Y-%m-%d %H:%M:%S')\n    except ValueError:\n        print(f\"Invalid date format for {value}\")\n        return None\n\n    # If time part is provided, adjust the datetime object accordingly\n    if time_part:\n        try:\n            dt = dt.replace(hour=int(time_part.split(':')[0]), minute=int(time_part.split(':')[1]), second=int(time_part.split(':')[2]))\n        except ValueError:\n            print(f\"Invalid time format for {value}\")\n            return None\n\n    # Return the standardized datetime object as a string in YYYY-MM-DDTHH:MM:SSZ format\n    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')\n\n# Test the function with your table data\ndata = [\n    'Mar 31, 1900 08:26',\n    '1900-03-31t09:16:00z',\n    '1900-03-31T07:05:00Z',\n    '1900-03-31T23:08:00Z',\n    '1900-03-31t12:10:00z',\n    '31-03-1900 14:48:00',\n    '1900-03-31t14:26:00z',\n    '1900-03-31t06:02:00z',\n    # ... add more rows from your table here\n]\n\nfor value in data:\n    standardized_value = standardize_date_format(value)\n    if standardized_value is not None:\n        print(standardized_value)\nreturn value",
+        "columnName": "sched_dep_time",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression python\nimport re\nfrom datetime import datetime\n\ndef standardize_date_format(value):\n    # Remove any non-alphanumeric characters except for slashes and colons\n    value = re.sub(r'[^a-zA-Z0-9/\\s]', '', value)\n\n    # Split the string into date and time parts\n    parts = value.split('T')\n    date_part = parts[0].replace('/', '-')\n    time_part = parts[1] if 'T' in value else ''\n\n    # Convert the date part to datetime object\n    try:\n        dt = datetime.strptime(date_part + ' 00:00:00', '%Y-%m-%d %H:%M:%S')\n    except ValueError:\n        print(f\"Invalid date format for {value}\")\n        return None\n\n    # If time part is provided, adjust the datetime object accordingly\n    if time_part:\n        try:\n            dt = dt.replace(hour=int(time_part.split(':')[0]), minute=int(time_part.split(':')[1]), second=int(time_part.split(':')[2]))\n        except ValueError:\n            print(f\"Invalid time format for {value}\")\n            return None\n\n    # Return the standardized datetime object as a string in YYYY-MM-DDTHH:MM:SSZ format\n    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')\n\n# Test the function with your table data\ndata = [\n    'Mar 31, 1900 08:26',\n    '1900-03-31t09:16:00z',\n    '1900-03-31T07:05:00Z',\n    '1900-03-31T23:08:00Z',\n    '1900-03-31t12:10:00z',\n    '31-03-1900 14:48:00',\n    '1900-03-31t14:26:00z',\n    '1900-03-31t06:02:00z',\n    # ... add more rows from your table here\n]\n\nfor value in data:\n    standardized_value = standardize_date_format(value)\n    if standardized_value is not None:\n        print(standardized_value)\nreturn value"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -18,12 +18,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "act_dep_time",
+        "columnName": "sched_dep_time",
         "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column act_dep_time using expression value.toDate()"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -52,22 +52,17 @@
         "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
-        "op": "core/mass-edit",
+        "op": "core/text-transform",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
         "columnName": "sched_dep_time",
-        "expression": "value",
-        "edits": [
-            {
-                "from": [],
-                "fromBlank": false,
-                "fromError": false,
-                "to": null
-            }
-        ],
-        "description": "Mass edit cells in column sched_dep_time"
+        "expression": "jython:import datetime\\nfrom collections import defaultdict\n\n# Assuming there is a column named 'flight_number' and 'airline_source_name' in the dataset\nflight_data = defaultdict(list)\n\nfor row in data:  # assuming data is your DataFrame\n    flight_time = datetime.datetime.strptime(row['sched_dep_time'], '%Y-%m-%dT%H:%M:%S')\n    flight_data[row['flight_number']].append((row['airline_source_name'], flight_time))\n\n# Now you can group by flight number and access the list of tuples (airline, time) for each flight\nfor flight_num, flight_info in flight_data.items():\n    airline_times = [time for airline, time in flight_info]\n    # Perform your analysis on this cleaned data, such as calculating the on-time performance for each flight\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_dep_time using expression jython:import datetime\\nfrom collections import defaultdict\n\n# Assuming there is a column named 'flight_number' and 'airline_source_name' in the dataset\nflight_data = defaultdict(list)\n\nfor row in data:  # assuming data is your DataFrame\n    flight_time = datetime.datetime.strptime(row['sched_dep_time'], '%Y-%m-%dT%H:%M:%S')\n    flight_data[row['flight_number']].append((row['airline_source_name'], flight_time))\n\n# Now you can group by flight number and access the list of tuples (airline, time) for each flight\nfor flight_num, flight_info in flight_data.items():\n    airline_times = [time for airline, time in flight_info]\n    # Perform your analysis on this cleaned data, such as calculating the on-time performance for each flight\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -76,11 +71,11 @@
             "mode": "row-based"
         },
         "columnName": "sched_dep_time",
-        "expression": "python:import pandas as pd\\n# Assuming df is your DataFrame\\ndf = df.drop('sched_dep_time', axis=1)\nreturn value",
+        "expression": "value.toDate()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sched_dep_time using expression python:import pandas as pd\\n# Assuming df is your DataFrame\\ndf = df.drop('sched_dep_time', axis=1)\nreturn value"
+        "description": "Text transform on cells in column sched_dep_time using expression value.toDate()"
     },
     {
         "op": "core/text-transform",
@@ -89,10 +84,23 @@
             "mode": "row-based"
         },
         "columnName": "src",
-        "expression": "jython:import re\n\n # Remove underscores, dashes, spaces, colons, and periods\n cleaned_src = re.sub(r'[_- ]|:\\.|:', '', value).upper()\n return cleaned_src\nreturn value",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:import re\n\n # Remove underscores, dashes, spaces, colons, and periods\n cleaned_src = re.sub(r'[_- ]|:\\.|:', '', value).upper()\n return cleaned_src\nreturn value"
+        "description": "Text transform on cells in column src using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:import re\n\n# Define a regular expression pattern that matches all possible date and time formats in the 'act_dep_time' column\npattern = r'(19\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))T(20|2[0-3]):([0-5][0-9]):([0-5][0-9])Z'\n\n# Define a replacement pattern for the standardized date and time format\nreplacement = r'\\g<1>T\\g<2>:00:00Z'\n\n# Use re.sub to apply the replacement pattern to each value in the 'act_dep_time' column\nstandardized_act_dep_time = re.sub(pattern, replacement, act_dep_time)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:import re\n\n# Define a regular expression pattern that matches all possible date and time formats in the 'act_dep_time' column\npattern = r'(19\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))T(20|2[0-3]):([0-5][0-9]):([0-5][0-9])Z'\n\n# Define a replacement pattern for the standardized date and time format\nreplacement = r'\\g<1>T\\g<2>:00:00Z'\n\n# Use re.sub to apply the replacement pattern to each value in the 'act_dep_time' column\nstandardized_act_dep_time = re.sub(pattern, replacement, act_dep_time)\nreturn value"
     }
 ]

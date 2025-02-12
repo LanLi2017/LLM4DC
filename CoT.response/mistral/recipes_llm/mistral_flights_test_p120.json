@@ -6,11 +6,11 @@
             "mode": "row-based"
         },
         "columnName": "src",
-        "expression": "jython:import re\n\n# Remove any non-alphabetic characters, spaces, and underscores from the start or end of the string\nvalue = re.sub(r'[^a-zA-Z0-9]+|^\\s+|\\s+$', '', value)\n\n# Convert all remaining underscores to spaces\nvalue = re.sub(r'_', ' ', value)\n\n# Capitalize the first letter of the string\nvalue = value.capitalize()\n\nreturn value\nreturn value",
+        "expression": "jython:import re\n\n# Remove any non-alphabetic characters, underscores, and spaces from the start or end of the string\nvalue = re.sub(r'[^a-zA-Z_]+|^\\s+|\\s+$', '', value)\n\n# Replace multiple consecutive underscores with a single underscore\nvalue = re.sub(r'_{2,}', '_', value)\n\n# Convert the remaining underscores to lowercase\nvalue = value.lower()\n\nreturn value\nreturn value",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:import re\n\n# Remove any non-alphabetic characters, spaces, and underscores from the start or end of the string\nvalue = re.sub(r'[^a-zA-Z0-9]+|^\\s+|\\s+$', '', value)\n\n# Convert all remaining underscores to spaces\nvalue = re.sub(r'_', ' ', value)\n\n# Capitalize the first letter of the string\nvalue = value.capitalize()\n\nreturn value\nreturn value"
+        "description": "Text transform on cells in column src using expression jython:import re\n\n# Remove any non-alphabetic characters, underscores, and spaces from the start or end of the string\nvalue = re.sub(r'[^a-zA-Z_]+|^\\s+|\\s+$', '', value)\n\n# Replace multiple consecutive underscores with a single underscore\nvalue = re.sub(r'_{2,}', '_', value)\n\n# Convert the remaining underscores to lowercase\nvalue = value.lower()\n\nreturn value\nreturn value"
     },
     {
         "op": "core/text-transform",
@@ -19,11 +19,11 @@
             "mode": "row-based"
         },
         "columnName": "src",
-        "expression": "value.trim()",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression value.trim()"
+        "description": "Text transform on cells in column src using expression value.toUppercase()"
     },
     {
         "op": "core/text-transform",
@@ -32,10 +32,10 @@
             "mode": "row-based"
         },
         "columnName": "src",
-        "expression": "jython:import re\n\n# Define a function to standardize airline names by removing spaces and converting to uppercase\ndef standardize_airline(name):\n    return re.sub(r'\\s', '', name).upper()\n\n# Apply the function to each cell in the 'src' column\ntransformed_column = [standardize_airline(value) for value in df['src']]\n\n# Now, let's assume we have a new dataset with the standardized airline names\n# and we want to find out which airline handles the most delayed flights.\n# We can use a dictionary to count the number of delayed flights for each airline.\ndelayed_flights = {}\n\nfor index, row in df.iterrows():\n    airline = standardize_airline(row['src'])\n\n    # Assuming 'Delayed' column indicates whether the flight was delayed or not\n    if row['Delayed'] == 'Yes':\n        if airline not in delayed_flights:\n            delayed_flights[airline] = 1\n        else:\n            delayed_flights[airline] += 1\n\n# Find the airline with the most delayed flights\nmost_delayed_airline = max(delayed_flights, key=delayed_flights.get)\nprint(\"The airline handling the most delayed flights is:\", most_delayed_airline)\nreturn value",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column src using expression jython:import re\n\n# Define a function to standardize airline names by removing spaces and converting to uppercase\ndef standardize_airline(name):\n    return re.sub(r'\\s', '', name).upper()\n\n# Apply the function to each cell in the 'src' column\ntransformed_column = [standardize_airline(value) for value in df['src']]\n\n# Now, let's assume we have a new dataset with the standardized airline names\n# and we want to find out which airline handles the most delayed flights.\n# We can use a dictionary to count the number of delayed flights for each airline.\ndelayed_flights = {}\n\nfor index, row in df.iterrows():\n    airline = standardize_airline(row['src'])\n\n    # Assuming 'Delayed' column indicates whether the flight was delayed or not\n    if row['Delayed'] == 'Yes':\n        if airline not in delayed_flights:\n            delayed_flights[airline] = 1\n        else:\n            delayed_flights[airline] += 1\n\n# Find the airline with the most delayed flights\nmost_delayed_airline = max(delayed_flights, key=delayed_flights.get)\nprint(\"The airline handling the most delayed flights is:\", most_delayed_airline)\nreturn value"
+        "description": "Text transform on cells in column src using expression value.toUppercase()"
     }
 ]

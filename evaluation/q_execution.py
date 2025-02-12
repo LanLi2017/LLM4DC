@@ -29,9 +29,18 @@ class QExecute:
         res = page_count.mean()
         return int(res)
 
-    def pp3_exe(df:pd.DataFrame):
-        res = len(df['event'].value_counts())
-        return res 
+    def pp3_exe(df: pd.DataFrame):
+        """
+        Return a list of unique event values.
+        cols: event
+        """
+        try:
+            # Extract unique event values and return as a list
+            return df['event'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
 
     def pp4_exe(df:pd.DataFrame):
         res = len(df[df['event'] == 'DINNER'])
@@ -41,18 +50,35 @@ class QExecute:
         res = len(df[df['event'] == 'LUNCHEON'])
         return res
 
-    def pp6_exe(df:pd.DataFrame):
-        res = len(df['venue'].value_counts())
-        return res 
+    def pp6_exe(df: pd.DataFrame):
+        """
+        Return a list of unique venue values.
+        cols: venue
+        """
+        try:
+            # Extract unique venue values and return as a list
+            return df['venue'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
 
     def pp7_exe(df: pd.DataFrame):
         res = len(df[df['occasion'].astype(str).str.lower() == 'daily'])
         return res
 
-    def pp8_exe(df:pd.DataFrame):
-        df['occasion'] = df['occasion'].fillna('UNKNOWN')
-        res = len(df['occasion'].value_counts())
-        return res 
+    def pp8_exe(df: pd.DataFrame):
+        """
+        Return a list of unique occasion values, replacing NaN with 'UNKNOWN'.
+        cols: occasion
+        """
+        try:
+            # Extract unique occasion values and return as a list
+            return df['occasion'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
 
     def pp9_exe(df:pd.DataFrame):
         df['ratio'] = df['dish_count'] / df['page_count']
@@ -91,12 +117,21 @@ class QExecute:
             print(f"Error: {e}")
             return None
 
-    def pp12_exe(df:pd.DataFrame):
-        df['location'] = df['location'].fillna('UNKNOWN')
-        filtered_df = df[df['page_count'] > 8]
-        # Count the total number of locations in the filtered DataFrame
-        res = filtered_df['location'].count()
-        return int(res)
+    def pp12_exe(df: pd.DataFrame):
+        """
+        Return a list of unique locations where page_count > 8, replacing NaN with 'UNKNOWN'.
+        cols: location, page_count
+        """
+        try:
+            # Filter rows where page_count > 8
+            filtered_df = df[df['page_count'] > 8]
+
+            # Extract unique location values and return as a list
+            return filtered_df['location'].unique().tolist()
+        
+        except Exception as e:
+            return []
+
 
     def pp13_exe(df:pd.DataFrame):
         filtered_df = df[df['currency'].str.lower() == 'dollars']
@@ -152,11 +187,16 @@ class QExecute:
     
     def pp20_exe(df):
         """
-        Count the number of unique sponsors.
+        Return a list of unique sponsors.
         cols: sponsor
         """
-        unique_sponsors_count = df['sponsor'].nunique()
-        return unique_sponsors_count
+        try:
+            # Extract unique sponsor values and return as a list
+            return df['sponsor'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
     
     def pp21_exe(df):
         """
@@ -196,25 +236,30 @@ class QExecute:
     
     def pp24_exe(df):
         """
-        Count the number of different status values recorded in the table.
+        Return a list of unique status values, excluding NaN values.
         cols: status
         """
-        # Count unique values in status column
-        unique_status_count = df['status'].nunique()
-        return unique_status_count
-    
+        try:
+            # Extract unique status values, drop NaN, and return as a list
+            return df['status'].dropna().unique().tolist()
+        
+        except Exception as e:
+            return []
+
     def pp25_exe(df):
         """
-        Count menus that accept dollars as currency.
-        cols: sponsor, currency
+        Return a list of unique currency values in lowercase, excluding NaN values.
+        cols: currency
         """
-        # Convert currency column to lowercase for case-insensitive comparison
-        df['currency'] = df['currency'].str.lower()
+        try:
+            # Convert currency column to lowercase and drop NaN values
+            df['currency'] = df['currency'].str.lower()
+
+            # Extract unique currency values and return as a list
+            return df['currency'].dropna().unique().tolist()
         
-        # Count menus that accept dollars
-        dollar_count = df[df['currency'].str.contains('dollar', na=False)].shape[0]
-        
-        return dollar_count
+        except Exception as e:
+            return []
 
     def pp26_exe(df):
         """
@@ -285,25 +330,40 @@ class QExecute:
     
     def pp29_exe(df):
         """
-        Filter menus where the occasion column contains 'DAILY'.
+        Return a list of unique occasion values that contain 'daily' (case-insensitive).
         cols: occasion
         """
-        # Convert occasion to string and lowercase for case-insensitive comparison
-        df['occasion'] = df['occasion'].astype(str).str.lower()
+        try:
+            # Convert occasion to string and lowercase for case-insensitive comparison
+            df['occasion'] = df['occasion'].astype(str).str.lower()
+
+            # Filter occasions that contain 'daily'
+            daily_occasions = df[df['occasion'].str.contains('daily', na=False)]['occasion']
+
+            # Extract unique occasion values and return as a list
+            return daily_occasions.dropna().unique().tolist()
         
-        # Filter and count menus with 'daily' occasion
-        daily_count = df[df['occasion'].str.contains('daily', na=False)].shape[0]
-        
-        return daily_count
+        except Exception as e:
+            return []
+
     
     def pp30_exe(df):
         """
-        Count how many different types of currency appear in menus, excluding empty/null values.
+        Return a list of unique currency values in lowercase, excluding empty and NaN values.
         cols: currency
         """
-        # Remove empty/null values and get unique count
-        currency_count = df['currency'].dropna().replace('', np.nan).dropna().nunique()
-        return currency_count
+        try:
+            # Convert currency column to lowercase
+            df['currency'] = df['currency'].str.lower()
+
+            # Remove empty strings and NaN values
+            df_cleaned = df['currency'].replace('', np.nan).dropna()
+
+            # Extract unique currency values and return as a list
+            return df_cleaned.unique().tolist()
+        
+        except Exception as e:
+            return []
 
     def pp31_exe(df):
         # dataset: chicago 
@@ -1847,12 +1907,12 @@ if __name__ == '__main__':
     # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
     groundtruth_tag = False
     # groundtruth_tag = True
-    # dirty_tag = True
-    dirty_tag = False
+    dirty_tag = True
+    # dirty_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
-    # model = 'dirty'
+    model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
     # model = "gemma2"
@@ -1918,13 +1978,13 @@ if __name__ == '__main__':
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        # with open('answer_1-154_dirty.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
-
-        with open(f'answer_1-154_{model}.json', 'a') as f:
+        with open('answer_1-154_dirty.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
+
+        # with open(f'answer_1-154_{model}.json', 'a') as f:
+        #     f.write(json.dumps(result_single))
+        #     f.write('\n')
 
         # with open(f'answer_1-154_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))

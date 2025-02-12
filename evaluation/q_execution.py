@@ -1200,9 +1200,14 @@ class QExecute:
         try:
             df['parsed_sched_dep_time'] = df['sched_dep_time'].apply(safe_parse_datetime)
             df['parsed_act_dep_time'] = df['act_dep_time'].apply(safe_parse_datetime)
-
             df['delay'] = (df['parsed_act_dep_time'] - df['parsed_sched_dep_time']).dt.total_seconds() / 60
-            return df['delay'].mean(skipna=True)  # Only calculate mean for valid parsed values
+
+            delayed_flights = df[df['delay'] > 0]
+
+            # Extract unique, non-null scheduled departure times
+            unique_times = delayed_flights['sched_dep_time'].dropna().unique().tolist()
+
+            return unique_times
         except:
             return None
 
@@ -1243,7 +1248,12 @@ class QExecute:
         Count the number of unique airline carriers.
         cols: src
         """
-        return df['src'].nunique()
+        try:
+            # Drop NaN values and extract unique airline carriers
+            unique_carriers = df['src'].dropna().unique().tolist()
+            return unique_carriers
+        except Exception as e:
+            return str(e)  # Return error message for debugging
 
 
     def pp115_exe(df):
@@ -1251,7 +1261,12 @@ class QExecute:
         Identify the most common flight number.
         cols: flight
         """
-        return df['flight'].value_counts().idxmax()
+        try:
+            # Drop NaN values and extract unique airline carriers
+            unique_flights = df['flight'].dropna().unique().tolist()
+            return unique_flights
+        except Exception as e:
+            return str(e)  # Return error message for debugging
 
 
     # def pp116_exe(df):
@@ -1291,9 +1306,12 @@ class QExecute:
         """
         try:
             df['on_time'] = df['sched_arr_time'] == df['act_arr_time']
-            return df.groupby('src')['on_time'].sum().to_dict()
-        except:
-            return {}
+            # Filter only carriers with at least one on-time arrival
+            on_time_carriers = df[df['on_time']]['src'].dropna().unique().tolist()
+
+            return on_time_carriers
+        except Exception as e:
+            return str(e)
 
     def pp118_exe(df):
         """
@@ -1907,16 +1925,16 @@ if __name__ == '__main__':
     # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
     groundtruth_tag = False
     # groundtruth_tag = True
-    dirty_tag = True
-    # dirty_tag = False
+    # dirty_tag = True
+    dirty_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
-    model = 'dirty'
+    # model = 'dirty'
     # load results by LLMs
-    # model = "llama3.1"
+    model = "llama3.1"
     # model = "gemma2"
-    model = "mistral"
+    # model = "mistral"
     llm_folder = f"CoT.response/{model}/datasets_llm"
     par_fp = "/projects/bces/lanl2/LLM4DC"
     # par_fp = ".."
@@ -1973,18 +1991,18 @@ if __name__ == '__main__':
         
         answer = getattr(qexecute, func)(target_df)
         
-        # print('answer', type(answer), answer)
+        print('answer', type(answer), answer)
         result_single = {'pp_id': query_id,
                         'purpose': row['Purposes'].values.tolist()[0],
                         'answer': answer}
         # print(result_single)
-        with open('answer_1-154_dirty.json', 'a') as f:
-            f.write(json.dumps(result_single))
-            f.write('\n')
-
-        # with open(f'answer_1-154_{model}.json', 'a') as f:
+        # with open('answer_1-154_dirty.json', 'a') as f:
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
+
+        with open(f'answer_1-154_{model}.json', 'a') as f:
+            f.write(json.dumps(result_single))
+            f.write('\n')
 
         # with open(f'answer_1-154_gt.json', 'a') as f:
         #     f.write(json.dumps(result_single))

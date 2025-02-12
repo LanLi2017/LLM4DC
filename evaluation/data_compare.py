@@ -25,20 +25,21 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
 
     for column in target_columns:
         match_count = 0
-        non_null_matches = np.where(gd_df[column].notnull() & pred_df[column].notnull())[0]
+        non_null_matches = np.where(gd_df[column].notnull())[0]
 
         for idx in non_null_matches:
             gd_values = gd_df[column][idx]
             pred_values = pred_df[column][idx]
 
             # Ensure both values are strings before checking for dates
-            if isinstance(gd_values, str) and isinstance(pred_values, str):
-                if is_iso_format_date(gd_values) and is_iso_format_date(pred_values):
+            if isinstance(gd_values, str):
+                if is_iso_format_date(gd_values):
                     # Case-sensitive match for dates
                     if gd_values == pred_values:
+                        print(f"Date Match: {gd_values} <--> {pred_values}")
                         match_count += 1
                     else:
-                        print(f"Date Mismatch: {gd_values} <--> {pred_values}")
+                        print(f"Date Mismatch: {gd_values} <-!-> {pred_values}")
                 else:
                     # Case-insensitive comparison for non-date strings
                     if gd_values.upper() == pred_values.upper():
@@ -47,14 +48,21 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
                         print(f"String Mismatch: {gd_values} <--> {pred_values}")
             elif gd_values == pred_values:
                 match_count += 1
-
-        match_ratio = match_count / len(gd_df)
+        print(match_count)
+        match_ratio = match_count / len(non_null_matches)
+        print(f'match_ratio: {match_ratio} == match_count {match_count} / length {len(gd_df)}')
         match_ratios.append(match_ratio)
 
     average_ratio = sum(match_ratios) / len(target_columns)
     return average_ratio
 
-
+tg_cols = 'src, sched_dep_time, act_dep_time'
+gd_df = pd.read_csv("../datasets/flights/cleaned_tables/flights_data_p113.csv")
+# pred_df = pd.read_csv("../datasets/flights/cleaned_tables/flights_data_p126.csv")
+pred_df = pd.read_csv ("../CoT.response/llama3.1/datasets_llm/llama3.1_flights_test_p113.csv")
+dirty_df = pd.read_csv("../datasets/flights/flights_data_p113.csv")
+print(f"llama column ratio on purpose 113: {average_match_ratio(gd_df, pred_df, tg_cols)}")
+# print(f"dirty column ration on purpose 125: {average_match_ratio(gd_df, dirty_df, tg_cols)}")
 # def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: str) -> float:
 #     match_ratios = []
 #     tg_columns = tg_columns.split(',')

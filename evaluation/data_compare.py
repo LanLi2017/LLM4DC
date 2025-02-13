@@ -32,7 +32,7 @@ def average_match_ratio(gd_df: pd.DataFrame, pred_df: pd.DataFrame, tg_columns: 
             pred_values = pred_df[column][idx]
 
             # Ensure both values are strings before checking for dates
-            if isinstance(gd_values, str):
+            if isinstance(gd_values, str) and isinstance(pred_values, str):
                 if is_iso_format_date(gd_values):
                     # Case-sensitive match for dates
                     if gd_values == pred_values:

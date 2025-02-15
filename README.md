@@ -35,23 +35,3 @@ The benchmark is proposed to evalaute the capability of LLM agents to automatica
 | call_or.py|  OpenRefine API invocation script|
 | requirements.txt | dependencies|
 
-
-## Dependencies [TODO]
-To establish the environment run this code in the shell:
-```bash
-conda env create -f 
-pip install 
-```
-That will create the environment `autodc` we used.
-
-
-## Usage
-### Environment setup [TODO]
-Activate the environment by running
-``````shell
-conda activate 
-``````
-
-### Run [TODO]
-Check out commands in `.py`
-

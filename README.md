@@ -1,6 +1,6 @@
 ## AutoDCWorkflow🔗: LLM-based Data Cleaning Workflow Auto-Generation and Benchmark 
 
-Code for paper [AutoDCWorkflow: LLM-based Data Cleaning Workflow Auto-Generation and Benchmark](https://arxiv.org/abs/2412.06724). 
+Code for paper [AutoDCWorkflow: LLM-based Data Cleaning Workflow Auto-Generation and Benchmark]. 
 
 ### Introduction
 We investigate the reasoning capability of large language models (LLMs) for automatically generating data-cleaning workflows. To evaluate LLMs' ability to complete data-cleaning tasks, we implemented a pipeline for LLM-based <strong>Auto</strong> <strong>D</strong>ata <strong>C</strong>leaning <strong>Workflow</strong> (AutoDCWorkflow), prompting LLMs on data cleaning operations to repair three types of data quality issues: duplicates, missing values, and inconsistent data formats. 

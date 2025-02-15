@@ -55,14 +55,3 @@ conda activate
 ### Run [TODO]
 Check out commands in `.py`
 
-## Citation
-If you find our work helpful, please cite as
-```
-@article{li2024autodcworkflow,
-  title={AutoDCWorkflow: LLM-based Data Cleaning Workflow Auto-Generation and Benchmark},
-  author={Li, Lan and Fang, Liri and Torvik, Vetle I},
-  journal={arXiv preprint arXiv:2412.06724},
-  year={2024}
-}
-```
-

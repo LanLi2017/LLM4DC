@@ -2,6 +2,7 @@ import pandas as pd
 import json
 import numpy as np
 import re
+import os
 
 # Create a folder with all the query results:
 # {'purpose id': , 'purpose': , 'answer':}
@@ -1734,9 +1735,12 @@ class QExecute:
         """
         Analyze trends in emergency service availability across hospital types with the highest hospital counts.
         """
-        df['EmergencyService'] = df['EmergencyService'].str.lower()
-        hospital_type_with_most_emergency_service = df[df['EmergencyService'] == 'yes'].groupby('HospitalType').size().idxmax()
-        return hospital_type_with_most_emergency_service
+        try:
+            df['EmergencyService'] = df['EmergencyService'].astype(str).str.lower()
+            hospital_type_with_most_emergency_service = df[df['EmergencyService'] == 'yes'].groupby('HospitalType').size().idxmax()
+            return hospital_type_with_most_emergency_service
+        except:
+            return None
 
     def pp143_exe(df):
         """
@@ -1930,12 +1934,16 @@ if __name__ == '__main__':
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
+    base_tag = True
     # model = 'dirty'
     # load results by LLMs
     # model = "llama3.1"
-    # model = "gemma2"
-    model = "mistral"
-    llm_folder = f"CoT.response/{model}/datasets_llm"
+    model = "gemma2"
+    # model = "mistral"
+    # model = "gemma2base"
+    # llm_folder = f"CoT.response/{model}/datasets_llm"
+    # ablation as baseline
+    llm_folder = f"ablation/{model}/datasets_llm"
     par_fp = "/projects/bces/lanl2/LLM4DC"
     # par_fp = ".."
     for query_id in range(0,155):
@@ -1972,6 +1980,32 @@ if __name__ == '__main__':
                 target_path = f'{par_fp}/datasets/CFI_datasets/chi_food_data_p{query_id}.csv'
             elif query_id <31:
                 target_path = f'{par_fp}/datasets/menu_datasets/menu_p{query_id}.csv'
+        elif base_tag:
+            print(f"current model: {model}")
+            if query_id >126:
+                target_path = f'{par_fp}/{llm_folder}/base_{model}_hos_test_p{query_id}.csv'
+                if not os.path.exists(target_path):
+                    target_path = f'{par_fp}/datasets/hospital/hos_data_p{query_id}.csv'
+            elif query_id >= 111 and query_id <=126:
+                target_path = f'{par_fp}/{llm_folder}/base_{model}_flights_test_p{query_id}.csv'
+                if not os.path.exists(target_path):
+                    target_path = f'{par_fp}/datasets/flights/flights_data_p{query_id}.csv'
+            elif query_id >= 92 and query_id <=110:
+                target_path = f'{par_fp}/{llm_folder}/base_{model}_dish_test_p{query_id}.csv'
+                if not os.path.exists(target_path):
+                    target_path = f'{par_fp}/datasets/dish_datasets/dish_data_p{query_id}.csv'
+            elif query_id >= 62 and query_id <= 91:
+                target_path = f'{par_fp}/{llm_folder}/base_{model}_ppp_test_p{query_id}.csv'
+                if not os.path.exists(target_path):
+                    target_path = f'{par_fp}/datasets/ppp_datasets/ppp_data_p{query_id}.csv'
+            elif query_id >= 31 and query_id <= 61:
+                target_path = f'{par_fp}/{llm_folder}/base_{model}_chi_test_p{query_id}.csv'
+                if not os.path.exists(target_path):
+                    target_path = f'{par_fp}/datasets/CFI_datasets/chi_food_data_p{query_id}.csv'
+            elif query_id <31:
+                target_path = f'{par_fp}/{llm_folder}/base_{model}_menu_test_p{query_id}.csv'
+                if not os.path.exists(target_path):
+                    target_path = f'{par_fp}/datasets/menu_datasets/menu_p{query_id}.csv'
         else:
             print(f"current model: {model}")
             if query_id >126:
@@ -2000,7 +2034,7 @@ if __name__ == '__main__':
         #     f.write(json.dumps(result_single))
         #     f.write('\n')
 
-        with open(f'answer_1-154_{model}.json', 'a') as f:
+        with open(f'answer_1-154_base_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
 

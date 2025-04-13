@@ -1,0 +1,22 @@
+python
+import pandas as pd
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+# Load the data into a Pandas DataFrame
+data = pd.read_csv('Inst.csv', header=None)
+data.columns = ['Unnamed: 0', 'id', 'name', 'sponsor', 'event', 'venue', 'place', 'physical_description', 'occasion', 'notes', 'call_number', 'keywords', 'language', 'date', 'location', 'location_type', 'currency', 'currency_symbol', 'status', 'page_count', 'dish_count']
+
+# Extract the date from each row and convert it to a format that can be used for analysis (YYYY)
+data['date'] = data['date'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
+data['year'] = data['date'].apply(lambda x: x.year)
+
+# Group the dates by year and count the number of menus published per year
+menus_per_year = data.groupby('year')['id'].count()
+
+# Visualize the results using a bar chart or line graph
+plt.bar(menus_per_year.index, menus_per_year.values)
+plt.xlabel('Year')
+plt.ylabel('Number of Menus Published')
+plt.title('Trend of Menu Publication Over Time')
+plt.show()

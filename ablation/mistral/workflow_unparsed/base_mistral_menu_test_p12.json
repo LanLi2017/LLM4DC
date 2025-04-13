@@ -1,0 +1,22 @@
+// Import necessary libraries
+    import pandas as pd
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    // Load the data into a DataFrame
+    df = pd.read_csv("your_data_file.csv")
+
+    // Define a function to convert date strings to proper date objects with timezone
+    def parse_date(x):
+        return datetime.strptime(x, "%Y-%m-%d").replace(tzinfo=ZoneInfo('UTC'))
+
+    // Apply the function to the 'date' column
+    df['date'] = pd.to_datetime(df['date'], errors='coerce').dt.normalize()
+
+    // Filter rows with menus and count the number of pages greater than 8
+    menu_rows = df[df['event'].str.contains('menu')]
+    menu_locations = menu_rows['location'].fillna('UNKNOWN')
+    num_pages_greater_than_8 = menu_rows[menu_rows['page_count'] > 8]['location'].value_counts()
+
+    // Print the result
+    print(num_pages_greater_than_8)

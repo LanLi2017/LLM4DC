@@ -1,0 +1,28 @@
+// Import required libraries
+    const moment = require('moment');
+    const _ = require('lodash');
+
+    // Assuming data is your table data and purpose is provided
+    let data = [/* your table data */];
+    let menuData = [];
+
+    // Iterate through the data and push menu details into a new array
+    data.forEach(row => {
+        if (row['event'] === 'LUNCH' || row['event'].includes('TENDERED')) {
+            let dateObj = moment(row['date'], "MM/DD/YYYY")
+// Assuming date is in MM/DD/YYYY format
+            menuData.push({
+                name: row['name'],
+                dishCount: row['dish_count'],
+                pageCount: row['page_count'],
+                date: dateObj,
+                location: row['location']
+            });
+        }
+    });
+
+    // Calculate the ratio for each menu and sort them in descending order
+    let sortedMenus = _.orderBy(menuData, ['dishCount/pageCount'], ['desc']);
+
+    // Return the menu with the highest ratio
+    console.log(sortedMenus[0]);

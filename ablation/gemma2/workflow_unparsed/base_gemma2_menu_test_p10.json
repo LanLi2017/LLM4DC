@@ -1,0 +1,10 @@
+python
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("DishCountAnalysis").getOrCreate()
+
+df = spark.read.csv("path/to/your/data.csv", header=True, inferSchema=True)
+
+average_dish_count = df.selectExpr("avg(dish_count) as average_dishes").collect()[0]["average_dishes"]
+
+print(f"The average dish count per menu is: {average_dish_count}")

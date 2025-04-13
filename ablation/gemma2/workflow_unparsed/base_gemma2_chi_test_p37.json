@@ -1,0 +1,57 @@
+[
+  {
+    "columnName": "DBA Name",
+    "op": "lower",
+    "args": ""
+  },
+  {
+    "columnName": "Results",
+    "op": "replace",
+    "args": "\"paas\",\"pass\", \"pas\""
+  },
+  {
+    "columnName": "Results",
+    "op": "replace",
+    "args": "\"Out of Business\",\"Fail\""
+  },
+  {
+    "columnName": "Inspection Date",
+    "op": "date",
+    "args": ""
+  },
+  {
+    "groupBy": [
+      "DBA Name"
+    ],
+    "op": "count",
+    "as": "Total Inspections"
+  },
+  {
+    "groupBy": [
+      "DBA Name"
+    ],
+    "filter": {
+      "column": "Results",
+      "operator": "eq",
+      "value": "Pass"
+    },
+    "op": "count",
+    "as": "Passing Inspections"
+  },
+  {
+    "op": "join",
+    "leftOn": "DBA Name",
+    "rightOn": "DBA Name"
+  },
+  {
+    "op": "calculate",
+    "expression": "(Passing Inspections / Total Inspections) * 100",
+    "as": "Pass Rate"
+  },
+  {
+    "sortBy": [
+      "Pass Rate",
+      "desc"
+    ]
+  }
+]

@@ -1,0 +1,124 @@
+**Instruction:**
+
+You are given a table and a specific analysis **purpose**. Your task is to generate a complete **data cleaning workflow** in JSON format (enclosed within triple backticks ```) that transforms the table such that the **target columns** are of high enough quality to support the purpose. The workflow consists of one or more cleaning **operations** (e.g., `trim`, `upper`, `mass_edit`, `regexr_transform`, `numeric`, `date`, etc.), each applied to a specific column with appropriate arguments.
+
+Each workflow should include:
+- All operations needed to correct quality issues in the **target columns**.
+- Operations applied in logical order.
+- Meaningful `args` (e.g., mappings for `mass_edit`, regex for `regexr_transform`, etc.)
+
+After the workflow, briefly explain **why** each operation was used in relation to the analysis purpose.
+
+**Example 1**
+
+/*
+LoanAmount | City       | State  | Zip 
+30333      | honolulu   | HI     |96814
+149900     |  HONOLULU  | HI     |
+148100     | honoLULU   | HI     | 96814
+334444     |            | IL     |
+120        |  URBANA    | IL     | 61802
+100000     | chicago    | IL     | 
+1000.      |  champaign | IL     | 61820
+*/
+
+Purpose: Figure out how many unique cities are in the table.
+Workflow:
+```
+[
+  {
+    "columnName": "City",
+    "op": "trim",
+    "args": ""
+  },
+  {
+    "columnName": "City",
+    "op": "upper",
+    "args": ""
+  }
+]
+```
+Explanation: To count distinct cities, the `City` column must be cleaned. `trim` removes extra whitespace, and `upper` resolves case inconsistencies such as "honolulu", "HONOLULU", "honoLULU".
+
+**Example 2**
+
+/*
+```
+ProductID | ProductName               | Category        | Price
+1001      | -Wireless Mouse-          | Elec            | 19.99
+1002      | Bluetooth Keyboard        | Elec            | 49.99
+1003      | USB-C Hub                 | Electronics     | 39.99
+1004      | Gaming Labtop             | computers       | 999.99
+1005      | _Office Chair_            |  Furniture       | 149.99
+1006      | -Standing Desk-           | furniture;       | 299.99
+1007      | Noise-Canceling Headphones| Electronics     | 199.99
+```
+*/
+
+Purpose: Identify the most expensive furniture-type product.
+Workflow:
+```
+[
+  {
+    "columnName": "Price",
+    "op": "numeric",
+    "args": ""
+  },
+  {
+    "columnName": "Category",
+    "op": "trim",
+    "args": ""
+  },
+  {
+    "columnName": "Category",
+    "op": "mass_edit",
+    "args": "[{\"from\": [\"Elec\", \"Electronics\"], \"to\": \"Electronics\"}, {\"from\": [\"Furniture\", \"furniture;\"], \"to\": \"Furniture\"}]"
+  },
+  {
+    "columnName": "Category",
+    "op": "upper",
+    "args": ""
+  },
+  {
+    "columnName": "ProductName",
+    "op": "regexr_transform",
+    "args": "import re\nvalue = re.sub(r'[_-]', ' ', value)\nreturn value"
+  },
+  {
+    "columnName": "ProductName",
+    "op": "trim",
+    "args": ""
+  }
+]
+```
+Explanation: To support this purpose, the `Category` column must be standardized (trim, mass_edit, upper). `Price` needs to be numeric. `ProductName` is cleaned to remove formatting artifacts (`regexr_transform`, `trim`).
+
+
+**Example 3**
+
+/*
+```
+ISO/IEC Standard | Publish Date           | WG
+ISO/IEC TR 19759 | 2005-10-04t00:02:00z   | 20
+ISO/IEC 15288    | 2008-09-14t00:12:00z   | 7
+ISO/IEC 12207.   | 2009-10-12t00:00:00z   | 7
+```
+*/
+
+Purpose: List all the publish dates in a standard format.
+Workflow:
+```
+[
+  {
+    "columnName": "Publish Date",
+    "op": "upper",
+    "args": ""
+  },
+  {
+    "columnName": "Publish Date",
+    "op": "date",
+    "args": ""
+  }
+]
+```
+Explanation: `Publish Date` values are in inconsistent formats with time zones and casing. `upper` ensures consistency, and `date` converts strings to proper date objects.

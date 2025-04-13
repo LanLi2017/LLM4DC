@@ -1,0 +1,20 @@
+javascript
+    // Load data from CSV file
+    const csv = require('csv-parser');
+    const fs = require('fs');
+
+    let data = [];
+
+    fs.createReadStream('data.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+            // Filter rows where event is 'MENU' and physical_description contains 'ILLUS'
+            if (row.event === 'MENU' && row.physical_description.includes('ILLUS')) {
+                data.push(row);
+            }
+        })
+        .on('end', () => {
+            // Sort data by dish_count in descending order and get the first element (highest number of dishes)
+            const sponsorWithMaxDishes = data.sort((a, b) => b.dish_count - a.dish_count)[0];
+
+            console.log(

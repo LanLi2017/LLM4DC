@@ -1,0 +1,142 @@
+Instruction: You are a data cleaning expert responsible for preparing datasets for future analysis by selecting the most appropriate cleaning operations. Your goal is to enhance formatting consistency, conciseness, and usability, but do not directly address the analysis purpose. Instead, focus on making the data well-structured and clean for further use.
+You can choose from the following Operations Pool: ```upper```， ```trim```, ```mass_edit```, ```regexr_transform```, ```numeric```, ```date```.
+
+The examples below demonstrate the how to apply operation and generate args on columnName so that we could resolve data errors and improve data quality.
+
+1. ```trim```: Removes leading and trailing whitespaces in string data.
+
+/*
+col:  | Book Title            | Year            | First Name
+row 1: |   Against Method.     | Feyerabend,1975 | P.
+row 2: | Changing Order        | Collins,1985    | H.M.
+row 3: |  Exceeding Our Grasp  | Stanford,2006   | P.K.
+*/
+
+Selected Operation: ```{"columnName": "Book Title", "operation":"trim", args: ""}```
+Explanation: operation trim (no args needed) is applied to column Book Title, to remove extra leading/trailing white spaces in book titles which affect format accuracy.
+Output: Against Method. | Changing Order | Exceeding Our Grasp
+
+2. ```mass_edit```: Standardizes categorical data by replacing variations of similar values with a consistent representation. The args include: 'from': A list of **unique incorrect values** found in the dataset that need standardization. and 'to': A **single correct version** inferred from the dataset or properly generated.
+
+/*
+col:  | LoanAmount | City      | State | Zip  
+row 1: | 30333     | Hon       | HI    | 96814
+row 2: | 149900    | HONOLULU  | HI    | 96814  
+row 3: | 148100    | Honolulu  | HI    | 96814  
+row 4: | 334444    | CHI       | IL    | 60611  
+row 5: | 120       | urbana    | IL    | 61802  
+row 6: | 100000    | Chicagoo  | IL    |  
+*/
+
+Selected Operation: ```{"columnName": "City", "operation":"mass_edit", args: "[{'from': ['Hon', 'HONOLULU', 'Honolulu'], 'to': 'Honolulu'}, {'from': ['CHI', 'Chicagoo'], 'to': 'Chicago'}]"}```
+Explanation: operation mass_edit is applied to column City, with args as a list of dictionaries(replace cell values in 'from' with 'to'): standardize different representations (Hon, HONOLULU, Honolulu) to Honolulu; Similarly, CHI and Chicagoo are repaired to Chicago. 
+Output: Honolulu | Honolulu | Honolulu | Chicago | urbana | Chicago
+
+
+/*
+col : id | neighbourhood      | room_type  | price 
+row 1 : 46154    | OHare      | Entire home/apt     | 65
+row 2 : 6715     | OHARE      | Entire home/apt     | 255 
+row 3 : 228273   | O?Hare     | Private room        | 109
+*/
+
+Selected Operation: ```{"columnName": "neighbourhood", "operation":"mass_edit", args:"[{'from': ['O?Hare'], 'to': 'OHare'}]"}```
+Explanation: operation mass_edit is applied to column neighbourhood, with args (replace cell values in 'from' with 'to') so that cell values are changed from O?Hare to OHare, to repair the invalid character ?.
+Output: OHare | OHare | OHare
+
+3. ```regexr_transform```: The regexr_transform is to extract, replace and transform data based on patterns. args is a python-like function to capture and match the patterns.
+
+/*
+col:  | Product Code       | Cleaned Code  |
+row 1: | --ABC_123--       | ABC123        |
+row 2: | -XYZ-456-          | XYZ456        |
+row 3: | --LMN_789-000       | LMN789000     |
+*/
+
+Selected Operation: ```{"columnName": "Product Code", "operation": "regexr_transform", args: "jython:import re\nreturn re.sub(r'[_-]', '', value)"}```
+Explanation: Operation regexr_transform is applied on column Product Code to remove underscores (_) and dashes (-) for consistency.
+Output: ABC123 | XYZ456 | LMN789000
+
+/*
+col : Book Title             | Year           | First Name
+row 1 : Against Method.      | Feyerabend,1975 | P.
+row 2 : Changing Order       | Collins,1985   | H.M.
+row 3 : Exceeding Our Grasp  | Stanford,2006  | P.K.
+*/
+
+Selected Operation: ```{"columnName": "Year", "operation":"regexr_transform", "args": "jython: import re\n match = re.search(r'\b\d{4}\b', value)\nif match:\n  value = match.group(0)\n return value"}```
+Explanation: Apply operation regexr_transform with args on column Year to extract Year.
+Python Expression:``` ```
+Output: 1975 | 1985 | 2006  
+
+/*
+col:  | Schedule Time    | Actual Time  |
+row 1: | -10:25_A.M.       | 10:28 A.M.     |
+row 2: | 9:05-a.m.       | 9:05 A.M.      |
+row 3: | --8:29-P.M.--   | 8:30 P.M.      |
+*/
+
+Selected Operation: ```{"columnName": "Schedule Time", "operation":"regexr_transform", "args": "import re\n value = re.sub(r'[_-]', ' ', value)\n return value"}```
+Explanation: Operation regexr_transform is applied to standardize the formats, args is implemented to Remove Underscores and Dashes. 
+Output: 10:25 A.M. | 9:05 a.m. |  8:29 P.M. 
+
+/*
+col : Year | Competition | Venue | Position | Notes
+row 1 : 1991 | European  Junior Championships | Thessaloniki, Greece | 10th | 4.90 m
+row 2 : 1992 | World   Junior Championships   | Seoul, South Korea | 1st | 5.45 m
+row 3 : 1996 | European Indoor    Championships  | Stockholm, Sweden | 14th (q) | 5.45 m
+*/
+
+Selected Operation: ```{"columnName": "Position", "operation":"regexr_transform", "args": "import re\nvalue = re.sub(r'\s{2,}', '', value)\n return value"}```
+Explanation: operation regexr_transform is used on column Position, args is implemented to Remove Extra Spaces
+Output: European Junior Championships | World Junior Championships | European Indoor Championships  
+
+4. ```numeric```: Converts numbers stored as strings into actual numeric format (integers or floats).
+
+/*
+col : | code | county | former province | area (km2) | population; census 2009 | capital
+row 1 : | 1 | mombasa | coast | 212.5 | 939370.0 | mombasa (city)
+row 2 : | 2 | kwale | coast | 8,270.3 | 649931.0 | kwale
+row 3 : | 3 | kilifi | coast | 12,245.9 | 1109735.0 | kilifi
+*/
+
+Selected Operation: ```{"columnName": "population; census 2009", "operation":"numeric", "args": ""}```
+Explanation: Operation numeric(no args needed) is applied on column population; census 2009 to convert cell values to correct data type as integers.
+Output: 939370 | 649311 | 1109735
+
+5. ```date```: date CANNOT be applied to normal string, but ONLY Converts **valid date-like strings** into the ISO 8601 format (YYYY-MM-DDT00:00:00Z) for consistency.
+
+/*
+col :   |ISO/IEC Standard | Publish Date          | WG
+row 1 : |ISO/IEC TR 19759 | 2005-10-04            | 20
+row 2 : |ISO/IEC 15288    | 09/14/2008            | 7
+row 3 : |ISO/IEC 12207.   | 2009-10-12T00:00:00Z  | 7
+*/
+
+Selected Operation: ```{"columnName": "Publish Date", "operation":"date", args: ""}```
+Explanation: Operation date (no args needed) is applied on column Publish Date to convert the date format data into standard ISO format.
+Output: 2005-10-04T00:00:00Z | 2008-09-14T00:00:00Z | 2009-10-12T00:00:00Z
+
+6. ```upper```: Converts all text values in a column to uppercase, ensuring format consistency for string data.
+
+/*
+col:  | id    | neighbourhood | room_type        | price 
+row 1: | 46154 | Ohare        | Entire home/apt  | 65
+row 2: | 6715  | OHARE        | Entire home/apt  | 255 
+row 3: | 228273| ohare        | Private room     | 109
+*/
+
+Selected Operation: ```{"columnName": "neighbourhood", "operation":"upper", args: ""}```
+Explanation: Operation upper(no args needed) is applied on column neighbourhood to capitalize text to resolve case variations.
+Output: OHARE | OHARE | OHARE
+
+/*
+col :   |flight    
+row 1 : |ua-414-lax-sfo
+row 2 : |aa-1279-dfw-phx   
+row 3 : |  CO-1090-bos-IAH    
+*/
+
+Selected Operation: ```{"columnName": "flight", "operation":"upper", args: ""}```
+Explanation: Operation upper(no args needed) is applied on column flight to resolve mixed lowercase and uppercase.
+Output: UA-414-LAX-SFO| AA-1279-DFW-PHX | CO-1090-BOS-IAH

@@ -1922,104 +1922,44 @@ class QExecute:
             return []
 
 
-
 if __name__ == '__main__':
-    # Load ground truth dataset 
-    
-    # ground truth cfi: 31,32,33,34,36,37,38,39,40,41,42,49,52
-    groundtruth_tag = False
-    # groundtruth_tag = True
-    # dirty_tag = True
-    dirty_tag = False
     qexecute = QExecute
     # Load queries contents
     query_contents = pd.read_csv('../purposes/all_purposes.csv')
-    base_tag = True
     # model = 'dirty'
     # load results by LLMs
-    # model = "llama3.1"
-    model = "gemma2"
+    model = "llama3.1"
+    # model = "gemma2"
     # model = "mistral"
     # model = "gemma2base"
-    # llm_folder = f"CoT.response/{model}/datasets_llm"
-    # ablation as baseline
-    llm_folder = f"ablation/{model}/datasets_llm"
+    llm_folder = f"Error_Analysis/{model}/datasets_llm"
     par_fp = "/projects/bces/lanl2/LLM4DC"
-    # par_fp = ".."
-    for query_id in range(0,155):
-        row = query_contents[query_contents['ID'] == query_id]
-        if len(row) == 0:
-            continue
+    pp_fp = par_fp+'/purposes/'+'llama_log.csv'
+    # pp_fp = par_fp+'/purposes/'+'mistral_log.csv'
+    pp_data = pd.read_csv(pp_fp)
+    print(pp_data['ID'])
+    assert len(pp_data)==20
+
+    for _,row in pp_data.iterrows():
+        query_id, query_content = row['ID'], row['Purposes']
+        # row = query_contents[query_contents['ID'] == query_id]
+        # if len(row) == 0:
+        #     continue
         func = f'pp{query_id}_exe'
         print(func)
-        if groundtruth_tag: 
-            print('here running ground truth ...')
-            if query_id >126:
-               target_path = f'{par_fp}/datasets/hospital/clean_tables/hos_pp{query_id}.csv'
-            elif query_id >= 111 and query_id <=126:
-                target_path = f'{par_fp}/datasets/flights/cleaned_tables/flights_data_p{query_id}.csv'
-            elif query_id >= 92 and query_id <=110:
-                target_path = f'{par_fp}/datasets/dish_datasets/cleaned_tables/dish_sample_p{query_id}.csv'
-            elif query_id >= 62 and query_id <= 91:
-                target_path = f'{par_fp}/datasets/ppp_datasets/cleaned_tables/ppp_sample_p{query_id}.csv'
-            elif query_id >= 31 and query_id <= 61:
-                target_path = f'{par_fp}/datasets/CFI_datasets/cleaned_tables/chi_sample_p{query_id}.csv'
-            elif query_id <31:
-                target_path = f'{par_fp}/datasets/menu_datasets/clean_tables/menu_sample_p{query_id}.csv'
-        elif dirty_tag:
-            print('dirty data loading...')
-            if query_id >126:
-               target_path = f'{par_fp}/datasets/hospital/hos_data_p{query_id}.csv'
-            elif query_id >= 111 and query_id <=126:
-                target_path = f'{par_fp}/datasets/flights/flights_data_p{query_id}.csv'
-            elif query_id >= 92 and query_id <=110:
-                target_path = f'{par_fp}/datasets/dish_datasets/dish_data_p{query_id}.csv'
-            elif query_id >= 62 and query_id <= 91:
-                target_path = f'{par_fp}/datasets/ppp_datasets/ppp_data_p{query_id}.csv'
-            elif query_id >= 31 and query_id <= 61:
-                target_path = f'{par_fp}/datasets/CFI_datasets/chi_food_data_p{query_id}.csv'
-            elif query_id <31:
-                target_path = f'{par_fp}/datasets/menu_datasets/menu_p{query_id}.csv'
-        elif base_tag:
-            print(f"current model: {model}")
-            if query_id >126:
-                target_path = f'{par_fp}/{llm_folder}/base_{model}_hos_test_p{query_id}.csv'
-                if not os.path.exists(target_path):
-                    target_path = f'{par_fp}/datasets/hospital/hos_data_p{query_id}.csv'
-            elif query_id >= 111 and query_id <=126:
-                target_path = f'{par_fp}/{llm_folder}/base_{model}_flights_test_p{query_id}.csv'
-                if not os.path.exists(target_path):
-                    target_path = f'{par_fp}/datasets/flights/flights_data_p{query_id}.csv'
-            elif query_id >= 92 and query_id <=110:
-                target_path = f'{par_fp}/{llm_folder}/base_{model}_dish_test_p{query_id}.csv'
-                if not os.path.exists(target_path):
-                    target_path = f'{par_fp}/datasets/dish_datasets/dish_data_p{query_id}.csv'
-            elif query_id >= 62 and query_id <= 91:
-                target_path = f'{par_fp}/{llm_folder}/base_{model}_ppp_test_p{query_id}.csv'
-                if not os.path.exists(target_path):
-                    target_path = f'{par_fp}/datasets/ppp_datasets/ppp_data_p{query_id}.csv'
-            elif query_id >= 31 and query_id <= 61:
-                target_path = f'{par_fp}/{llm_folder}/base_{model}_chi_test_p{query_id}.csv'
-                if not os.path.exists(target_path):
-                    target_path = f'{par_fp}/datasets/CFI_datasets/chi_food_data_p{query_id}.csv'
-            elif query_id <31:
-                target_path = f'{par_fp}/{llm_folder}/base_{model}_menu_test_p{query_id}.csv'
-                if not os.path.exists(target_path):
-                    target_path = f'{par_fp}/datasets/menu_datasets/menu_p{query_id}.csv'
-        else:
-            print(f"current model: {model}")
-            if query_id >126:
-                target_path = f'{par_fp}/{llm_folder}/{model}_hos_test_p{query_id}.csv'
-            elif query_id >= 111 and query_id <=126:
-                target_path = f'{par_fp}/{llm_folder}/{model}_flights_test_p{query_id}.csv'
-            elif query_id >= 92 and query_id <=110:
-                target_path = f'{par_fp}/{llm_folder}/{model}_dish_test_p{query_id}.csv'
-            elif query_id >= 62 and query_id <= 91:
-                target_path = f'{par_fp}/{llm_folder}/{model}_ppp_test_p{query_id}.csv'
-            elif query_id >= 31 and query_id <= 61:
-                target_path = f'{par_fp}/{llm_folder}/{model}_chi_test_p{query_id}.csv'
-            elif query_id <31:
-                target_path = f'{par_fp}/{llm_folder}/{model}_menu_test_p{query_id}.csv'
+        print(f"current model: {model}")
+        if query_id >126:
+            target_path = f'{par_fp}/{llm_folder}/log_{model}_hos_p{query_id}.csv'
+        elif query_id >= 111 and query_id <=126:
+            target_path = f'{par_fp}/{llm_folder}/log_{model}_flights_p{query_id}.csv'
+        elif query_id >= 92 and query_id <=110:
+            target_path = f'{par_fp}/{llm_folder}/log_{model}_dish_p{query_id}.csv'
+        elif query_id >= 62 and query_id <= 91:
+            target_path = f'{par_fp}/{llm_folder}/log_{model}_ppp_p{query_id}.csv'
+        elif query_id >= 31 and query_id <= 61:
+            target_path = f'{par_fp}/{llm_folder}/log_{model}_chi_p{query_id}.csv'
+        elif query_id <31:
+            target_path = f'{par_fp}/{llm_folder}/log_{model}_menu_p{query_id}.csv'
         print(target_path)
         target_df = pd.read_csv(target_path)
         
@@ -2027,18 +1967,10 @@ if __name__ == '__main__':
         
         print('answer', type(answer), answer)
         result_single = {'pp_id': query_id,
-                        'purpose': row['Purposes'].values.tolist()[0],
+                        'purpose': query_content,
                         'answer': answer}
-        # print(result_single)
-        # with open('answer_1-154_dirty.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
 
-        with open(f'answer_1-154_{model}.json', 'a') as f:
+        with open(f'log_answer_{model}.json', 'a') as f:
             f.write(json.dumps(result_single))
             f.write('\n')
 
-        # with open(f'answer_1-154_gt.json', 'a') as f:
-        #     f.write(json.dumps(result_single))
-        #     f.write('\n')
-        

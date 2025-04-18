@@ -5,12 +5,12 @@
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "dish_count",
-        "expression": "value.toNumber()",
+        "columnName": "sponsor",
+        "expression": "value.trim()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column dish_count using expression value.toNumber()"
+        "description": "Text transform on cells in column sponsor using expression value.trim()"
     },
     {
         "op": "core/text-transform",
@@ -32,10 +32,23 @@
             "mode": "row-based"
         },
         "columnName": "sponsor",
-        "expression": "jython:import re\n\n# Assuming that the column containing the menu items is named 'Menu Items'\ndef count_menu_items(value):\n    # Remove any non-alphanumeric characters and convert to lowercase for easier counting\n    value = re.sub(r'\\W+', '', value).lower()\n\n    # Split the string into words (assuming each dish is a separate word)\n    dishes = value.split()\n\n    return len(dishes)\n\n# Apply the function to each row in the 'sponsor' column and store the results in a new column named 'Number of Dishes'\ndf['Number of Dishes'] = df['sponsor'].apply(count_menu_items)\n\n# Now, find the sponsors that offer the highest number of dishes on their menu\nmax_dishes = df['Number of Dishes'].max()\ntop_sponsors = df[df['Number of Dishes'] == max_dishes]['sponsor'].tolist()\nreturn value",
+        "expression": "value.toUppercase()",
         "onError": "set-to-blank",
         "repeat": false,
         "repeatCount": 10,
-        "description": "Text transform on cells in column sponsor using expression jython:import re\n\n# Assuming that the column containing the menu items is named 'Menu Items'\ndef count_menu_items(value):\n    # Remove any non-alphanumeric characters and convert to lowercase for easier counting\n    value = re.sub(r'\\W+', '', value).lower()\n\n    # Split the string into words (assuming each dish is a separate word)\n    dishes = value.split()\n\n    return len(dishes)\n\n# Apply the function to each row in the 'sponsor' column and store the results in a new column named 'Number of Dishes'\ndf['Number of Dishes'] = df['sponsor'].apply(count_menu_items)\n\n# Now, find the sponsors that offer the highest number of dishes on their menu\nmax_dishes = df['Number of Dishes'].max()\ntop_sponsors = df[df['Number of Dishes'] == max_dishes]['sponsor'].tolist()\nreturn value"
+        "description": "Text transform on cells in column sponsor using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "dish_count",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column dish_count using expression value.toNumber()"
     }
 ]

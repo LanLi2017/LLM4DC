@@ -721,7 +721,7 @@ def test_main():
     logging_dir = f"{log_dir}/logging"
     os.makedirs(logging_dir, exist_ok=True)
     
-    for index, row in pp_df.iloc[1:].iterrows():
+    for index, row in pp_df.iloc[19:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

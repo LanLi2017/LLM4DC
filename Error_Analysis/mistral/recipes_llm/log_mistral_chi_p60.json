@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Inspection ID",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Inspection ID using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Inspection ID",
+        "expression": "jython:import datetime\\nimport pandas as pd\n\n# Assuming you have the data in a DataFrame df\ndf['Date'] = pd.to_datetime(df['Inspection ID'])  # Convert Inspection ID to date format\ndf['Facility Type'] = 'Unknown'  # Add a placeholder for facility type\n\n# Find the most recent inspection for each unique Facility Type\nmost_recent = df.groupby('Facility Type')['Date'].max()\n\n# Join the most recent dates back to the original DataFrame\ndf = df.merge(most_recent, on='Facility Type', how='left')\n\n# Now you can filter for the most recent inspection at each facility type\nfacilities = df[df['Date'] == df['Date_y']]  # 'Date_y' is the original date column\nfacilities['Inspection ID']  # This will give you the Inspection ID of the most recent inspection at each facility type\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Inspection ID using expression jython:import datetime\\nimport pandas as pd\n\n# Assuming you have the data in a DataFrame df\ndf['Date'] = pd.to_datetime(df['Inspection ID'])  # Convert Inspection ID to date format\ndf['Facility Type'] = 'Unknown'  # Add a placeholder for facility type\n\n# Find the most recent inspection for each unique Facility Type\nmost_recent = df.groupby('Facility Type')['Date'].max()\n\n# Join the most recent dates back to the original DataFrame\ndf = df.merge(most_recent, on='Facility Type', how='left')\n\n# Now you can filter for the most recent inspection at each facility type\nfacilities = df[df['Date'] == df['Date_y']]  # 'Date_y' is the original date column\nfacilities['Inspection ID']  # This will give you the Inspection ID of the most recent inspection at each facility type\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Inspection Date",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Inspection Date using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Facility Type",
+        "expression": "jython:import string\\nvalue = value.lower()\\nvalue = ' '.join(string.capwords(value))\\nreturn value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression jython:import string\\nvalue = value.lower()\\nvalue = ' '.join(string.capwords(value))\\nreturn value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Facility Type",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Facility Type using expression value.toUppercase()"
+    }
+]

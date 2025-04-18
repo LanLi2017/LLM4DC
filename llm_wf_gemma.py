@@ -629,11 +629,12 @@ Selected Operation:
                 eod_flag  = "False"
                 mask = [int(x == "False") for x in eod_flag_list]
                 eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
-                logging.info(f"#TASK IV: data quality inspection: \n\n {eod_desc}")
+                logging.info(f"data quality inspection: \n\n {eod_desc}")
             if count_empty >= 5:
                 eod_flag = "True"
                 
             print(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
+            logging.info(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
         log_data['Columns'].append(sel_col)
         tg_cols.pop(0)
         st += len(functions_list)

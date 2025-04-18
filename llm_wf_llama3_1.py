@@ -706,7 +706,7 @@ def test_main():
     os.makedirs(log_dir, exist_ok=True)
 
     # pp_f = 'purposes/all_purposes.csv'
-    pp_f = 'purposes/test_log.csv'
+    pp_f = 'purposes/llama_log.csv'
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"{log_dir}/datasets_llm"

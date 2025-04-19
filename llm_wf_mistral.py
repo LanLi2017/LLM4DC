@@ -726,6 +726,7 @@ def test_main():
 
     # pp_f = 'purposes/all_purposes.csv'
     pp_f = 'purposes/mistral_log.csv'
+    pp_f = 'purposes/mistral_log_l.csv'
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"{log_dir}/datasets_llm"
@@ -740,7 +741,7 @@ def test_main():
     logging_dir = f"{log_dir}/logging"
     os.makedirs(logging_dir, exist_ok=True)
     
-    for index, row in pp_df.iloc[:].iterrows():
+    for index, row in pp_df.iloc[120:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)

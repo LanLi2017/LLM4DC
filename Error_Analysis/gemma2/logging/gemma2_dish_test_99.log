@@ -1,0 +1,506 @@
+2025-04-19 04:35:17,330 - INFO - Logging started for purpose ID 99, dataset dish
+2025-04-19 04:35:17,359 - INFO - #TASK I: Select target columns:
+
+
+2025-04-19 04:35:19,246 - INFO - ```['name', 'lowest_price']```
+2025-04-19 04:35:19,246 - INFO - 
+ TASK I: Target columns selection: ['lowest_price', 'name']
+
+2025-04-19 04:35:19,248 - INFO - Current working column: lowest_price
+2025-04-19 04:35:20,488 - INFO - /*
+col: lowest_price
+row 1: 0.1
+row 2: 0.25
+row 3: 0.0
+row 4: 0.0
+row 5: 0.0
+row 6: 0.0
+row 7: 0.0
+row 8: 0.0
+row 9: 3.95
+row 10: 0.0
+row 11: 0.45
+row 12: 0.0
+row 13: 0.15
+row 14: 0.0
+row 15: 1948.0
+row 16: 15.0
+row 17: 0.0
+row 18: 0.0
+row 19: 0.75
+row 20: 0.0
+*/
+Purpose: Identify the most expensive dish based on the lowest price.
+Target column: lowest_price
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: lowest_price
+Selected Operation: 
+2025-04-19 04:35:20,488 - INFO - #TASK II: select operations: numeric 
+
+
+2025-04-19 04:35:27,351 - INFO - Explanation of choosing the operation numeric:
+ Accuracy: True (The values in the `lowest_price` column appear to be numerical and within a reasonable range for prices.)
+Relevance: True (The `lowest_price` column is directly relevant to determining the most expensive dish, as we're assuming lower price means less expensive.)
+Completeness: True (There are no missing values in the `lowest_price` column.)
+Conciseness: True (The data is presented clearly and consistently as numerical prices.)
+
+Since all quality dimensions are True, the Flag should be **True**.  
+
+**However**, there's a logical flaw in the Purpose statement. Finding the *most expensive* dish based on the *lowest price* is contradictory. To find the most expensive dish, you would need to look for the **highest** price. 
+
+
+Let me know if you'd like me to analyze another table!
+2025-04-19 04:35:27,352 - INFO - data cleaning objectives: ## Summarization:
+
+The `lowest_price` column exhibits high data quality across accuracy, relevance, completeness, and conciseness dimensions, but the purpose statement contains a logical flaw regarding identifying the most expensive dish. 
+
+
+## Data Cleaning Objective:
+
+**Rename or replace the `lowest_price` column with a more appropriate name like `highest_price` to align the data with the objective of finding the most expensive dish.** 
+
+2025-04-19 04:35:37,561 - INFO - Current working column: name
+2025-04-19 04:35:45,893 - INFO - /*
+col: name
+row 1: __vintage_port_martinez_1963__
+row 2: HOLLANDAISE-SALAT
+row 3: --hønsekod,-asparges,-champignons,-agurk-i-mayonnaise--
+row 4: --brandy-domestic--
+row 5: __ZITI_WITH_CALABRESE_SAUCE__
+row 6: --PAUL-JONES--
+row 7: FRIED-RICE-WITH-PORK
+row 8: __BROILED_LAMP_CHOPS,_TWO__
+row 9: __surprise_of_fruit__
+row 10: hominy_fritters_currant_sauce
+row 11: __calf's_brains_fried,_tomato_sauce__
+row 12: __HØNSEKOD,_ASPARGES,_CHAMPIGNONS,_AGURK_I_MAYONNAISE__
+row 13: __toasted_rolls_with_with_a_small_pitcher_of_cream_and_with_butter__
+row 14: __POTATOES_OR_POT_CHEESE_WITH_SOUR_CREAM__
+row 15: new-laid_eggs
+row 16: __HAMBURGER_ROAST_TOMATO_SAUCE__
+row 17: __vintage_port_martinez_1963__
+row 18: __conch_stew_with_peas_&_rice,_coleslaw,_potato_salad,_vegetables_or_bake_potato__
+row 19: TOASTED_ROLLS_WITH_WITH_A_SMALL_PITCHER_OF_CREAM_AND_WITH_BUTTER
+row 20: __hominy_fritters_currant_sauce__
+*/
+Purpose: Identify the most expensive dish based on the lowest price.
+Target column: name
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: name
+Selected Operation: 
+2025-04-19 04:35:45,894 - INFO - #TASK II: select operations: regexr_transform 
+
+
+2025-04-19 04:35:54,367 - INFO - Explanation of choosing the operation regexr_transform:
+ Here's a breakdown of why the flag is `False` for this scenario, along with explanations for each quality dimension:
+
+**Purpose:** Identify the most expensive dish based on the lowest price.
+
+**Flag:** `False`
+
+**Target Column:**  (Implied) Dish Name 
+
+**Explanation:**
+
+* **Accuracy:** Likely `False`. The data appears to be a list of dish names, but there's no information about prices associated with them. You can't determine the most expensive dish without price data.
+* **Relevance:** `True`. The dish names are directly relevant to the goal of identifying the most expensive dish.
+* **Completeness:**  `True`. There doesn't seem to be any missing dish names in the provided sample.
+* **Conciseness:** `False`. The dish names have inconsistent formatting: some are in all caps, some use underscores, and some include hyphens. This inconsistency would make it difficult to reliably compare and analyze the dishes.
+
+**Additional Considerations:**
+
+* **Data Type:** The data is currently textual (strings). To determine price, you'd need to convert this into a numerical format (likely floating-point numbers) representing the cost of each dish. 
+
+
+
+Let me know if you have any other data examples you'd like me to analyze!
+2025-04-19 04:35:54,367 - INFO - data cleaning objectives: ## Summarization:
+
+The data is currently unsuitable for identifying the most expensive dish because it lacks price information and contains inconsistent formatting in dish names.
+
+
+## Data Cleaning Objective:
+
+The next operation should focus on enriching the dataset with price information for each dish and standardizing the formatting of dish names to ensure accurate comparison and analysis. 
+
+2025-04-19 04:36:00,388 - INFO - #TASK III: generate regexr arguments:
+ ```jython:
+import re
+value = re.sub(r'[_-]', '', value)
+return value
+``` 
+
+
+**Explanation:**
+
+* **`import re`**: This line imports the `re` module, which provides regular expression operations in Python.
+* **`value = re.sub(r'[_-]', '', value)`**: This line uses the `re.sub()` function to replace all occurrences of underscores (`_`) and dashes (`-`) in the input `value` with an empty string (effectively removing them). The result is stored back into the `value` variable.
+* **`return value`**: This line returns the modified `value`, which now has underscores and dashes removed.
+
+**Why this works:**
+
+The Jython expression directly addresses the "Current Operation Purpose" by standardizing the dish names. Removing underscores and dashes creates a consistent format for the dish names, making it easier to compare and analyze them in subsequent operations (like potentially adding price information). 
+
+
+2025-04-19 04:36:00,389 - INFO - Predicted expression: 
+ jython:
+import re
+value = re.sub(r'[_-]', '', value)
+return value
+return value 
+
+
+2025-04-19 04:36:09,469 - INFO - #TASK IV: data quality inspection: 
+
+ ```False```
+
+**Explanation:**
+
+* **Accuracy:**  Unknown (We don't have prices associated with the dishes)
+* **Relevance:** True (The column "name" contains dish names, which are relevant to identifying the most expensive dish)
+* **Completeness:** Potentially False (There might be missing dishes or pricing information)
+* **Conciseness:**  False (Dish names are inconsistently formatted and capitalized, making it harder to accurately compare them).
+
+**Reasoning:**
+
+You can't determine the most expensive dish without price information. Additionally, the inconsistent formatting of dish names would make any comparison unreliable. 
+
+
+
+2025-04-19 04:36:14,467 - INFO - /*
+col: name
+row 1: hønsekod,asparges,champignons,agurkimayonnaise
+row 2: ayalabrutchampagne
+row 3: santaclaracabernet
+row 4: POTATOESORPOTCHEESEWITHSOURCREAM
+row 5: POTATOESORPOTCHEESEWITHSOURCREAM
+row 6: surpriseoffruit
+row 7: fried3oysters
+row 8: REUBEN'SSPECIALTURKEY,ROASTVIRGINIAHAM,SWISSCHEESE,COLESLAW,RUSSIANDRESSING
+row 9: macedoinedefruitsaumarasquin
+row 10: solegrilleebeurremaitredhotel
+row 11: HOLLANDAISESALAT
+row 12: peapodswithwaterchesnutsandpork
+row 13: oxtonguemikado
+row 14: COFFEEICECREAM,CARAMELSAUCE
+row 15: HAMBURGERROASTTOMATOSAUCE
+row 16: HØNSEKOD,ASPARGES,CHAMPIGNONS,AGURKIMAYONNAISE
+row 17: FRIEDRICEWITHPORK
+row 18: TOASTEDROLLSWITHWITHASMALLPITCHEROFCREAMANDWITHBUTTER
+row 19: madère
+row 20: vintageportmartinez1963
+*/
+Purpose: Identify the most expensive dish based on the lowest price.
+Target column: name
+Explanation: ## Summarization:
+
+The data is currently unsuitable for identifying the most expensive dish because it lacks price information and contains inconsistent formatting in dish names.
+
+
+## Data Cleaning Objective:
+
+The next operation should focus on enriching the dataset with price information for each dish and standardizing the formatting of dish names to ensure accurate comparison and analysis. 
+
+Selected Operation: 
+2025-04-19 04:36:14,468 - INFO - #TASK II: select operations: mass_edit 
+
+
+2025-04-19 04:36:20,468 - INFO - Explanation of choosing the operation mass_edit:
+ Accuracy: False (Dish names are inconsistent, with some in lowercase and others in uppercase. There's also a mix of languages and punctuation.)
+
+Relevance: True (The dish names are relevant to identifying the most expensive dish)
+
+Completeness: False (There is no price information associated with each dish name.)
+
+Conciseness: False (Dish names are inconsistently formatted, making it difficult to compare them accurately.) 
+
+Since Accuracy, Completeness, and Conciseness are all False, the Flag is correctly set to ```False```.  You cannot determine the most expensive dish without price information, and the inconsistent formatting of dish names makes analysis challenging. 
+
+2025-04-19 04:36:20,468 - INFO - data cleaning objectives: ## Summarization:
+
+The dataset containing dish names suffers from accuracy and conciseness issues due to inconsistent capitalization, language mixing, punctuation, and formatting, making it impossible to identify the most expensive dish without price information.
+
+
+## Data Cleaning Objective:
+
+The next operation should focus on standardizing dish names by converting them to lowercase, removing punctuation, and ensuring consistent formatting across all entries, while also incorporating price data for each dish to enable accurate analysis. 
+
+2025-04-19 04:36:26,369 - INFO - #TASK III: generate mass_edit arguments: 
+
+ ```python
+[
+    {'from': ['POTATOESORPOTCHEESEWITHSOURCREAM'], 'to': 'potatoes or pot cheese with sour cream'},
+    {'from': ['TOASTEDROLLSWITHWITHASMALLPITCHEROFCREAMANDWITHBUTTER'], 'to': 'toasted rolls with a small pitcher of cream and butter'},
+    {'from': ['MACEDOINEDEFRUITSAUMARASQUIN'], 'to': 'macedoine de fruits a l\'au marasquin'},
+    {'from': ['macedoinedefruitsaumarasquin'], 'to': 'macedoine de fruits a l\'au marasquin'},
+    {'from': ['BROILEDLAMPCHOPS,TWO'], 'to': 'broiled lamp chops'},
+    {'from': ['hønsekod,asparges,champignons,agurkimayonnaise'], 'to': 'høns ekød asparges champignons agurk mayonnaise'} 
+
+]
+```
+2025-04-19 04:36:36,016 - INFO - #TASK IV: data quality inspection: 
+
+ ```False```
+
+Here's why:
+
+* **Accuracy:**  Potentially False. The data seems to be a list of dish names, but there are no prices associated with them. 
+* **Relevance:** False. Without price information, it's impossible to determine the most expensive dish.
+* **Completeness:** Likely True (assuming all dishes are listed).
+* **Conciseness:**  Potentially False. There appears to be inconsistency in capitalization and some unusual characters like "Ø".
+
+
+
+Let me know if you have any other data analysis scenarios you'd like me to evaluate! 
+
+2025-04-19 04:36:37,345 - INFO - /*
+col: name
+row 1: newlaideggs
+row 2: HOLLANDAISESALAT
+row 3: oxtonguemikado
+row 4: vintageportmartinez1963
+row 5: potatoes or pot cheese with sour cream
+row 6: surpriseoffruit
+row 7: santaclaracabernet
+row 8: santaclaracabernet
+row 9: COFFEEICECREAM,CARAMELSAUCE
+row 10: FRIEDRICEWITHPORK
+row 11: LOBSTER,FULLORDER
+row 12: HØNSEKOD,ASPARGES,CHAMPIGNONS,AGURKIMAYONNAISE
+row 13: ZITIWITHCALABRESESAUCE
+row 14: saladedebetterave
+row 15: peapodswithwaterchesnutsandpork
+row 16: johannisbeersaft
+row 17: broiledorfriedgreenbluefish
+row 18: broiled lamp chops
+row 19: høns ekød asparges champignons agurk mayonnaise
+row 20: chilledalbertapeacheswithcream
+*/
+Purpose: Identify the most expensive dish based on the lowest price.
+Target column: name
+Explanation: ## Summarization:
+
+The dataset containing dish names suffers from accuracy and conciseness issues due to inconsistent capitalization, language mixing, punctuation, and formatting, making it impossible to identify the most expensive dish without price information.
+
+
+## Data Cleaning Objective:
+
+The next operation should focus on standardizing dish names by converting them to lowercase, removing punctuation, and ensuring consistent formatting across all entries, while also incorporating price data for each dish to enable accurate analysis. 
+
+Selected Operation: 
+2025-04-19 04:36:37,345 - INFO - #TASK II: select operations: upper 
+
+
+2025-04-19 04:36:42,281 - INFO - Explanation of choosing the operation upper:
+ Accuracy: False (Dish names are inconsistently formatted, making it difficult to accurately compare them for pricing) Relevance: True (The 'name' column contains dish names which are relevant to identifying the most expensive dish) Completeness: True (No missing values in the 'name' column) Conciseness: False (Dish names are written in various cases and contain inconsistent punctuation and spacing, making it hard to parse)
+
+Since Accuracy and Conciseness are both False, I will return ```False```. 
+
+2025-04-19 04:36:42,282 - INFO - data cleaning objectives: ## Summarization:
+
+The 'name' column contains relevant dish names but suffers from inconsistent formatting, including varying capitalization, punctuation, and spacing, hindering accurate comparison for pricing analysis.
+
+
+## Data Cleaning Objective:
+
+Standardize the dish names in the 'name' column by converting them to lowercase, removing unnecessary punctuation, and ensuring consistent spacing to enable accurate comparison for pricing. 
+
+2025-04-19 04:36:51,164 - INFO - #TASK IV: data quality inspection: 
+
+ ```False```
+
+**Explanation:**
+
+* **Accuracy:**  Potentially False - There's no pricing information in the table, making it impossible to determine the most expensive dish. 
+* **Relevance:** True - The "name" column is relevant to identifying dishes.
+* **Completeness:** True - No missing values in the name column.
+
+* **Conciseness:** Potentially False - There are some inconsistencies and repetitions in dish names (e.g., HOMINYFRITTERSCURRANTSAUCE appears multiple times, with slight variations).
+
+
+
+Since we cannot determine pricing from the given data, the Flag should be  `False`. 
+
+2025-04-19 04:36:52,748 - INFO - /*
+col: name
+row 1: PAULJONES
+row 2: SANTACLARACABERNET
+row 3: VINTAGEPORTMARTINEZ1963
+row 4: PEAPODSWITHWATERCHESNUTSANDPORK
+row 5: CHILLEDALBERTAPEACHESWITHCREAM
+row 6: SANTACLARACABERNET
+row 7: COFFEEICECREAM,CARAMELSAUCE
+row 8: CILLMANTAINPEAS
+row 9: HOMINYFRITTERSCURRANTSAUCE
+row 10: HAMBURGERROASTTOMATOSAUCE
+row 11: HAMBURGERROASTTOMATOSAUCE
+row 12: AYALABRUTCHAMPAGNE
+row 13: SOLEGRILLEEBEURREMAITREDHOTEL
+row 14: KEYWESTTURTLESOUP
+row 15: JOHANNISBEERSAFT
+row 16: BROILED LAMP CHOPS
+row 17: CALF'SBRAINSFRIED,TOMATOSAUCE
+row 18: FRIED3OYSTERS
+row 19: MACEDOINE DE FRUITS A L'AU MARASQUIN
+row 20: HOLLANDAISESALAT
+*/
+Purpose: Identify the most expensive dish based on the lowest price.
+Target column: name
+Explanation: ## Summarization:
+
+The 'name' column contains relevant dish names but suffers from inconsistent formatting, including varying capitalization, punctuation, and spacing, hindering accurate comparison for pricing analysis.
+
+
+## Data Cleaning Objective:
+
+Standardize the dish names in the 'name' column by converting them to lowercase, removing unnecessary punctuation, and ensuring consistent spacing to enable accurate comparison for pricing. 
+
+Selected Operation: 
+2025-04-19 04:36:52,749 - INFO - #TASK II: select operations: regexr_transform 
+
+
+2025-04-19 04:36:57,301 - INFO - Explanation of choosing the operation regexr_transform:
+ Accuracy: True (The names appear to be correct and consistent)
+Relevance: False (The "name" column doesn't contain pricing information, making it impossible to determine the most expensive dish.)
+Completeness: True (No missing values in the "name" column)
+Conciseness: True (Names are consistently formatted)
+
+Since Relevance is False, I will return ```False```.  You would need a column with price data to accomplish this task. 
+
+2025-04-19 04:36:57,301 - INFO - data cleaning objectives: ## Summarization:
+
+The "name" column accurately and concisely lists dish names but lacks pricing information, making it irrelevant for determining the most expensive dish.
+
+## Data Cleaning Objective:
+
+To enable identification of the most expensive dish, incorporate a "price" column containing numerical price data for each corresponding dish name. 
+
+
+
+2025-04-19 04:37:02,971 - INFO - #TASK III: generate regexr arguments:
+ ```jython:
+import re
+value = value.upper()
+return value 
+```
+
+**Explanation:**
+
+* **`import re`**: This line imports the `re` module, which provides regular expression operations in Python.
+
+* **`value = value.upper()`**: This line converts the input string (`value`) to uppercase.  This standardization helps ensure consistent comparisons regardless of case variations in the original dish names.
+
+* **`return value`**: This line returns the modified `value` (now in uppercase) as the result.
+
+
+
+**Important Considerations:**
+
+
+* **No Pricing Information:** The provided Jython expression addresses the "Current Operation Purpose" by standardizing the dish names to uppercase. However, it doesn't solve the core problem of lacking price data. To identify the most expensive dish, you would need to incorporate a "price" column into your dataset.
+
+Let me know if you have any other questions or need further assistance! 
+
+
+2025-04-19 04:37:02,971 - INFO - Predicted expression: 
+ jython:
+import re
+value = value.upper()
+return value
+return value 
+
+
+2025-04-19 04:37:11,929 - INFO - #TASK IV: data quality inspection: 
+
+ ```False```
+
+Here's why:
+
+* **Accuracy:** True (The data appears to be correctly spelled dish names)
+* **Relevance:** False (There are no prices associated with the dishes, making it impossible to determine the most expensive.)
+* **Completeness:** True (No missing dish names)
+* **Conciseness:**  True (Dish names are consistently formatted) 
+
+Since Relevance is False, the Flag is ```False```.  You would need price information to fulfill the objective. 
+
+2025-04-19 04:37:18,318 - INFO - /*
+col: name
+row 1: MACEDOINE DE FRUITS A L'AU MARASQUIN
+row 2: SURPRISEOFFRUIT
+row 3: OXTONGUEMIKADO
+row 4: BROILEDLAMPCHOPS,TWO
+row 5: HAMBURGERROASTTOMATOSAUCE
+row 6: POTATOES OR POT CHEESE WITH SOUR CREAM
+row 7: TOASTED ROLLS WITH A SMALL PITCHER OF CREAM AND BUTTER
+row 8: FRIEDRICEWITHPORK
+row 9: HOMINYFRITTERSCURRANTSAUCE
+row 10: AYALABRUTCHAMPAGNE
+row 11: BRANDYDOMESTIC
+row 12: OXTONGUEMIKADO
+row 13: BROILEDORFRIEDGREENBLUEFISH
+row 14: AYALABRUTCHAMPAGNE
+row 15: BROILED LAMP CHOPS
+row 16: HAMBURGERROASTTOMATOSAUCE
+row 17: HOMINYFRITTERSCURRANTSAUCE
+row 18: CALF'SBRAINSFRIED,TOMATOSAUCE
+row 19: REUBEN'SSPECIALTURKEY,ROASTVIRGINIAHAM,SWISSCHEESE,COLESLAW,RUSSIANDRESSING
+row 20: JOHANNISBEERSAFT
+*/
+Purpose: Identify the most expensive dish based on the lowest price.
+Target column: name
+Explanation: ## Summarization:
+
+The "name" column accurately and concisely lists dish names but lacks pricing information, making it irrelevant for determining the most expensive dish.
+
+## Data Cleaning Objective:
+
+To enable identification of the most expensive dish, incorporate a "price" column containing numerical price data for each corresponding dish name. 
+
+
+
+Selected Operation: 
+2025-04-19 04:37:18,318 - INFO - #TASK II: select operations: mass_edit 
+
+
+2025-04-19 04:37:23,079 - INFO - Explanation of choosing the operation mass_edit:
+ Accuracy: True (The names of dishes appear to be correctly spelled)
+Relevance: False (The provided data does not include any pricing information for the dishes.)
+Completeness: True (No missing dish names)
+Conciseness: False (Dish names are inconsistently formatted, with some using capitalization and others not. Some names also include unnecessary punctuation or spacing.)
+
+Since Relevance is False, I will return ```False```. 
+
+
+
+2025-04-19 04:37:23,079 - INFO - data cleaning objectives: ## Summarization:
+
+While the dataset accurately lists dish names without any missing entries, it lacks crucial pricing information and suffers from inconsistent formatting.
+
+## Data Cleaning Objective:
+
+The next operation should focus on standardizing dish name formatting (capitalization, punctuation, spacing) to ensure consistency and prepare the data for potential enrichment with pricing information. 
+
+
+
+2025-04-19 04:37:35,530 - INFO - #TASK III: generate mass_edit arguments: 
+
+ ```python
+[
+    {'from': ['VINTAGEPORTMARTINEZ1963'], 'to': 'Vintage Port Martinez 1963'},
+    {'from': ['BROILED LAMP CHOPS'], 'to': 'Broiled Lamp Chops'},
+    {'from': ['SLOEGINFIZZ,IMP'], 'to': 'Sloe Gin Fizz'},
+    {'from': ['BROILEDORFRIEDGREENBLUEFISH'], 'to': 'Broiled or Fried Green Bluefish'},
+    {'from': ['SANTACLARACABERNET'], 'to': 'Santa Clara Cabernet'},
+    {'from': ['POTATOES OR POT CHEESE WITH SOUR CREAM'], 'to': 'Potatoes or Pot Cheese with Sour Cream'},
+    {'from': ['HAMBURGERROASTTOMATOSAUCE'], 'to': 'Hamburger Roast Tomato Sauce'},
+    {'from': ['MACEDOINE DE FRUITS A L\'AU MARASQUIN'], 'to': 'Macedoine de Fruits à l\'Au Marasquin'},
+    {'from': ['HOMINYFRITTERSCURRANTSAUCE'], 'to': 'Hominy Fritters Currant Sauce'},
+    {'from': ['PAULJONES'], 'to': 'Paul Jones'},
+    {'from': ['FRIED3OYSTERS'], 'to': 'Fried Oysters'},
+    {'from': ['HOLLANDAISESALAT'], 'to': 'Hollandaise Salat'},
+    {'from': ['TOASTEDROLLSWITHWITHASMALLPITCHEROFCREAMANDWITHBUTTER'], 'to': 'Toasted Rolls with a Small Pitcher of Cream and Butter'},
+    {'from': ['SOLEGRILLEEBEURREMAITREDHOTEL'], 'to': 'Sole Grillée Beurre Maitre d\'Hotel'},
+    {'from': ['TOASTED ROLLS WITH A SMALL PITCHER OF CREAM AND BUTTER'], 'to': 'Toasted Rolls with a Small Pitcher of Cream and Butter'},
+    {'from': ['CHILLEDALBERTAPEACHESWITHCREAM'], 'to': 'Chilled Alberta Peaches with Cream'},
+    {'from': ['LOBSTER,FULLORDER'], 'to': 'Lobster, Full Order'},
+    {'from': ['JOHANNISBEERSAFT'], 'to': 'Johannisbeer Saft'}
+] 
+```

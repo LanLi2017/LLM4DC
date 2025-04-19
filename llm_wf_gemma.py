@@ -30,6 +30,27 @@ map_ops_func = {
 }
 
 
+def setup_logger(log_file_path):
+    """Set up a logger for a specific log file."""
+    logger = logging.getLogger(log_file_path)
+    logger.setLevel(logging.DEBUG)  # Make sure it's set to DEBUG or INFO level
+    
+    # Avoid adding multiple handlers if already added
+    if not logger.handlers:
+        # File handler
+        file_handler = logging.FileHandler(log_file_path)
+        file_handler.setLevel(logging.DEBUG)  # Ensure it captures DEBUG and lower levels
+        
+        # Formatter for log messages
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+
+        # Add handler to logger
+        logger.addHandler(file_handler)
+    
+    return logger
+
+
 def export_ops_list(project_id, st=0):
     ops = get_operations(project_id)
     op_list = [dict['op'] for dict in ops]
@@ -54,8 +75,7 @@ def parse_text_transform(ops_list, functions_list):
             elif exp.startswith("jython"):
                 functions_list[idx] = "regexr_transform"
             else:
-                pass
-                # raise NotImplementedError
+                raise NotImplementedError
     return functions_list
 
 def export_intermediate_tb(project_id):
@@ -95,7 +115,7 @@ def gen_table_str(df, num_rows=3, tg_col=None, flag=[]):
     num_rows = min(num_rows, len(df))
     df = df.sample(n=num_rows)
     dropna=True
-    max_length = 20
+    max_length = 15
 
     # If no target column is specified, generate the full table
     if not tg_col:
@@ -190,7 +210,10 @@ def extract_exp(content, refs=None):
         # Retrieve operation names with the maximum occurrence
         most_freq_ref = [res for res, count in ref_counts.items() if count == max_count and count > 0]
         print(f'most_freq_ref: {most_freq_ref}')
-        return most_freq_ref[0] if most_freq_ref else False
+        if most_freq_ref:
+            return most_freq_ref[0]
+        else:
+            return False
     else:
         # this is to extract arguments 
         matches = re.findall(r'`{1,3}(.*?)`{1,3}', content, re.DOTALL)
@@ -242,7 +265,7 @@ def parse_column_list(column_str):
         pass
     return []
 
-def generate_target_columns(df, purpose, av_cols, model):
+def generate_target_columns(df, purpose, av_cols, model, logger):
     """
     Generates a valid list of target columns using an LLM.
     
@@ -267,7 +290,7 @@ def generate_target_columns(df, purpose, av_cols, model):
 Purpose: {purpose}
 Selected columns:
     """
-    logging.info(f"#TASK I: Select target columns:\n\n{prompt_sel_col}")
+    logger.info(f"#TASK I: Select target columns:\n\n")
     retries = 0
 
     tg_cols = []
@@ -276,7 +299,7 @@ Selected columns:
 
         context = []
         context, sel_col_desc = gen(prompt_sel_col, context, model)
-        logging.info(sel_col_desc)
+        logger.info(sel_col_desc)
         print(sel_col_desc)
 
         try:
@@ -303,7 +326,7 @@ Selected columns:
                     fixed_ext_res = clean_ext_res.strip('"')
                     tg_cols = parse_column_list(fixed_ext_res)
                 else:
-                    logging.warning(f"Invalid extracted result: {clean_ext_res}")
+                    logger.warning(f"Invalid extracted result: {clean_ext_res}")
                     tg_cols = []
             else:
                 tg_cols = []  # Ensure tg_cols is always defined
@@ -317,7 +340,7 @@ Selected columns:
 
         retries += 1
         if not tg_cols or not set(tg_cols).issubset(av_cols):
-            logging.warning(f"Retry {retries}: Could not extract valid target columns. Regenerating...")
+            logger.warning(f"Retry {retries}: Could not extract valid target columns. Regenerating...")
     return tg_cols
 
 # parse edits by LLMs into a list
@@ -378,7 +401,14 @@ def convert_python_to_jython(python_code):
     return jython_code
 
 
-def wf_gen(project_id, log_data, model, logging, purpose):
+def wf_gen(project_id, log_data, model, logging_name, purpose):
+    logger = setup_logger(logging_name)
+    # logging_name = f"{logging_dir}/{model_name}_{ds_name}_{pp_id}.log"
+    ds_name = logging_name.split('/')[-1].split('_')[1]
+    pp_id = logging_name.split('/')[-1].split('_')[-1].split('.')[0]
+    logger.info(f"Logging started for purpose ID {pp_id}, dataset {ds_name}")
+    # logger.info(f"Processing data for {ds_name} and purpose {pp_id}")
+
     df = export_intermediate_tb(project_id) # Return current intermediate table
     av_cols = df.columns.to_list() # current column schema 
     ops_gen = {}
@@ -386,8 +416,9 @@ def wf_gen(project_id, log_data, model, logging, purpose):
     errors = []
     context =[]
     # TASK I: select target column(s)
-    tg_cols = generate_target_columns(df, purpose, av_cols, model)
+    tg_cols = generate_target_columns(df, purpose, av_cols, model, logger)
     print(f"Final target columns: {tg_cols}")
+    logger.info(f"\n TASK I: Target columns selection: {tg_cols}\n")
 
     # Define EOD: End of Data Cleaning
     # Input:intermediate table; Example output format
@@ -402,6 +433,7 @@ def wf_gen(project_id, log_data, model, logging, purpose):
         eod_flag = "False"
         sel_col = tg_cols[0]
         print(f'Current selected column: {sel_col} from the target column list: {tg_cols}')
+        logger.info(f'Current working column: {sel_col}')
         sum_eod = f"Generate proper operations to improve accuracy, completeness, conciseness of the column: {sel_col}"
         # st: start step id, [st:] is to chunk the functions_list on current sel_col ONLY
         st = 0
@@ -457,7 +489,6 @@ Selected Operation:
                               """
             print("----start-------")
             print(prompt_sel_ops)
-            logging.info(f"#TASK II: select operations: \n\n {prompt_sel_ops}")  
             options_sel_op = {
                 'temperature': 0.3,
                 'stop': ["\n\n\n\n"],
@@ -469,35 +500,40 @@ Selected Operation:
 
             count_empty = 0
             sel_op = None
-           
+
             while (not sel_op or sel_op not in ops_pool) and count_empty < 3:
                 context, sel_op_desc = gen(prompt_sel_ops, context, model, options_sel_op)
-                logging.info(f"\nGenerated operation description:\n{sel_op_desc}")
+                # logging.info(f"\nGenerated operation description:\n{sel_op_desc}")
                 
                 sel_op = extract_exp(sel_op_desc, ops_pool)
                 
                 if sel_op in ops_pool:
                     break
                 count_empty += 1
-                logging.warning(f"Invalid operation selected. Retrying... (Attempt {count_empty})")
+                # logging.warning(f"Invalid operation selected. Retrying... (Attempt {count_empty})")
 
             if sel_op not in ops_pool:
                 sel_op = None
-                logging.error("Failed to select a valid operation after 5 attempts.")
+                # logging.error("Failed to select a valid operation after 5 attempts.")
             else:
+                logger.info(f"""\
+/*
+{col_str}
+*/
+Purpose: {purpose}
+Target column: {sel_col}
+Explanation: {sum_eod}
+Selected Operation: """)
+
                 print(f"Selected operation: {sel_op}")
-                
-                if sel_op == 'regexr_transform':
-                    sel_args_prompt = "prompts/regexr_transform_old.txt"
-                    with open(sel_args_prompt, 'r')as f1:
-                        prompt_sel_args = f1.read()
-                else:
-                    with open(f'prompts/{sel_op}.txt', 'r') as f1:
-                        prompt_sel_args = f1.read()
+                logger.info(f"#TASK II: select operations: {sel_op} \n\n")  
+
+                with open(f'prompts/{sel_op}.txt', 'r') as f1:
+                    prompt_sel_args = f1.read()
 
                 # Prepare the operation purpose
                 prompt_eod = eod_learn + f"""\
-    \n\nBased on table contents, Objective, and Flag provided as following, output Explanations.
+    \n\nBased on table contents, Purpose, and Flag provided as following, output Explanations.
     /*
     {col_str}
     */
@@ -512,7 +548,8 @@ Selected Operation:
                 # Regular expression to extract the desired sentence
                 # eod_pattern= r"Next operation:\s*(.*?)\."
                 print(one_sent_eod_desc)
-                logging.info(f'data cleaning objectives: {one_sent_eod_desc}')
+                logger.info(f'Explanation of choosing the operation {sel_op}:\n {eod_desc}')
+                logger.info(f'data cleaning objectives: {one_sent_eod_desc}')
                 eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
                 # Search for the pattern in the text
                 eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
@@ -536,9 +573,10 @@ Selected Operation:
                                         """
                     # print(f'updated prompt for selecting arguments: {prompt_sel_args}')
                     context, py_exp = gen(prompt_sel_args, context, model)
-                    exp = extract_exp(py_exp)[0].replace('jython\n', 'jython:')+ '\nreturn value'
-                    # exp = convert_python_to_jython(py_exp)
-                    logging.info(f"#TASK III: generate regexr arguments: \n\n {exp}")
+                    # exp = extract_exp(exp_desc)[0].replace('jython\n', 'jython:')+ '\nreturn value'
+                    exp = convert_python_to_jython(py_exp)
+                    logger.info(f"#TASK III: generate regexr arguments:\n {py_exp} \n\n")
+                    logger.info(f"Predicted expression: \n {exp} \n\n")
                     print(f'********predicted expression: {exp}')
                     text_transform(project_id, column=sel_col, expression=exp)
                 elif sel_op == 'numeric':
@@ -573,7 +611,7 @@ Selected Operation:
                         context, edits_desc = gen(prompt_sel_args, context, model, options)
                         edits_v = extract_exp(edits_desc)
                         print(f'descriptions for edits: \n\n {edits_desc}')
-                        logging.info(f"#TASK III: generate mass_edit arguments: \n\n {edits_desc}")
+                        logger.info(f"#TASK III: generate mass_edit arguments: \n\n {edits_desc}")
                     
                         if edits_v:
                             edits_v = edits_v[0].replace("edits: ", "")
@@ -583,7 +621,7 @@ Selected Operation:
                             print('No edits are parsed')
                     except:
                         pass
-                    # raise NotImplementedError
+                # raise NotImplementedError
             # Re-execute intermediate table, retrieve current data cleaning workflow
             cur_df = export_intermediate_tb(project_id)
             cur_av_cols = cur_df.columns.to_list() # check if column schema gets changed, current - former
@@ -629,12 +667,11 @@ Selected Operation:
                 eod_flag  = "False"
                 mask = [int(x == "False") for x in eod_flag_list]
                 eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
-                logging.info(f"data quality inspection: \n\n {eod_desc}")
+                logger.info(f"#TASK IV: data quality inspection: \n\n {eod_desc}")
             if count_empty >= 5:
                 eod_flag = "True"
                 
             print(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
-            logging.info(f'Decision of end of data cleaning on column {sel_col}: {eod_flag}')
         log_data['Columns'].append(sel_col)
         tg_cols.pop(0)
         st += len(functions_list)
@@ -653,27 +690,22 @@ def create_projects(project_name, ds_fp):
 
 
 def test_main():
+    # ollama.pull(model)
     # models = [
     # "llama3.1:8b-instruct-fp16",
     # "LLama3.3(70b)"
     # ]
     # ollama run deepseek-r1:8b
+    # model = "gemma2:27b"
     model = "gemma2:9b"
-    # ollama.pull(model)
-    # raise NotImplementedError
     model_name = model.split(':')[0]+"base"
 
     # ollama.pull(model)
-    log_dir = f"CoT.response/{model_name}"
+    # log_dir = f"CoT.response/{model_name}"
+    log_dir = f"Error_Analysis/{model_name}"
     os.makedirs(log_dir, exist_ok=True)
 
-    # pp_f = 'purposes/queries.csv'
     pp_f = 'purposes/all_purposes.csv'
-    # pp_f = 'purposes/m_pp.csv'
-    # pp_f = 'purposes/pp_rerun.csv'
-    # pp_f = "purposes/ppp_dish_rerun.csv"
-    # pp_f = 'purposes/dish_recheck.csv'
-    # pp_f = 'purposes/flights_recheck.csv'
     pp_df = pd.read_csv(pp_f)
 
     ds_dir = f"{log_dir}/datasets_llm"
@@ -688,10 +720,7 @@ def test_main():
     logging_dir = f"{log_dir}/logging"
     os.makedirs(logging_dir, exist_ok=True)
     
-    # ds_file = "datasets/menu_data.csv"
-    # ds_name = "menu_test"
-    # 25-27 53,54 56-57 58-60 rerun date...
-    for index, row in pp_df.iloc[97:].iterrows():
+    for index, row in pp_df.iloc[47:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -717,11 +746,13 @@ def test_main():
             ds_name="hos_test"
             ds_file = f"datasets/hospital/hos_data_p{pp_id}.csv"
         # project_name = f"{ds_name}_{pp_id}_{timestamp_str}"
-        #TODO: logging file name 
+        # Create a new logger for each purpose
+        # logger = logging.getLogger(f"purpose_{pp_id}")
+
         logging_name = f"{logging_dir}/{model_name}_{ds_name}_{pp_id}.log"
-        logging.basicConfig(filename=logging_name, level=logging.INFO) # TODO: change filename 
         
-        project_name = f"{model_name}_{ds_name}_p{pp_id}"
+        ds_name = ds_name.split('_')[0]
+        project_name = f"log_{model_name}_{ds_name}_p{pp_id}"
         print(project_name)
         log_data = {
             "ID": pp_id,
@@ -734,18 +765,14 @@ def test_main():
         project_id = None
         if project_name in proj_names_list:
             print(f"Project {project_name} already exists!")
-            logging.info(f'Project {project_name} already exists!')
             print(project_name)
             project_id = get_project_id(project_name)
             ops_history, funcs = export_ops_list(project_id)
-            log_data = wf_gen(project_id, log_data, model,logging, purpose=pp_v)
+            log_data = wf_gen(project_id, log_data, model,logging_name, purpose=pp_v)
         else:
             project_id = create_projects(project_name, ds_file)
             print(f"Project {project_name} creation finished.")
-            logging.info(f"Project {project_name} creation finished.")
-            log_data = wf_gen(project_id, log_data, model, logging, purpose=pp_v)
-        # with open(f"{log_dir}/{ds_name}_{pp_id}_log_{timestamp_str}.txt", "w") as log_f:
-        #     json.dump(log_data, log_f, indent=4)
+            log_data = wf_gen(project_id, log_data, model, logging_name, purpose=pp_v)
 
         #TODO: annotated operation file
         with open(f"{log_dir}/operation/{ds_name}_{pp_id}_log.txt", "w") as log_f:
@@ -762,13 +789,7 @@ def test_main():
         with open(recipe_path, "w") as workflow:
             json.dump(data, workflow, indent=4)  # `indent=4` adds pretty formatting
     
-    # Download all the prepared datasets
-    #TODO: change the dataset and workflow folder name
-    # pull_datasets(model_name)
-    # pull_recipes(model_name)
 
 if __name__ == '__main__':
-    # pull_recipes()
-    # pull_datasets()
     test_main()
     

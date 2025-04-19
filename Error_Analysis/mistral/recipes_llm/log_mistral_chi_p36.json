@@ -1,0 +1,80 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "DBA Name",
+        "expression": "jython:import re\n\n # Filter rows where DBA name matches '7-Eleven' (case insensitive)\n filtered_rows = [row for row in data if re.search(r'7\\-eleven', row['DBA Name'], re.IGNORECASE)]\n\n # Initialize an empty list to store failed inspection records\n failed_inspections = []\n\n # Iterate through the filtered rows and check for 'Failed Inspection' in the Notes column\n for row in filtered_rows:\n    if 'Failed Inspection' in row['Notes']:\n        failed_inspections.append(row)\n\n # Return a string containing all failed inspection records for '7-Eleven'\n return '\\n'.join([row['DBA Name'] for row in failed_inspections])\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column DBA Name using expression jython:import re\n\n # Filter rows where DBA name matches '7-Eleven' (case insensitive)\n filtered_rows = [row for row in data if re.search(r'7\\-eleven', row['DBA Name'], re.IGNORECASE)]\n\n # Initialize an empty list to store failed inspection records\n failed_inspections = []\n\n # Iterate through the filtered rows and check for 'Failed Inspection' in the Notes column\n for row in filtered_rows:\n    if 'Failed Inspection' in row['Notes']:\n        failed_inspections.append(row)\n\n # Return a string containing all failed inspection records for '7-Eleven'\n return '\\n'.join([row['DBA Name'] for row in failed_inspections])\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "DBA Name",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column DBA Name using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Inspection Type",
+        "expression": "jython:import re\n\n# Define a pattern to match all license-related inspection types\npattern = re.compile(r'License|License Re-inspection|Complaint Re-inspection', re.IGNORECASE)\n\ndef standardize_inspections(value):\n    # Standardize the representation of license inspections\n    if pattern.match(value):\n        return 'License'\n    else:\n        return value\n\n# Apply the function to each row in the column\ncolumn = ['License', 'License', 'License', 'License', 'License', 'Canvass', 'Canvass', 'License Re-inspection', 'License', 'Complaint Re-inspection']\nresult = [standardize_inspections(value) for value in column]\n\n# Identify failed inspections based on specific values in other columns if needed (not provided in the example)\nfailed_inspections = []  # This list will store the indices of the rows that represent failed inspections\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Inspection Type using expression jython:import re\n\n# Define a pattern to match all license-related inspection types\npattern = re.compile(r'License|License Re-inspection|Complaint Re-inspection', re.IGNORECASE)\n\ndef standardize_inspections(value):\n    # Standardize the representation of license inspections\n    if pattern.match(value):\n        return 'License'\n    else:\n        return value\n\n# Apply the function to each row in the column\ncolumn = ['License', 'License', 'License', 'License', 'License', 'Canvass', 'Canvass', 'License Re-inspection', 'License', 'Complaint Re-inspection']\nresult = [standardize_inspections(value) for value in column]\n\n# Identify failed inspections based on specific values in other columns if needed (not provided in the example)\nfailed_inspections = []  # This list will store the indices of the rows that represent failed inspections\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Inspection Type",
+        "expression": "jython:# This expression is not applicable as the required data (failed inspection records for 7-Eleven) is not provided in the table.\n\nHowever, if we assume that the Inspection ID column contains unique identifiers for each inspection record and a separate dataset exists with failed inspection records for 7-Eleven, you can use the following expression to extract the Inspection IDs:\n\njython:import re\ninspection_ids = []\nfor value in column['Inspection Type']:\n if re.search(r'7-Eleven', value):\n inspection_ids.append(value)\nreturn inspection_ids\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Inspection Type using expression jython:# This expression is not applicable as the required data (failed inspection records for 7-Eleven) is not provided in the table.\n\nHowever, if we assume that the Inspection ID column contains unique identifiers for each inspection record and a separate dataset exists with failed inspection records for 7-Eleven, you can use the following expression to extract the Inspection IDs:\n\njython:import re\ninspection_ids = []\nfor value in column['Inspection Type']:\n if re.search(r'7-Eleven', value):\n inspection_ids.append(value)\nreturn inspection_ids\nreturn value"
+    }
+]

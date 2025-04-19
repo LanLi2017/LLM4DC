@@ -1,0 +1,81 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "dish_count",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column dish_count using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "occasion",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column occasion using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "occasion",
+        "expression": "jython:import re\nimport re\nvalue = re.sub(r'\\[|\\]|\\(|\\)|;|\\?|/|', '', value)\nif 'DAILY' in value.upper():\n  return 'OTHER (DAILY)'\nelse:\n  return value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column occasion using expression jython:import re\nimport re\nvalue = re.sub(r'\\[|\\]|\\(|\\)|;|\\?|/|', '', value)\nif 'DAILY' in value.upper():\n  return 'OTHER (DAILY)'\nelse:\n  return value"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "occasion",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "COMPLIMENTARYTESTIMONIAL"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": ""
+            },
+            {
+                "from": [
+                    "OTHER, SOC",
+                    "OTHER ANNIV",
+                    "OTHER (DAILY)"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "OTHER (DAILY)"
+            },
+            {
+                "from": [
+                    "ANNIVERSARY",
+                    "RELIGIOUS HOLIDAY",
+                    "DINNER"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": ""
+            }
+        ],
+        "description": "Mass edit cells in column occasion"
+    }
+]

@@ -1,0 +1,28 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import re\n\n# Standardize the results by converting all cases to lowercase and removing unnecessary spaces\nstandardized_results = lambda value: re.sub(r'\\s+', ' ', value).lower()\n\n# Apply the standardization function to the Results column\nstandardized_results_column = df['Results'].apply(standardized_results)\n\n# Define a list of possible out-of-business values\nout_of_business_values = ['out of business', 'oob', 'fail']\n\n# Count the number of rows where the standardized results are in the out-of-business values list\nnum_out_of_business = sum(value in out_of_business_values for value in standardized_results_column)\n\n# Calculate the percentage of businesses that are out of business\npercentage_out_of_business = (num_out_of_business / len(standardized_results_column)) * 100\n\nreturn str(round(percentage_out_of_business, 2)) + '%'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import re\n\n# Standardize the results by converting all cases to lowercase and removing unnecessary spaces\nstandardized_results = lambda value: re.sub(r'\\s+', ' ', value).lower()\n\n# Apply the standardization function to the Results column\nstandardized_results_column = df['Results'].apply(standardized_results)\n\n# Define a list of possible out-of-business values\nout_of_business_values = ['out of business', 'oob', 'fail']\n\n# Count the number of rows where the standardized results are in the out-of-business values list\nnum_out_of_business = sum(value in out_of_business_values for value in standardized_results_column)\n\n# Calculate the percentage of businesses that are out of business\npercentage_out_of_business = (num_out_of_business / len(standardized_results_column)) * 100\n\nreturn str(round(percentage_out_of_business, 2)) + '%'\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import pandas as pd\n\n   # Assuming that the table is stored in a DataFrame named df\n   df['Status'] = df['Results'].apply(lambda x: 'in business' if 'open' in x.lower() else 'out of business')\n\n   # Calculate the percentage of businesses that are out of business\n   out_of_business = len(df[df['Status'] == 'out of business']) / len(df) * 100\n\n   return str(round(out_of_business, 2)) + '%'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import pandas as pd\n\n   # Assuming that the table is stored in a DataFrame named df\n   df['Status'] = df['Results'].apply(lambda x: 'in business' if 'open' in x.lower() else 'out of business')\n\n   # Calculate the percentage of businesses that are out of business\n   out_of_business = len(df[df['Status'] == 'out of business']) / len(df) * 100\n\n   return str(round(out_of_business, 2)) + '%'\nreturn value"
+    }
+]

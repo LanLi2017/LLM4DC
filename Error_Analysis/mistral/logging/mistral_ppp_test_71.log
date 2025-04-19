@@ -1,0 +1,125 @@
+2025-04-18 18:07:23,946 - INFO - Logging started for purpose ID 71, dataset ppp
+2025-04-18 18:07:23,972 - INFO - #TASK I: Select target columns:
+
+
+2025-04-18 18:07:24,444 - INFO -  ["Zip", "Lender"]
+2025-04-18 18:07:24,444 - INFO - 
+ TASK I: Target columns selection: ['Zip', 'Lender']
+
+2025-04-18 18:07:24,447 - INFO - Current working column: Zip
+2025-04-18 18:07:25,092 - INFO - /*
+col: Zip
+row 1: 96825
+row 2: .96817
+row 3: 96750
+row 4: 96814.
+row 5: 96754
+row 6: 96701.
+row 7: 96821
+row 8: 96816-
+row 9: 96707-
+row 10: 96707.
+row 11: 96708
+row 12: 96826.
+row 13: 96707
+row 14: 96704
+row 15: 96749
+*/
+Purpose: Check if multiple PPP loans were made to distinct companies sharing the same Zip code.
+Target column: Zip
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: Zip
+Selected Operation: 
+2025-04-18 18:07:25,092 - INFO - #TASK II: select operations: regexr_transform 
+
+
+2025-04-18 18:07:27,509 - INFO - Explanation of choosing the operation regexr_transform:
+  Target column: Zip
+   Explanation: Accuracy: True (No incorrect values or errors in Zip)
+   Relevance: True (The Zip column is relevant to the objective)
+   Completeness: True (No missing values in Zip)
+   Conciseness: True (All values are consistently formatted as numbers without any special characters)
+
+   Since all quality dimensions are True, there does not appear to be multiple PPP loans made to distinct companies sharing the same Zip code based on this data. However, further analysis would be required to confirm this, such as checking for duplicate company names or other identifying information within the dataset.
+2025-04-18 18:07:27,509 - INFO - data cleaning objectives:  Summary: The Zip column in the dataset shows no signs of multiple PPP loans being made to the same company with the same Zip code, but further analysis is necessary to confirm this by checking for duplicate company names or other identifying information.
+
+   Data Cleaning Objective: To perform additional data cleaning operations such as checking for duplicate company names and other identifying information within the dataset to ensure accurate assessment of potential multiple PPP loans made to the same company.
+2025-04-18 18:07:30,291 - INFO - #TASK III: generate regexr arguments:
+  Jython Expression:
+
+```jython:import re
+import collections
+
+# Remove any non-numeric characters from the Zip column values
+cleaned_Zips = [re.sub(r'\D', '', value) for value in column['Zip']]
+
+# Group the cleaned Zip codes into sets to identify unique and duplicate Zip codes
+unique_Zips, duplicates = collections.Counter(cleaned_Zips).items()
+
+# Check if there are any duplicated Zip codes
+if len(duplicates) > 0:
+    # If there are duplicated Zip codes, return True to indicate potential multiple PPP loans made to the same company
+    return True
+else:
+    # If there are no duplicated Zip codes, return False to indicate no potential multiple PPP loans made to the same company
+    return False```
+
+This expression first removes any non-numeric characters from the 'Zip' column values using a regular expression. Then it groups the cleaned Zip codes into sets to identify unique and duplicate Zip codes using the `collections.Counter()` function. If there are any duplicated Zip codes, it returns True to indicate potential multiple PPP loans made to the same company. Otherwise, it returns False to indicate no potential multiple PPP loans made to the same company. This expression assumes that the dataset is already loaded as a Pandas DataFrame with a 'Zip' column. 
+
+
+2025-04-18 18:07:30,293 - INFO - Predicted expression: 
+ jython:import re
+import collections
+
+# Remove any non-numeric characters from the Zip column values
+cleaned_Zips = [re.sub(r'\D', '', value) for value in column['Zip']]
+
+# Group the cleaned Zip codes into sets to identify unique and duplicate Zip codes
+unique_Zips, duplicates = collections.Counter(cleaned_Zips).items()
+
+# Check if there are any duplicated Zip codes
+if len(duplicates) > 0:
+    # If there are duplicated Zip codes, return True to indicate potential multiple PPP loans made to the same company
+    return True
+else:
+    # If there are no duplicated Zip codes, return False to indicate no potential multiple PPP loans made to the same company
+    return False
+return value 
+
+
+2025-04-18 18:07:34,315 - INFO - Current working column: Lender
+2025-04-18 18:07:34,780 - INFO - /*
+col: Lender
+row 1: AMERICAN SAVINGS BANK, FSB(FIRST STATE BANK)
+row 2: CENTRAL PACIFIC BANK
+row 3: CENTRAL PACIFIC BANK
+row 4: CENTRAL PACIFIC BANK
+row 5: HAWAIIUSA FCU
+row 6: HAWAII NATIONAL BANK.
+row 7: AMERICAN SAVINGS BANK, FSB
+row 8: CENTRAL PACIFIC BANK
+row 9: BANK OF HAWAII
+row 10: CENTRAL PACIFIC BANK
+row 11: CELTIC BANK CORPORATION
+row 12: FIRST HAWAIIAN BANK
+row 13: CELTIC BANK CORPORATION
+row 14: FIRST HAWAIIAN BANK
+row 15: AMERICAN SAVINGS BANK, FSB(FIRST STATE BANK)
+*/
+Purpose: Check if multiple PPP loans were made to distinct companies sharing the same Zip code.
+Target column: Lender
+Explanation: Generate proper operations to improve accuracy, completeness, conciseness of the column: Lender
+Selected Operation: 
+2025-04-18 18:07:34,780 - INFO - #TASK II: select operations: upper 
+
+
+2025-04-18 18:07:37,337 - INFO - Explanation of choosing the operation upper:
+ 1. Target column: Lender
+    2. Accuracy: True (All lenders are consistently spelled and formatted)
+    3. Relevance: True (The Lender column is relevant to the objective)
+    4. Completeness: True (No missing values in Lender)
+    5. Conciseness: False (Duplicate entries for some lenders, e.g., CENTRAL PACIFIC BANK appears multiple times)
+
+Since there are some concerns with Conciseness (False), not all of the dimensions are True, I will return ```False```. To address this issue, you may want to consider removing duplicate entries or standardizing the representation of lenders.
+2025-04-18 18:07:37,337 - INFO - data cleaning objectives: 1- Summary: The dataset has consistent and relevant Lender information without any missing values, but there are duplicate entries for some lenders, making it less concise.
+
+2- Data Cleaning Objective: Remove duplicate entries or standardize the representation of lenders to improve conciseness in the Lender column.

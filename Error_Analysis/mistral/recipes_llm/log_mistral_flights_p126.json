@@ -1,0 +1,41 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "jython:import re\n\n# Extract the airline code and flight number from each flight string\ndef extract_flight_info(value):\n    match = re.search(r'(?P<airline>[A-Z]{2})-(?P<flight>\\d{4,6})', value)\n    return {'airline': match.group('airline'), 'flight': match.group('flight')}\n\n# Standardize the format of flight codes by including airline codes consistently for all entries in the flight column\ndef standardize_flights(data):\n    standardized = []\n    for row in data:\n        flight_info = extract_flight_info(row)\n        if flight_info['airline'] is None or flight_info['flight'] is None:\n            continue\n        airline, flight = flight_info['airline'], flight_info['flight']\n        standardized.append(f'{airline}-{flight}')\n    return standardized\n\n# Count how many flights whose scheduled arrival time are not same as the arrival time\ndef count_delayed_flights(data):\n    delayed = 0\n    for row in data:\n        flight, arrival = row.split('-')\n        if len(arrival.split(' ')) > 1:  # assuming that the arrival time is in format \"DD MM YY HH:MM\"\n            scheduled_time, arrival_time = arrival.split(' ')\n            if int(arrival_time.split(':')[0]) > int(scheduled_time.split(':')[0]):\n                delayed += 1\n    return delayed\n\n# Apply the data cleaning and analysis functions to the flight data\nflight_data = [\n    'AA-4344-ORD-DTW',\n    'CO-1090-BOS-IAH',\n    'AA-3063-SLC-LAX',\n    'AA-3063-SLC-LAX',  # duplicate flight\n    'AA-1917-JFK-MCO',\n    'UA-233-LAX-JFK',\n    'AA-3468-CVG-MIA',\n    'CO-1561-PHX-IAH',\n    'AA-271-MIA-LAX',\n    'AA-1640-MIA-MCO',\n    'AA-222-LAX-BOS',\n    'AA-400-DFW-JFK',\n    'AA-3786-IAH-ORD',\n    'AA-643-MIA-ORD',\n    'UA-858-PVG-SFO'\n]\n\nstandardized_flights = standardize_flights(flight_data)\nprint('Standardized flights:', standardized_flights)\ndelayed_count = count_delayed_flights(flight_data)\nprint('Number of delayed flights:', delayed_count)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import re\n\n# Extract the airline code and flight number from each flight string\ndef extract_flight_info(value):\n    match = re.search(r'(?P<airline>[A-Z]{2})-(?P<flight>\\d{4,6})', value)\n    return {'airline': match.group('airline'), 'flight': match.group('flight')}\n\n# Standardize the format of flight codes by including airline codes consistently for all entries in the flight column\ndef standardize_flights(data):\n    standardized = []\n    for row in data:\n        flight_info = extract_flight_info(row)\n        if flight_info['airline'] is None or flight_info['flight'] is None:\n            continue\n        airline, flight = flight_info['airline'], flight_info['flight']\n        standardized.append(f'{airline}-{flight}')\n    return standardized\n\n# Count how many flights whose scheduled arrival time are not same as the arrival time\ndef count_delayed_flights(data):\n    delayed = 0\n    for row in data:\n        flight, arrival = row.split('-')\n        if len(arrival.split(' ')) > 1:  # assuming that the arrival time is in format \"DD MM YY HH:MM\"\n            scheduled_time, arrival_time = arrival.split(' ')\n            if int(arrival_time.split(':')[0]) > int(scheduled_time.split(':')[0]):\n                delayed += 1\n    return delayed\n\n# Apply the data cleaning and analysis functions to the flight data\nflight_data = [\n    'AA-4344-ORD-DTW',\n    'CO-1090-BOS-IAH',\n    'AA-3063-SLC-LAX',\n    'AA-3063-SLC-LAX',  # duplicate flight\n    'AA-1917-JFK-MCO',\n    'UA-233-LAX-JFK',\n    'AA-3468-CVG-MIA',\n    'CO-1561-PHX-IAH',\n    'AA-271-MIA-LAX',\n    'AA-1640-MIA-MCO',\n    'AA-222-LAX-BOS',\n    'AA-400-DFW-JFK',\n    'AA-3786-IAH-ORD',\n    'AA-643-MIA-ORD',\n    'UA-858-PVG-SFO'\n]\n\nstandardized_flights = standardize_flights(flight_data)\nprint('Standardized flights:', standardized_flights)\ndelayed_count = count_delayed_flights(flight_data)\nprint('Number of delayed flights:', delayed_count)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "sched_arr_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column sched_arr_time using expression value.toDate()"
+    }
+]

@@ -1,0 +1,41 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\ndef regexr_transform(column):\n    # Standardize the spelling of the HospitalOwner column\n    pattern = re.compile(r'[A-Za-z]+_-_[A-Za-z]+')\n    return column.str.replace(pattern, lambda x: x.group(0).replace('_', ' '))\n\n# Apply the standardization function to the HospitalOwner column\ndf['HospitalOwner'] = regexr_transform(df['HospitalOwner'])\n\n# Filter for hospitals located in cities with at least three different hospital ownership types\nunique_ownership = df['HospitalOwner'].str.split().str[0].value_counts()\nhospitals_with_three_types = unique_ownership[unique_ownership >= 3].index\n\n# Filter the DataFrame based on the hospitals with at least three different hospital ownership types\nresult = df[df['HospitalOwner'].str.contains('|'.join(hospitals_with_three_types))]\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\ndef regexr_transform(column):\n    # Standardize the spelling of the HospitalOwner column\n    pattern = re.compile(r'[A-Za-z]+_-_[A-Za-z]+')\n    return column.str.replace(pattern, lambda x: x.group(0).replace('_', ' '))\n\n# Apply the standardization function to the HospitalOwner column\ndf['HospitalOwner'] = regexr_transform(df['HospitalOwner'])\n\n# Filter for hospitals located in cities with at least three different hospital ownership types\nunique_ownership = df['HospitalOwner'].str.split().str[0].value_counts()\nhospitals_with_three_types = unique_ownership[unique_ownership >= 3].index\n\n# Filter the DataFrame based on the hospitals with at least three different hospital ownership types\nresult = df[df['HospitalOwner'].str.contains('|'.join(hospitals_with_three_types))]\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalName",
+        "expression": "jython:import re\nimport pandas as pd  # Assuming you have a separate DataFrame with ownership information\n\n# Load the ownership data (replace 'ownership_data.csv' with your actual file path)\nownership = pd.read_csv('ownership_data.csv')\n\n# Create a dictionary to map hospital names to their ownership types\nhospital_ownership = {}\nfor index, row in ownership.iterrows():\n    hospital_name = row['HospitalName']\n    ownership_type = row['OwnershipType']\n    if hospital_name not in hospital_ownership:\n        hospital_ownership[hospital_name] = set()\n    hospital_ownership[hospital_name].add(ownership_type)\n\n# Function to count the number of unique ownership types for a given city\ndef count_unique_ownerships(city):\n    count = 0\n    for hospital in hospitals:\n        if hospital['City'] == city and hospital['HospitalName'] in hospital_ownership:\n            count += len(hospital_ownership[hospital['HospitalName']])\n    return count\n\n# Filter the DataFrame based on the number of unique ownership types per city\nfiltered_hospitals = hospitals[(hospitals['City'].apply(count_unique_ownerships)) >= 3]\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalName using expression jython:import re\nimport pandas as pd  # Assuming you have a separate DataFrame with ownership information\n\n# Load the ownership data (replace 'ownership_data.csv' with your actual file path)\nownership = pd.read_csv('ownership_data.csv')\n\n# Create a dictionary to map hospital names to their ownership types\nhospital_ownership = {}\nfor index, row in ownership.iterrows():\n    hospital_name = row['HospitalName']\n    ownership_type = row['OwnershipType']\n    if hospital_name not in hospital_ownership:\n        hospital_ownership[hospital_name] = set()\n    hospital_ownership[hospital_name].add(ownership_type)\n\n# Function to count the number of unique ownership types for a given city\ndef count_unique_ownerships(city):\n    count = 0\n    for hospital in hospitals:\n        if hospital['City'] == city and hospital['HospitalName'] in hospital_ownership:\n            count += len(hospital_ownership[hospital['HospitalName']])\n    return count\n\n# Filter the DataFrame based on the number of unique ownership types per city\nfiltered_hospitals = hospitals[(hospitals['City'].apply(count_unique_ownerships)) >= 3]\nreturn value"
+    }
+]

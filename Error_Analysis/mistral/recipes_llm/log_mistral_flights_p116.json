@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_arr_time",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_arr_time using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "jython:import re\n\n# Assuming the column name is 'flight'\ndef regexr_transform(column):\n    expression = '''\\bAA\\b'''  # Matches any string starting with \"AA\"\n    return [match.group(0) for row in column if re.search(expression, row)]\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import re\n\n# Assuming the column name is 'flight'\ndef regexr_transform(column):\n    expression = '''\\bAA\\b'''  # Matches any string starting with \"AA\"\n    return [match.group(0) for row in column if re.search(expression, row)]\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "flight",
+        "expression": "jython:import re\n\n# Assuming that the departure time is already available in a separate column named 'Departure Time'\n# The purpose here is to extract the arrival city from the flight column for further analysis\n\ndef extract_arrival_city(value):\n    match = re.search(r'-(\\w+)$', value)  # search for the pattern '-([a-zA-Z]+)$' at the end of the string\n    if match:\n        return match.group(1)  # return the matched group (the arrival city)\n    else:\n        return None  # return None if no match is found\n\n# Assuming that the dataframe has a column named 'Flight' and we are applying this function to it\ndf['Arrival City'] = df['Flight'].apply(extract_arrival_city)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column flight using expression jython:import re\n\n# Assuming that the departure time is already available in a separate column named 'Departure Time'\n# The purpose here is to extract the arrival city from the flight column for further analysis\n\ndef extract_arrival_city(value):\n    match = re.search(r'-(\\w+)$', value)  # search for the pattern '-([a-zA-Z]+)$' at the end of the string\n    if match:\n        return match.group(1)  # return the matched group (the arrival city)\n    else:\n        return None  # return None if no match is found\n\n# Assuming that the dataframe has a column named 'Flight' and we are applying this function to it\ndf['Arrival City'] = df['Flight'].apply(extract_arrival_city)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "act_dep_time",
+        "expression": "jython:from datetime import datetime\\nimport re\\npattern = re.compile(r'[TZ]')\\ndef standardize_time(time_str):\\n try:\\n dt = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')\\n except ValueError:\\n return None\\n else:\\n return dt.strftime('%Y-%m-%d %H:%M:00') if dt.hour >= 18 else time_str\\nfor row in [row for row in data['act_dep_time']]:\\n if row is not None:\\n standardized_time = standardize_time(row)\\n if standardized_time is not None:\\n print(standardized_time)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column act_dep_time using expression jython:from datetime import datetime\\nimport re\\npattern = re.compile(r'[TZ]')\\ndef standardize_time(time_str):\\n try:\\n dt = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')\\n except ValueError:\\n return None\\n else:\\n return dt.strftime('%Y-%m-%d %H:%M:00') if dt.hour >= 18 else time_str\\nfor row in [row for row in data['act_dep_time']]:\\n if row is not None:\\n standardized_time = standardize_time(row)\\n if standardized_time is not None:\\n print(standardized_time)\nreturn value"
+    }
+]

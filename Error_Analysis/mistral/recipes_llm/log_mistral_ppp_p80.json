@@ -1,0 +1,107 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "LoanAmount",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column LoanAmount using expression value.toNumber()"
+    },
+    {
+        "op": "core/mass-edit",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "LoanAmount",
+        "expression": "value",
+        "edits": [
+            {
+                "from": [
+                    "White",
+                    "white"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "White"
+            },
+            {
+                "from": [
+                    "Black",
+                    "black"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Black"
+            },
+            {
+                "from": [
+                    "Hispanic or Latino",
+                    "hispanic or latino"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Hispanic or Latino"
+            },
+            {
+                "from": [
+                    "Asian",
+                    "asian"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Asian"
+            },
+            {
+                "from": [
+                    "Native Hawaiian or Other Pacific Islander",
+                    "native hawaiian or other pacific islander"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "Native Hawaiian or Other Pacific Islander"
+            },
+            {
+                "from": [
+                    "American Indian or Alaska Native",
+                    "american indian or alaska native"
+                ],
+                "fromBlank": false,
+                "fromError": false,
+                "to": "American Indian or Alaska Native"
+            }
+        ],
+        "description": "Mass edit cells in column LoanAmount"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "RaceEthnicity",
+        "expression": "jython:import re\n\n# Define a function to standardize race names\ndef standardize_race(name):\n    # Remove any non-alphabetic characters\n    name = re.sub(r'\\W+', '', name)\n\n    # Convert to lowercase and remove extra spaces\n    name = name.lower().replace(' ', '')\n\n    # Standardize some common variations of race names\n    if 'hispaic' in name:\n        return 'Hispanic'\n    elif 'ntv' in name:\n        return 'Native Hawaiian'\n    elif 'as1an' in name or 'Aisan' in name:\n        return 'Asian'\n    elif 'whiite' in name or 'wh1te' in name:\n        return 'White'\n    elif 'b.a.a.' in name:\n        return 'Black/African American'\n    else:\n        return name\n\n# Apply the function to each row in the RaceEthnicity column\ncleaned_race = [standardize_race(row['RaceEthnicity']) for index, row in df.iterrows()]\n\n# Now we can use cleaned_race to analyze the PPP loan data as needed\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column RaceEthnicity using expression jython:import re\n\n# Define a function to standardize race names\ndef standardize_race(name):\n    # Remove any non-alphabetic characters\n    name = re.sub(r'\\W+', '', name)\n\n    # Convert to lowercase and remove extra spaces\n    name = name.lower().replace(' ', '')\n\n    # Standardize some common variations of race names\n    if 'hispaic' in name:\n        return 'Hispanic'\n    elif 'ntv' in name:\n        return 'Native Hawaiian'\n    elif 'as1an' in name or 'Aisan' in name:\n        return 'Asian'\n    elif 'whiite' in name or 'wh1te' in name:\n        return 'White'\n    elif 'b.a.a.' in name:\n        return 'Black/African American'\n    else:\n        return name\n\n# Apply the function to each row in the RaceEthnicity column\ncleaned_race = [standardize_race(row['RaceEthnicity']) for index, row in df.iterrows()]\n\n# Now we can use cleaned_race to analyze the PPP loan data as needed\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "RaceEthnicity",
+        "expression": "jython:import pandas as pd\n\n# Assuming that you have a DataFrame named df with the RaceEthnicity column\nmissing_values = df[df['RaceEthnicity'].isnull()]\n\n# Fill missing values based on the most frequent race/ethnicity\nmost_common_race = df['RaceEthnicity'].mode()[0]\nmissing_values['RaceEthnicity'] = most_common_race\n\ndf = pd.concat([df, missing_values])\n\n# Now let's find the highest amount of PPP loans for each race/ethnicity\ngrouped_data = df.groupby('RaceEthnicity')['LoanAmount'].sum()\nmax_loans = grouped_data.idxmax()\nmax_amount = grouped_data[max_loans]\n\n# Return the RaceEthnicity with the highest amount of PPP loans and the corresponding dollar amount\nreturn f\"{max_loans}: {max_amount}\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column RaceEthnicity using expression jython:import pandas as pd\n\n# Assuming that you have a DataFrame named df with the RaceEthnicity column\nmissing_values = df[df['RaceEthnicity'].isnull()]\n\n# Fill missing values based on the most frequent race/ethnicity\nmost_common_race = df['RaceEthnicity'].mode()[0]\nmissing_values['RaceEthnicity'] = most_common_race\n\ndf = pd.concat([df, missing_values])\n\n# Now let's find the highest amount of PPP loans for each race/ethnicity\ngrouped_data = df.groupby('RaceEthnicity')['LoanAmount'].sum()\nmax_loans = grouped_data.idxmax()\nmax_amount = grouped_data[max_loans]\n\n# Return the RaceEthnicity with the highest amount of PPP loans and the corresponding dollar amount\nreturn f\"{max_loans}: {max_amount}\"\nreturn value"
+    }
+]

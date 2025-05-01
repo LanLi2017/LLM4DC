@@ -542,20 +542,18 @@ Selected Operation: """)
     Flag: ```False```
     Explanations: 
                                                 """
-                _, eod_desc = gen(prompt_eod, [], model, {'temperature': 0.2}) #clear out context
-                prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
-                _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], model, {'temperature': 0.2, 'top_p': 0.95})
+                _, op_exp_desc = gen(prompt_eod, [], model, {'temperature': 0.2}) #clear out context
+                # prompt_eod_desc_summarization = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
+                # _, one_sent_eod_desc = gen(prompt_eod_desc_summarization, [], model, {'temperature': 0.2, 'top_p': 0.95})
                 # Regular expression to extract the desired sentence
-                # eod_pattern= r"Next operation:\s*(.*?)\."
-                print(one_sent_eod_desc)
-                logger.info(f'Explanation of choosing the operation {sel_op}:\n {eod_desc}')
-                logger.info(f'data cleaning objectives: {one_sent_eod_desc}')
-                eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
-                # Search for the pattern in the text
-                eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
-                # Extract the matched sentence if found
-                sum_eod = eod_match.group(1).strip() + '.' if eod_match else one_sent_eod_desc
-                print(sum_eod)
+                logger.info(f'Explanation of choosing the operation {sel_op}:\n {op_exp_desc}')
+                # logger.info(f'data cleaning objectives: {one_sent_eod_desc}')
+                # eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
+                # # Search for the pattern in the text
+                # eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
+                # # Extract the matched sentence if found
+                # sum_eod = eod_match.group(1).strip() + '.' if eod_match else one_sent_eod_desc
+                # print(sum_eod)
                     
                 # >>>>Start Arguments Generation>>>>
                 context = []
@@ -663,11 +661,24 @@ Selected Operation: """)
                 ops_data += functions_list # appending the operations if done...
                 ops_gen[sel_col] = functions_list #TODO... the functions_list are the whole...    
                 ops_gen['Error_Running'] = errors
+                logger.info("#TASK IV: data quality inspection: True, switch to next target column")
+
             else:
                 eod_flag  = "False"
                 mask = [int(x == "False") for x in eod_flag_list]
                 eod_desc = random.choice([value for value, m in zip(eod_desc_list, mask) if m == 1])
                 logger.info(f"#TASK IV: data quality inspection: \n\n {eod_desc}")
+                prompt_eod_desc = f"""please generate a one-sentence summarization and a one-sentence data cleaning objective for next operation according to the detailed data quality issue mentioned by **3.Assessing profiling results from four dimensions:** from the: \n{eod_desc}"""
+                _, one_sent_eod_desc = gen(prompt_eod_desc, [], model, {'temperature': 0.2, 'top_p': 0.95})
+                # Regular expression to extract the desired sentence
+                print(one_sent_eod_desc)
+                eod_pattern = r"\*\*Data Cleaning Objective:\*\*\s*(.*?)\."
+                # Search for the pattern in the text
+                eod_match = re.search(eod_pattern, one_sent_eod_desc, re.DOTALL)
+                # Extract the matched sentence if found
+                sum_eod = eod_match.group(1).strip() + '.' if eod_match else one_sent_eod_desc
+                logger.info(f'Data cleaning objectives(Next): {sum_eod}')
+          
             if count_empty >= 5:
                 eod_flag = "True"
                 
@@ -690,13 +701,6 @@ def create_projects(project_name, ds_fp):
 
 
 def test_main():
-    # ollama.pull(model)
-    # models = [
-    # "llama3.1:8b-instruct-fp16",
-    # "LLama3.3(70b)"
-    # ]
-    # ollama run deepseek-r1:8b
-    # model = "gemma2:27b"
     model = "gemma2:9b"
     model_name = model.split(':')[0]+"base"
 
@@ -720,7 +724,7 @@ def test_main():
     logging_dir = f"{log_dir}/logging"
     os.makedirs(logging_dir, exist_ok=True)
     
-    for index, row in pp_df.iloc[47:].iterrows():
+    for index, row in pp_df.iloc[31:].iterrows():
         timestamp = datetime.now()
         timestamp_str = f'{timestamp.month}{timestamp.day}{timestamp.hour}{timestamp.minute}'
         print(timestamp_str)
@@ -752,7 +756,7 @@ def test_main():
         logging_name = f"{logging_dir}/{model_name}_{ds_name}_{pp_id}.log"
         
         ds_name = ds_name.split('_')[0]
-        project_name = f"log_{model_name}_{ds_name}_p{pp_id}"
+        project_name = f"re_{model_name}_{ds_name}_p{pp_id}"
         print(project_name)
         log_data = {
             "ID": pp_id,

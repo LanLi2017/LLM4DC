@@ -1,0 +1,80 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "EmergencyService",
+        "expression": "jython:import re\n   def standardize_yes(value):\n       value = value.lower()\n       if re.search('^yes$', value) or re.search('^y(?:es|(?:e\\s?s)?)$', value) or re.search('^t(?:rue|(?:u(?:e?)?)|y(?:(?:e|es))?)$', value):\n           return 'Yes'\n       elif re.search('^n(?:o|(?:ot)?)$', value) or re.search('^f(?:alse|(?:a(?:lse)?))$', value):\n           return 'No'\n       else:\n           return value\n   return standardize_yes(value)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column EmergencyService using expression jython:import re\n   def standardize_yes(value):\n       value = value.lower()\n       if re.search('^yes$', value) or re.search('^y(?:es|(?:e\\s?s)?)$', value) or re.search('^t(?:rue|(?:u(?:e?)?)|y(?:(?:e|es))?)$', value):\n           return 'Yes'\n       elif re.search('^n(?:o|(?:ot)?)$', value) or re.search('^f(?:alse|(?:a(?:lse)?))$', value):\n           return 'No'\n       else:\n           return value\n   return standardize_yes(value)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "City",
+        "expression": "value.trim()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column City using expression value.trim()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n   return re.sub(r'[\\s-]', ' ', value).lower().replace('voluntary non-profit', 'vnp').replace('government', 'gov')\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n   return re.sub(r'[\\s-]', ' ', value).lower().replace('voluntary non-profit', 'vnp').replace('government', 'gov')\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n# Standardize the representation of hospital ownership types\nhospital_owner = value.lower() # convert to lowercase for easier comparison\nhospital_owner = re.sub(r'[^\\w\\s]', '', hospital_owner) # remove non-word characters\nhospital_owner = re.sub(r'\\s+', ' ', hospital_owner) # replace multiple spaces with a single space\n\n# Classify the ownership type\nif \"government\" in hospital_owner and \"emergency services\" in value:\n    output = \"City has a government-owned hospital offering emergency services.\"\nelif \"voluntary non-profit\" in hospital_owner and \"emergency services\" in value:\n    output = \"City has a voluntary non-profit hospital offering emergency services.\"\nelse:\n    output = \"City does not have a hospital owned by voluntary non-profits offering emergency services.\"\n\noutput\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Standardize the representation of hospital ownership types\nhospital_owner = value.lower() # convert to lowercase for easier comparison\nhospital_owner = re.sub(r'[^\\w\\s]', '', hospital_owner) # remove non-word characters\nhospital_owner = re.sub(r'\\s+', ' ', hospital_owner) # replace multiple spaces with a single space\n\n# Classify the ownership type\nif \"government\" in hospital_owner and \"emergency services\" in value:\n    output = \"City has a government-owned hospital offering emergency services.\"\nelif \"voluntary non-profit\" in hospital_owner and \"emergency services\" in value:\n    output = \"City has a voluntary non-profit hospital offering emergency services.\"\nelse:\n    output = \"City does not have a hospital owned by voluntary non-profits offering emergency services.\"\n\noutput\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n # Standardize the representation of voluntary non-profits across all rows in the HospitalOwner column\n standardized_hospital_owner = re.sub(r'[_\\s\\-]+', ' ', value).strip().lower()\n\n if 'voluntary non-profit' in standardized_hospital_owner:\n     # Check if the hospital offers emergency services\n     if 'emergency' in value:\n         return 'Yes'\n     else:\n         return 'No'\n else:\n     return 'N/A'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Standardize the representation of voluntary non-profits across all rows in the HospitalOwner column\n standardized_hospital_owner = re.sub(r'[_\\s\\-]+', ' ', value).strip().lower()\n\n if 'voluntary non-profit' in standardized_hospital_owner:\n     # Check if the hospital offers emergency services\n     if 'emergency' in value:\n         return 'Yes'\n     else:\n         return 'No'\n else:\n     return 'N/A'\nreturn value"
+    }
+]

@@ -1,0 +1,41 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n# Define a dictionary to store the count of each unique hospital type and ownership combination\nhospital_counts = {}\n\nfor row in df['HospitalOwner']:  # Iterate through each row in the HospitalOwner column\n    # Normalize the spelling, capitalization, and abbreviations of hospital ownership\n    normalized_ownership = re.sub(r'\\s+', ' ', row).strip().lower()\n\n    # Extract the hospital type and ownership from the normalized string\n    hospital_type = re.search(r'[a-z]+', normalized_ownership)\n    if hospital_type:\n        ownership = re.sub(r'[a-z]+', '', normalized_ownership)\n        if ownership in ['private', 'prbvate', 'proprietary']:\n            ownership = 'Private'\n        elif ownership in ['church', 'other', 'aujhority', 'district']:\n            ownership = 'Non-Profit'\n        elif ownership == 'federal':\n            ownership = 'Government'\n        else:\n            ownership = 'Unknown'\n\n        # Store the hospital type and ownership combination in the dictionary, incrementing its count if it already exists\n        key = f\"{hospital_type.group(0)}-{ownership}\"\n        if key in hospital_counts:\n            hospital_counts[key] += 1\n        else:\n            hospital_counts[key] = 1\n\n# Find the most frequent hospital type and ownership combination\nmost_common_hospital = max(hospital_counts, key=hospital_counts.get)\nprint(f\"The most frequent combination of hospital type and ownership is: {most_common_hospital}\")\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Define a dictionary to store the count of each unique hospital type and ownership combination\nhospital_counts = {}\n\nfor row in df['HospitalOwner']:  # Iterate through each row in the HospitalOwner column\n    # Normalize the spelling, capitalization, and abbreviations of hospital ownership\n    normalized_ownership = re.sub(r'\\s+', ' ', row).strip().lower()\n\n    # Extract the hospital type and ownership from the normalized string\n    hospital_type = re.search(r'[a-z]+', normalized_ownership)\n    if hospital_type:\n        ownership = re.sub(r'[a-z]+', '', normalized_ownership)\n        if ownership in ['private', 'prbvate', 'proprietary']:\n            ownership = 'Private'\n        elif ownership in ['church', 'other', 'aujhority', 'district']:\n            ownership = 'Non-Profit'\n        elif ownership == 'federal':\n            ownership = 'Government'\n        else:\n            ownership = 'Unknown'\n\n        # Store the hospital type and ownership combination in the dictionary, incrementing its count if it already exists\n        key = f\"{hospital_type.group(0)}-{ownership}\"\n        if key in hospital_counts:\n            hospital_counts[key] += 1\n        else:\n            hospital_counts[key] = 1\n\n# Find the most frequent hospital type and ownership combination\nmost_common_hospital = max(hospital_counts, key=hospital_counts.get)\nprint(f\"The most frequent combination of hospital type and ownership is: {most_common_hospital}\")\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n   import collections\n\n   # Standardize capitalization and remove unnecessary spaces and special characters\n   value = re.sub(r'[^A-Za-z ]', '', value).lower()\n\n   # Split the standardized string into a list of words\n   words = value.split(' ')\n\n   # Group the words based on their meaning (hospital type and ownership)\n   hospital_type = []\n   ownership = []\n   for word in words:\n       if word in ['government', 'federal', 'local']:\n           hospital_type.append(word)\n       elif word in ['hospital district', 'district', 'authority', 'other']:\n           hospital_type.append('Hospital District or Authority')\n       elif word in ['church', 'private', 'other']:\n           ownership.append(word)\n       else:\n           continue\n\n   # Combine the hospital type and ownership into a single string\n   combined = f'{hospital_type[0].capitalize()}-{ownership[0]}' if len(hospital_type) == 1 and len(ownership) == 1 else \\\n            f'{hospital_type[0].capitalize()} {hospital_type[1:]}-{ownership[0]}' if len(hospital_type) > 1 and len(ownership) == 1 else \\\n            f'{hospital_type[0].capitalize()}-{hospital_type[1:]}-{ownership[0]}' if len(hospital_type) > 1 and len(ownership) > 1\n\n   # Count the frequency of each combination\n   frequency = collections.Counter([combined for combined in data['HospitalOwner']])\n\n   # Find the most frequent combinations\n   most_frequent = frequency.most_common()[:3]\n\n   # Print the results\n   print(\"Most Frequent Combinations of Hospital Type and Ownership:\")\n   for combination, count in most_frequent:\n       print(combination, ':', count)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n   import collections\n\n   # Standardize capitalization and remove unnecessary spaces and special characters\n   value = re.sub(r'[^A-Za-z ]', '', value).lower()\n\n   # Split the standardized string into a list of words\n   words = value.split(' ')\n\n   # Group the words based on their meaning (hospital type and ownership)\n   hospital_type = []\n   ownership = []\n   for word in words:\n       if word in ['government', 'federal', 'local']:\n           hospital_type.append(word)\n       elif word in ['hospital district', 'district', 'authority', 'other']:\n           hospital_type.append('Hospital District or Authority')\n       elif word in ['church', 'private', 'other']:\n           ownership.append(word)\n       else:\n           continue\n\n   # Combine the hospital type and ownership into a single string\n   combined = f'{hospital_type[0].capitalize()}-{ownership[0]}' if len(hospital_type) == 1 and len(ownership) == 1 else \\\n            f'{hospital_type[0].capitalize()} {hospital_type[1:]}-{ownership[0]}' if len(hospital_type) > 1 and len(ownership) == 1 else \\\n            f'{hospital_type[0].capitalize()}-{hospital_type[1:]}-{ownership[0]}' if len(hospital_type) > 1 and len(ownership) > 1\n\n   # Count the frequency of each combination\n   frequency = collections.Counter([combined for combined in data['HospitalOwner']])\n\n   # Find the most frequent combinations\n   most_frequent = frequency.most_common()[:3]\n\n   # Print the results\n   print(\"Most Frequent Combinations of Hospital Type and Ownership:\")\n   for combination, count in most_frequent:\n       print(combination, ':', count)\nreturn value"
+    }
+]

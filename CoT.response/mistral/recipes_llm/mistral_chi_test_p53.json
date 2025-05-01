@@ -1,0 +1,54 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import re\n   return re.sub(r'[^a-zA-Z0-9\\s]', '', value).lower().replace(' ', '_').replace('_', '-') if 'Risk 1 (Low)' in value else value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import re\n   return re.sub(r'[^a-zA-Z0-9\\s]', '', value).lower().replace(' ', '_').replace('_', '-') if 'Risk 1 (Low)' in value else value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import re\n\n # Standardize the results for consistency\n result = value.lower()  # convert all characters to lowercase for consistency\n result = re.sub(r'[^a-z0-9\\s]', '', result)  # remove any non-alphanumeric characters\n result = re.sub(r'\\s+', ' ', result)  # replace multiple spaces with a single space\n\n if result == \"risk 1 (low)\":  # check if the standardized result matches \"Risk 1 (Low)\"\n     return \"Pass\"  # if it does, return \"Pass\"\n else:\n     return \"Fail\"  # if it doesn't, return \"Fail\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import re\n\n # Standardize the results for consistency\n result = value.lower()  # convert all characters to lowercase for consistency\n result = re.sub(r'[^a-z0-9\\s]', '', result)  # remove any non-alphanumeric characters\n result = re.sub(r'\\s+', ' ', result)  # replace multiple spaces with a single space\n\n if result == \"risk 1 (low)\":  # check if the standardized result matches \"Risk 1 (Low)\"\n     return \"Pass\"  # if it does, return \"Pass\"\n else:\n     return \"Fail\"  # if it doesn't, return \"Fail\"\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import re\n\n # Normalize the spelling and formatting of the inspection outcomes\n def normalize_results(value):\n     value = value.lower()  # Convert to lowercase\n     value = re.sub(r'\\s+', ' ', value)  # Remove extra spaces\n     value = re.sub(r'[^a-z0-9\\s]', '', value)  # Remove non-alphanumeric characters\n     return value\n\n # Apply the normalization function to each cell in the Results column\n results_normalized = df['Results'].apply(normalize_results)\n\n # Filter for businesses with \"risk 1 (low)\"\n mask = (results_normalized == 'risk 1 (low)')\n\n # List the inspection results for all businesses with \"Risk 1 (Low).\"\n output = df.loc[mask, 'Results'].tolist()\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import re\n\n # Normalize the spelling and formatting of the inspection outcomes\n def normalize_results(value):\n     value = value.lower()  # Convert to lowercase\n     value = re.sub(r'\\s+', ' ', value)  # Remove extra spaces\n     value = re.sub(r'[^a-z0-9\\s]', '', value)  # Remove non-alphanumeric characters\n     return value\n\n # Apply the normalization function to each cell in the Results column\n results_normalized = df['Results'].apply(normalize_results)\n\n # Filter for businesses with \"risk 1 (low)\"\n mask = (results_normalized == 'risk 1 (low)')\n\n # List the inspection results for all businesses with \"Risk 1 (Low).\"\n output = df.loc[mask, 'Results'].tolist()\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import re\n\ndef standardize_results(value):\n  if value.lower() in ['psas', 'p@ss', 'paas']:\n    return 'Pass'\n  elif value.lower() in ['fail', 'fial', 'f@il', 'faild']:\n    return 'Fail'\n  else:\n    return value\n\nreturn standardize_results(value)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import re\n\ndef standardize_results(value):\n  if value.lower() in ['psas', 'p@ss', 'paas']:\n    return 'Pass'\n  elif value.lower() in ['fail', 'fial', 'f@il', 'faild']:\n    return 'Fail'\n  else:\n    return value\n\nreturn standardize_results(value)\nreturn value"
+    }
+]

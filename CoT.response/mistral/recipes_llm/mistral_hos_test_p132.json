@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n # Define a function to standardize hospital ownership representation\ndef standardize_hospital_ownership(value):\n    # Remove hyphens, spaces, and convert to lowercase\n    value = re.sub(r'[- ]+', ' ', value).lower()\n\n    # Standardize the hospital ownership representations\n    if 'government' in value:\n        return 'Government'\n    elif 'voluntary non-profit' in value:\n        return 'Voluntary Non-Profit'\n    elif 'proprietary' in value:\n        return 'Proprietary'\n    else:\n        # If the ownership is not recognized, return the original value\n        return value\n\n# Apply the function to each hospital owner and compute the average length\naverage_length = 0\nhospital_types = {'Government': 0, 'Voluntary Non-Profit': 0, 'Proprietary': 0}\n\nfor row in [row.split('|') for row in data]:\n    hospital_type = standardize_hospital_ownership(row[1])\n    hospital_types[hospital_type] += 1\n    average_length += len(row[1].strip())\n\naverage_length /= sum(hospital_types.values())\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Define a function to standardize hospital ownership representation\ndef standardize_hospital_ownership(value):\n    # Remove hyphens, spaces, and convert to lowercase\n    value = re.sub(r'[- ]+', ' ', value).lower()\n\n    # Standardize the hospital ownership representations\n    if 'government' in value:\n        return 'Government'\n    elif 'voluntary non-profit' in value:\n        return 'Voluntary Non-Profit'\n    elif 'proprietary' in value:\n        return 'Proprietary'\n    else:\n        # If the ownership is not recognized, return the original value\n        return value\n\n# Apply the function to each hospital owner and compute the average length\naverage_length = 0\nhospital_types = {'Government': 0, 'Voluntary Non-Profit': 0, 'Proprietary': 0}\n\nfor row in [row.split('|') for row in data]:\n    hospital_type = standardize_hospital_ownership(row[1])\n    hospital_types[hospital_type] += 1\n    average_length += len(row[1].strip())\n\naverage_length /= sum(hospital_types.values())\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\ndef fill_missing_values(value):\n if value is None:\n return 'Unknown'\n else:\n return value\n\ndef compute_average_length(column):\n filled_column = column.apply(fill_missing_values)\n grouped = filled_column.groupby('HospitalType')['HospitalOwner'].agg({'length'})\n return grouped.reset_index()\n\n# Assuming df is your DataFrame and 'HospitalType' and 'HospitalOwner' are the column names\naverage_lengths = compute_average_length(df['HospitalOwner'])\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\ndef fill_missing_values(value):\n if value is None:\n return 'Unknown'\n else:\n return value\n\ndef compute_average_length(column):\n filled_column = column.apply(fill_missing_values)\n grouped = filled_column.groupby('HospitalType')['HospitalOwner'].agg({'length'})\n return grouped.reset_index()\n\n# Assuming df is your DataFrame and 'HospitalType' and 'HospitalOwner' are the column names\naverage_lengths = compute_average_length(df['HospitalOwner'])\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import pandas as pd\n\n # Assuming you have a DataFrame df with the HospitalOwner column\n df = pd.read_csv('hospitals.csv')  # replace 'hospitals.csv' with your actual file path\n\n # Fill missing values based on mode (most common value) for each hospital type\n df['HospitalOwner'] = df.groupby('HospitalType')['HospitalOwner'].fillna(df.groupby('HospitalType')['HospitalOwner'].transform('mode'))\n\n # Now you can compute the average length of hospital names grouped by hospital type and ownership\n expression = \"return len(str(value))\"  # This will return the length of each hospital name as a number\n output: The output will be a DataFrame with the average length of hospital names for each hospital type and ownership.\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import pandas as pd\n\n # Assuming you have a DataFrame df with the HospitalOwner column\n df = pd.read_csv('hospitals.csv')  # replace 'hospitals.csv' with your actual file path\n\n # Fill missing values based on mode (most common value) for each hospital type\n df['HospitalOwner'] = df.groupby('HospitalType')['HospitalOwner'].fillna(df.groupby('HospitalType')['HospitalOwner'].transform('mode'))\n\n # Now you can compute the average length of hospital names grouped by hospital type and ownership\n expression = \"return len(str(value))\"  # This will return the length of each hospital name as a number\n output: The output will be a DataFrame with the average length of hospital names for each hospital type and ownership.\nreturn value"
+    }
+]

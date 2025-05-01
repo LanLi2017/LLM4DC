@@ -1,0 +1,41 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "event",
+        "expression": "jython:import re\n\n# Standardize the representation of \"menu event\" values to ensure consistency in spelling, specifically for \"lunch\" and \"luncheon\". This will improve conciseness. In the current dataset, this would involve changing 'luchon' (row 13) to 'lunch' and 'luncheon' (row 29) to 'lunch'.\n\ndef standardize_event(value):\n    if value.lower() == \"luchon\":\n        return \"lunch\"\n    elif re.search(r'luncheon', value, re.IGNORECASE):\n        return \"lunch\"\n    else:\n        return value\n\n# Apply the standardize_event function to each row in the 'event' column\ndata['event'] = data['event'].apply(standardize_event)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column event using expression jython:import re\n\n# Standardize the representation of \"menu event\" values to ensure consistency in spelling, specifically for \"lunch\" and \"luncheon\". This will improve conciseness. In the current dataset, this would involve changing 'luchon' (row 13) to 'lunch' and 'luncheon' (row 29) to 'lunch'.\n\ndef standardize_event(value):\n    if value.lower() == \"luchon\":\n        return \"lunch\"\n    elif re.search(r'luncheon', value, re.IGNORECASE):\n        return \"lunch\"\n    else:\n        return value\n\n# Apply the standardize_event function to each row in the 'event' column\ndata['event'] = data['event'].apply(standardize_event)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "event",
+        "expression": "jython:import pandas as pd\n\n # Assuming the dataframe is named df\n df.fillna({'event': 'None'}, inplace=True)  # Fill missing values with 'None'\n\n count = len(df[df['event'] == 'LUNCHEON'])  # Count rows where event is LUNCHEON\n print(count)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column event using expression jython:import pandas as pd\n\n # Assuming the dataframe is named df\n df.fillna({'event': 'None'}, inplace=True)  # Fill missing values with 'None'\n\n count = len(df[df['event'] == 'LUNCHEON'])  # Count rows where event is LUNCHEON\n print(count)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "event",
+        "expression": "jython:import pandas as pd\\n# Assuming df is your DataFrame\\ndf = pd.read_csv('your_datafile.csv') # replace 'your_datafile.csv' with your actual file name\\nif 'LUNCHEON' not in df['event'].values:\\n   new_row = {'event': 'LUNCHEON', 'other_column1': None, 'other_column2': None}\\ndf = df.append(new_row, ignore_index=True)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column event using expression jython:import pandas as pd\\n# Assuming df is your DataFrame\\ndf = pd.read_csv('your_datafile.csv') # replace 'your_datafile.csv' with your actual file name\\nif 'LUNCHEON' not in df['event'].values:\\n   new_row = {'event': 'LUNCHEON', 'other_column1': None, 'other_column2': None}\\ndf = df.append(new_row, ignore_index=True)\nreturn value"
+    }
+]

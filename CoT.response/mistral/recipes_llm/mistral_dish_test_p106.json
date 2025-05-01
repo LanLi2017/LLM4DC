@@ -1,0 +1,106 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "python\nimport re\ndef clean_dish_names(name):\n    # Remove underscores, dashes, spaces, commas, and periods\n    cleaned_name = re.sub(r'[_-,\\.\\s]', '', name)\n    return cleaned_name\n\n# Apply the function to each dish name in the table\ntable = [\n    \"individual_wedding_cakes_for_everybody\",\n    \"__malteser_reis-creme__\",\n    \"__kalbsschnitzel_mit_braunem_knoblauch,_tomatennudeln_und_salat_-_escalope_de_veau_gousse_d'ail_avec_nouilles_aux_herbes_et_salade_-_excalope_of_veal_with_garlic,_noodles_with_herbs_and_salad__\",\n    \"__old_seal_brandy,_pony__\",\n    \"__sunomono__\",\n    \"__BEAN_CURD_WITH_CHINESE_MUSHROOMS__\",\n    \"__kalbsschnitzel_mit_braunem_knoblauch,_tomatennudeln_und_salat_-_escalope_de_veau_gousse_d'ail_avec_nouilles_aux_herbes_et_salade_-_excalope_of_veal_with_garlic,_noodles_with_herbs_and_salad__\",\n    \"egg,-tetrazini\",\n    \"cream_caroline_soup\",\n    \"saumon_bouilli\",\n    \"2_eggs,_any_style,_served_with_hashbrowns_&_hot_buttered_toast\",\n    \"__boiled_fresh_brisket_of_beef,_horseradish_sauce,_bouillon_potatoes__\",\n    \"__COFFEE,_PER_POT_OR_CUP__\",\n    \"--ROAST-LEG-OF-MUTTON-CURRANT-JELLY--\",\n    \"__potatoes,_sautees_or_stewed__\",\n    \"__fresh_fruit_salad,_country_cottage_cheese,_sour_cream_salad_dressing__\",\n    \"__1964er_chateau_la_tour_gayet,_cotes_de_blaye_ac__\",\n    \"--VINTNER'S-SAUTERNE--\",\n    \"__frecciarossa__\",\n    \"__consomme_belle_fermiere__\"\n]\n\ncleaned_table = [clean_dish_names(name) for name in table]\nprint(cleaned_table)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression python\nimport re\ndef clean_dish_names(name):\n    # Remove underscores, dashes, spaces, commas, and periods\n    cleaned_name = re.sub(r'[_-,\\.\\s]', '', name)\n    return cleaned_name\n\n# Apply the function to each dish name in the table\ntable = [\n    \"individual_wedding_cakes_for_everybody\",\n    \"__malteser_reis-creme__\",\n    \"__kalbsschnitzel_mit_braunem_knoblauch,_tomatennudeln_und_salat_-_escalope_de_veau_gousse_d'ail_avec_nouilles_aux_herbes_et_salade_-_excalope_of_veal_with_garlic,_noodles_with_herbs_and_salad__\",\n    \"__old_seal_brandy,_pony__\",\n    \"__sunomono__\",\n    \"__BEAN_CURD_WITH_CHINESE_MUSHROOMS__\",\n    \"__kalbsschnitzel_mit_braunem_knoblauch,_tomatennudeln_und_salat_-_escalope_de_veau_gousse_d'ail_avec_nouilles_aux_herbes_et_salade_-_excalope_of_veal_with_garlic,_noodles_with_herbs_and_salad__\",\n    \"egg,-tetrazini\",\n    \"cream_caroline_soup\",\n    \"saumon_bouilli\",\n    \"2_eggs,_any_style,_served_with_hashbrowns_&_hot_buttered_toast\",\n    \"__boiled_fresh_brisket_of_beef,_horseradish_sauce,_bouillon_potatoes__\",\n    \"__COFFEE,_PER_POT_OR_CUP__\",\n    \"--ROAST-LEG-OF-MUTTON-CURRANT-JELLY--\",\n    \"__potatoes,_sautees_or_stewed__\",\n    \"__fresh_fruit_salad,_country_cottage_cheese,_sour_cream_salad_dressing__\",\n    \"__1964er_chateau_la_tour_gayet,_cotes_de_blaye_ac__\",\n    \"--VINTNER'S-SAUTERNE--\",\n    \"__frecciarossa__\",\n    \"__consomme_belle_fermiere__\"\n]\n\ncleaned_table = [clean_dish_names(name) for name in table]\nprint(cleaned_table)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:# Assuming that there are additional columns named 'Price' and 'Date' in the dataset\n\n    import datetime\n\n    # Convert date string to datetime object\n    def convert_date(date_str):\n        return datetime.datetime.strptime(date_str, '%Y-%m-%d')\n\n    # Calculate price difference between two dates for a specific dish\n    def price_diff(row):\n        start_date = convert_date(row['Date'])\n        end_date = convert_date(row['End Date'])\n        days = (end_date - start_date).days\n        return row['Price'] * days / 365\n\n    # Find dish with the lowest price difference\n    def find_lowest_price_difference():\n        min_diff = float('inf')\n        dish_name = None\n        for index, row in df.iterrows():\n            diff = price_diff(row)\n            if diff < min_diff:\n                min_diff = diff\n                dish_name = row['Name']\n        return dish_name\n\n    # Use find_lowest_price_difference function in regexr_transform()\n    regexr_transform('Name', 'jython:find_lowest_price_difference()')\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:# Assuming that there are additional columns named 'Price' and 'Date' in the dataset\n\n    import datetime\n\n    # Convert date string to datetime object\n    def convert_date(date_str):\n        return datetime.datetime.strptime(date_str, '%Y-%m-%d')\n\n    # Calculate price difference between two dates for a specific dish\n    def price_diff(row):\n        start_date = convert_date(row['Date'])\n        end_date = convert_date(row['End Date'])\n        days = (end_date - start_date).days\n        return row['Price'] * days / 365\n\n    # Find dish with the lowest price difference\n    def find_lowest_price_difference():\n        min_diff = float('inf')\n        dish_name = None\n        for index, row in df.iterrows():\n            diff = price_diff(row)\n            if diff < min_diff:\n                min_diff = diff\n                dish_name = row['Name']\n        return dish_name\n\n    # Use find_lowest_price_difference function in regexr_transform()\n    regexr_transform('Name', 'jython:find_lowest_price_difference()')\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   cleaned_names = []\n   for value in column:\n       # Remove any special characters, spaces, or numbers from the beginning of the dish name\n       value = re.sub(r'[^\\w]+\\w|\\s+|^\\d', '', value)\n       # Convert all remaining words to lowercase and join them together\n       value = ' '.join(value.split())\n       cleaned_names.append(value)\n   # Find the unique dish names and their corresponding prices\n   unique_dishes, prices = np.unique(cleaned_names, return_inverse=True)\n   # Calculate the price difference for each dish\n   price_difference = np.diff(prices)\n   # Identify the dishes with the lowest price difference\n   lowest_price_difference_indices = np.argmin(np.abs(price_difference))\n   # Get the corresponding dish names and prices\n   lowest_price_difference_dishes = unique_dishes[lowest_price_difference_indices]\n   lowest_price_difference_prices = prices[lowest_price_difference_indices]\n   return lowest_price_difference_dishes, lowest_price_difference_prices\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   cleaned_names = []\n   for value in column:\n       # Remove any special characters, spaces, or numbers from the beginning of the dish name\n       value = re.sub(r'[^\\w]+\\w|\\s+|^\\d', '', value)\n       # Convert all remaining words to lowercase and join them together\n       value = ' '.join(value.split())\n       cleaned_names.append(value)\n   # Find the unique dish names and their corresponding prices\n   unique_dishes, prices = np.unique(cleaned_names, return_inverse=True)\n   # Calculate the price difference for each dish\n   price_difference = np.diff(prices)\n   # Identify the dishes with the lowest price difference\n   lowest_price_difference_indices = np.argmin(np.abs(price_difference))\n   # Get the corresponding dish names and prices\n   lowest_price_difference_dishes = unique_dishes[lowest_price_difference_indices]\n   lowest_price_difference_prices = prices[lowest_price_difference_indices]\n   return lowest_price_difference_dishes, lowest_price_difference_prices\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n   cleaned_names = []\n   for name in column:\n       # Remove any non-alphabetic characters and convert to lowercase\n       clean_name = re.sub(r'\\W+', '', name.lower())\n       if clean_name not in cleaned_names:\n           cleaned_names.append(clean_name)\n   return cleaned_names\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n   cleaned_names = []\n   for name in column:\n       # Remove any non-alphabetic characters and convert to lowercase\n       clean_name = re.sub(r'\\W+', '', name.lower())\n       if clean_name not in cleaned_names:\n           cleaned_names.append(clean_name)\n   return cleaned_names\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression value.toNumber()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "lowest_price",
+        "expression": "value.toNumber()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column lowest_price using expression value.toNumber()"
+    }
+]

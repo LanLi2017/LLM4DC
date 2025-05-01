@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalType",
+        "expression": "value.toUppercase()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalType using expression value.toUppercase()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "ZipCode",
+        "expression": "python\nimport pandas as pd\n\n# Assuming df is your DataFrame and it contains columns 'Hospital Type', 'Owner', 'ZipCode'\ndf = pd.DataFrame({\n    'Hospital Type': ['Hospital1', 'Hospital2', 'Hospital3'],\n    'Owner': ['Government', 'Private', 'Government'],\n    'ZipCode': [36801, 36033, 36330]\n})\n\n# Drop the ZipCode column from the DataFrame\ndf_filtered = df.drop('ZipCode', axis=1)\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column ZipCode using expression python\nimport pandas as pd\n\n# Assuming df is your DataFrame and it contains columns 'Hospital Type', 'Owner', 'ZipCode'\ndf = pd.DataFrame({\n    'Hospital Type': ['Hospital1', 'Hospital2', 'Hospital3'],\n    'Owner': ['Government', 'Private', 'Government'],\n    'ZipCode': [36801, 36033, 36330]\n})\n\n# Drop the ZipCode column from the DataFrame\ndf_filtered = df.drop('ZipCode', axis=1)\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n # Remove spaces, hyphens, underscores, and convert to lowercase\n cleaned_value = re.sub(r'\\s|-|_', '', value.lower())\n\n return cleaned_value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Remove spaces, hyphens, underscores, and convert to lowercase\n cleaned_value = re.sub(r'\\s|-|_', '', value.lower())\n\n return cleaned_value\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n# Standardize the spelling and formatting of the HospitalOwner column\nexpression = \"\"\"\\njython:\\nimport re\\n\\n# Remove extra spaces, hyphens, and uppercase the first letter of each word\\nvalue = re.sub(r'\\\\s+', ' ', value).strip().lower()\\nvalue = value.capitalize()\\n\\n# Replace non-standard abbreviations with standard ones\\nvalue = value.replace('voluntary non-profit', 'non-profit')\\nvalue = value.replace('proprietary', 'private for-profit')\\nvalue = value.replace('government - ', 'government')\\n\\n# Remove unnecessary punctuation and special characters\\nvalue = re.sub(r'[^\\w\\s]', '', value)\\n\\n# Return the standardized HospitalOwner value\\nreturn value\"\"\"\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n# Standardize the spelling and formatting of the HospitalOwner column\nexpression = \"\"\"\\njython:\\nimport re\\n\\n# Remove extra spaces, hyphens, and uppercase the first letter of each word\\nvalue = re.sub(r'\\\\s+', ' ', value).strip().lower()\\nvalue = value.capitalize()\\n\\n# Replace non-standard abbreviations with standard ones\\nvalue = value.replace('voluntary non-profit', 'non-profit')\\nvalue = value.replace('proprietary', 'private for-profit')\\nvalue = value.replace('government - ', 'government')\\n\\n# Remove unnecessary punctuation and special characters\\nvalue = re.sub(r'[^\\w\\s]', '', value)\\n\\n# Return the standardized HospitalOwner value\\nreturn value\"\"\"\nreturn value"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "HospitalOwner",
+        "expression": "jython:import re\n\n # Standardize the spelling and formatting of the HospitalOwner column\n def standardize_hospital_owner(value):\n     # Remove hyphens, underscores, spaces, and convert to lowercase\n     value = re.sub(r'[_- ]+', ' ', value).lower()\n\n     # Replace non-standard abbreviations with their standard counterparts\n     value = value.replace('gov', 'government')\n     value = value.replace('proprietary', 'private')\n     value = value.replace('voluntary non-profit - private', 'non-profit - private')\n     value = value.replace('voluntary non-profit - other', 'non-profit - other')\n     value = value.replace('government - hospital district or authority', 'government - hospital district')\n\n     return value\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column HospitalOwner using expression jython:import re\n\n # Standardize the spelling and formatting of the HospitalOwner column\n def standardize_hospital_owner(value):\n     # Remove hyphens, underscores, spaces, and convert to lowercase\n     value = re.sub(r'[_- ]+', ' ', value).lower()\n\n     # Replace non-standard abbreviations with their standard counterparts\n     value = value.replace('gov', 'government')\n     value = value.replace('proprietary', 'private')\n     value = value.replace('voluntary non-profit - private', 'non-profit - private')\n     value = value.replace('voluntary non-profit - other', 'non-profit - other')\n     value = value.replace('government - hospital district or authority', 'government - hospital district')\n\n     return value\nreturn value"
+    }
+]

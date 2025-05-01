@@ -1,0 +1,15 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Results",
+        "expression": "jython:import re\n\n # Step 1: Standardize the representation of businesses that are out of business\n def standardize_out_of_business(value):\n     if value.lower() in ['oob', 'out of business', '[out of business]']:\n         return 'Out Of Business'\n     else:\n         return value\n\n # Step 2: Count the number of businesses that are out of business\n def count_out_of_business(column):\n     return len([row for row in column if standardize_out_of_business(row) == 'Out Of Business'])\n\n # Apply the function to the Results column\n results = [standardize_out_of_business(row) for row in results]\n\n # Count the number of businesses that are out of business\n num_out_of_business = count_out_of_business(results)\n\n # Calculate the percentage of businesses that are out of business\n percent_out_of_business = (num_out_of_business / len(results)) * 100\n\n return f'{percent_out_of_business:.2f}%'\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column Results using expression jython:import re\n\n # Step 1: Standardize the representation of businesses that are out of business\n def standardize_out_of_business(value):\n     if value.lower() in ['oob', 'out of business', '[out of business]']:\n         return 'Out Of Business'\n     else:\n         return value\n\n # Step 2: Count the number of businesses that are out of business\n def count_out_of_business(column):\n     return len([row for row in column if standardize_out_of_business(row) == 'Out Of Business'])\n\n # Apply the function to the Results column\n results = [standardize_out_of_business(row) for row in results]\n\n # Count the number of businesses that are out of business\n num_out_of_business = count_out_of_business(results)\n\n # Calculate the percentage of businesses that are out of business\n percent_out_of_business = (num_out_of_business / len(results)) * 100\n\n return f'{percent_out_of_business:.2f}%'\nreturn value"
+    }
+]

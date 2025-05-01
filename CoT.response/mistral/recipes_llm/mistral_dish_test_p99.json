@@ -1,0 +1,28 @@
+[
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "highest_price",
+        "expression": "value.toDate()",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column highest_price using expression value.toDate()"
+    },
+    {
+        "op": "core/text-transform",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "name",
+        "expression": "jython:import re\n\n# Remove underscores, dashes, spaces, special characters except hyphens and commas, and convert to lowercase\ndef clean_name(name):\n    return re.sub(r'[_- ]+|[^a-zA-Z0-9,\\-\\s]', '', name).lower()\n\n# Assuming that the price is in the last column of the table, and we are looking for the highest priced dish\ndef find_most_expensive_dish(data):\n    cleaned_names = [clean_name(row[0]) for row in data]\n    max_price_index = max([data.index(row) for _, price, *_ in data if price != ''])  # assuming the price is in the last column\n    most_expensive_dish = cleaned_names[max_price_index]\n    return most_expensive_dish\n\n# Sample data (assuming it's a list of lists, where each sublist represents a row)\ndata = [\n    ['__H\u00d8NSEKOD,_ASPARGES,_CHAMPIGNONS,_AGURK_I_MAYONNAISE__', 'expensive1'],\n    ['__vintage_port_martinez_1963__', 'expensive2'],\n    ['__CILL_MANTAIN_PEAS__', 'expensive3'],\n    # ... add more rows here\n]\n\nmost_expensive_dish = find_most_expensive_dish(data)\nprint(f'The most expensive dish is: {most_expensive_dish}')\nreturn value",
+        "onError": "set-to-blank",
+        "repeat": false,
+        "repeatCount": 10,
+        "description": "Text transform on cells in column name using expression jython:import re\n\n# Remove underscores, dashes, spaces, special characters except hyphens and commas, and convert to lowercase\ndef clean_name(name):\n    return re.sub(r'[_- ]+|[^a-zA-Z0-9,\\-\\s]', '', name).lower()\n\n# Assuming that the price is in the last column of the table, and we are looking for the highest priced dish\ndef find_most_expensive_dish(data):\n    cleaned_names = [clean_name(row[0]) for row in data]\n    max_price_index = max([data.index(row) for _, price, *_ in data if price != ''])  # assuming the price is in the last column\n    most_expensive_dish = cleaned_names[max_price_index]\n    return most_expensive_dish\n\n# Sample data (assuming it's a list of lists, where each sublist represents a row)\ndata = [\n    ['__H\u00d8NSEKOD,_ASPARGES,_CHAMPIGNONS,_AGURK_I_MAYONNAISE__', 'expensive1'],\n    ['__vintage_port_martinez_1963__', 'expensive2'],\n    ['__CILL_MANTAIN_PEAS__', 'expensive3'],\n    # ... add more rows here\n]\n\nmost_expensive_dish = find_most_expensive_dish(data)\nprint(f'The most expensive dish is: {most_expensive_dish}')\nreturn value"
+    }
+]

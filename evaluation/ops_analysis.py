@@ -5,32 +5,35 @@ import pandas as pd
 # TODO: parse json to operation list from ground_truth and prediction workflow json files
 def parse_recipe(pp_id, recipe):
     res = []
-    with open(recipe, 'r')as recipe_f:
-        data = json.load(recipe_f)
-    
-    for op in data:
-        op_name = op['op']
-        if op_name=="core/text-transform":
-            exp = op['expression']
-            if exp=="value.trim()":
-                res.append("trim")
-            elif exp=="value.toUppercase()":
-                res.append("upper")
-            elif exp=="value.toNumber()":
-                res.append("numeric")
-            elif exp=="value.toDate()":
-                res.append("date")
-            elif exp.startswith("jython"):
-                res.append("regexr_transform")
-            elif exp=="value.toString()":
-                res.append("date")
+    try:
+        with open(recipe, 'r')as recipe_f:
+            data = json.load(recipe_f)
+        
+        for op in data:
+            op_name = op['op']
+            if op_name=="core/text-transform":
+                exp = op['expression']
+                if exp=="value.trim()":
+                    res.append("trim")
+                elif exp=="value.toUppercase()":
+                    res.append("upper")
+                elif exp=="value.toNumber()":
+                    res.append("numeric")
+                elif exp=="value.toDate()":
+                    res.append("date")
+                elif exp.startswith("jython"):
+                    res.append("regexr_transform")
+                elif exp=="value.toString()":
+                    res.append("date")
+                else:
+                    res.append("text_transform")
             else:
-                res.append("text_transform")
-        else:
-            op_name = op_name.split('/')[-1].replace('-', '_')
-            res.append(op_name)
-    return {pp_id: res}
-    
+                op_name = op_name.split('/')[-1].replace('-', '_')
+                res.append(op_name)
+        return {pp_id: res}
+    except Exception as e:
+        print(f"Error parsing recipe for {pp_id}: {e}")
+        return {pp_id: []}
 
 
 def calculate_operation_metrics(ground_truth, predictions):
